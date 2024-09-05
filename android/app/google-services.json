@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1061154392257",
+    "project_id": "greking-8e95f",
+    "storage_bucket": "greking-8e95f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1061154392257:android:eaba0b8f02aed76eef2c40",
+        "android_client_info": {
+          "package_name": "com.kshareplace.greking_frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCllgJKQWo4QiyFCbNPq50eI2XP4NwJ_KA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
