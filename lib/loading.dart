@@ -20,18 +20,6 @@ class LoadingScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 30.0),
-            const Text(
-              'Just a moment...',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 12,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w400,
-                height: 0.13,
-              ),
-            )
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'loading.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'map.dart';
@@ -12,6 +13,7 @@ import 'package:firebase_core/firebase_core.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Firebase 초기화
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
         name: 'greking',
@@ -37,7 +39,7 @@ class MyApp extends StatelessWidget {
         FocusManager.instance.primaryFocus?.unfocus();
       },
       child: MaterialApp(
-        title: 'keyboard unfocus',
+        title: 'Greking App',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
@@ -56,21 +58,49 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
-  final ExpansionTileController controller = ExpansionTileController();
-  bool is_tap = false;
-  bool isLoading = false;
+  bool isLoading = true;
+  bool isLoggedIn = false;
   final PageController _pageController = PageController(viewportFraction: 0.8);
 
   @override
   void initState() {
     super.initState();
+    _checkLoginStatus(); // 로그인 상태 확인
+  }
+
+  // 로그인 상태 확인 및 SharedPreferences에서 저장된 정보 불러오기
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? loginMethod = prefs.getString('loginMethod');
+    String? token = prefs.getString('token');
+
+    if (loginMethod != null && token != null) {
+      // 로그인 상태 유효성 확인 (서버 확인 필요시 추가 구현)
+      bool isValid = await _validateToken(token, loginMethod);
+      setState(() {
+        isLoggedIn = isValid;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoggedIn = false;
+        isLoading = false;
+      });
+    }
+  }
+
+  // 서버 또는 Firebase에 토큰 유효성 검사 (여기서는 예시로 true 반환)
+  Future<bool> _validateToken(String token, String loginMethod) async {
+    // 여기에서 Firebase 또는 서버에 유효성 검사 로직 추가 가능
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return LoadingScreen();
+      return LoadingScreen(); // 로딩 화면
     } else {
+      // 일단 메인페이지 이동
       return Scaffold(
         appBar: AppBar(
           leading: Row(
@@ -302,32 +332,41 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           currentIndex: 0,
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                break;
-              case 1:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Treking()),
-                );
-                break;
-              case 2:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyCourse()),
-                );
-                break;
-              case 3:
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => Shop()));
-                break;
-              case 4:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => My()),
-                );
-                break;
+          onTap: (index) async {
+            if ((index == 2) && !await _checkLoginBeforeNavigate()) {
+              // 로그인되지 않은 경우 로그인 페이지로 이동
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
+            } else {
+              // 네비게이션 인덱스에 따라 페이지 이동
+              switch (index) {
+                case 0:
+                  break;
+                case 1:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Treking()),
+                  );
+                  break;
+                case 2:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyCourse()),
+                  );
+                  break;
+                case 3:
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => Shop()));
+                  break;
+                case 4:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => My()),
+                  );
+                  break;
+              }
             }
           },
           items: <BottomNavigationBarItem>[
@@ -357,6 +396,25 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         ),
       );
     }
+  }
+
+  // 로그아웃 처리 및 SharedPreferences에서 데이터 삭제
+  Future<void> _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('loginMethod');
+    await prefs.remove('token');
+    setState(() {
+      isLoggedIn = false;
+    });
+  }
+
+  // 네비게이션 클릭 전에 로그인 상태 확인 함수
+  Future<bool> _checkLoginBeforeNavigate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? loginMethod = prefs.getString('loginMethod');
+    String? token = prefs.getString('token');
+
+    return (loginMethod != null && token != null);
   }
 }
 

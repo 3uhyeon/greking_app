@@ -3,12 +3,13 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart';
 import 'course_detail.dart';
 import 'shop.dart';
 import 'mypage.dart';
 import 'mycourse.dart';
+import 'login.dart';
 
 class AppConstants {
   static const String mapBoxAccessToken =
@@ -79,6 +80,15 @@ class _Treking extends State<Treking> {
       ],
     },
   ];
+
+  // 네비게이션 클릭 전에 로그인 상태 확인 함수
+  Future<bool> _checkLoginBeforeNavigate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? loginMethod = prefs.getString('loginMethod');
+    String? token = prefs.getString('token');
+
+    return (loginMethod != null && token != null);
+  }
 
   final TextEditingController _searchController = TextEditingController();
   final MapController _mapController = MapController();
@@ -450,34 +460,42 @@ class _Treking extends State<Treking> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: 1,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MainPage()),
-              );
-              break;
-            case 1:
-              break;
-            case 2:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MyCourse()),
-              );
-              break;
-            case 3:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Shop()),
-              );
-              break;
-            case 4:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => My()),
-              );
-              break;
+        onTap: (index) async {
+          if ((index == 2) && !await _checkLoginBeforeNavigate()) {
+            // 로그인되지 않은 경우 로그인 페이지로 이동
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LoginScreen()),
+            );
+          } else {
+            switch (index) {
+              case 0:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MainPage()),
+                );
+                break;
+              case 1:
+                break;
+              case 2:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyCourse()),
+                );
+                break;
+              case 3:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Shop()),
+                );
+                break;
+              case 4:
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => My()),
+                );
+                break;
+            }
           }
         },
         items: <BottomNavigationBarItem>[
