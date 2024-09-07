@@ -263,19 +263,18 @@ class _Treking extends State<Treking> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(20.0),
-                                  topRight: Radius.circular(20.0),
-                                  bottomLeft: Radius.circular(20.0),
-                                  bottomRight: Radius.circular(20.0),
-                                ),
-                                child: Image.network(
-                                  'https://via.placeholder.com/150',
-                                  fit: BoxFit.cover,
-                                  height: 80.0,
-                                  width: 250,
-                                ),
-                              ),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(20.0),
+                                    topRight: Radius.circular(20.0),
+                                    bottomLeft: Radius.circular(20.0),
+                                    bottomRight: Radius.circular(20.0),
+                                  ),
+                                  child: Image.asset(
+                                    'assets/image.png',
+                                    width: 200,
+                                    height: 100,
+                                    fit: BoxFit.fitWidth,
+                                  )),
                               SizedBox(height: 10.0),
                               Row(
                                 children: [

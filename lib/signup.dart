@@ -65,7 +65,8 @@ class _SignupState extends State<Signup> {
       ),
       resizeToAvoidBottomInset: false,
       backgroundColor: const Color(0xFFF4F6F7), // 배경색 설정
-      body: Padding(
+      body: SingleChildScrollView(
+        // SingleChildScrollView로 전체를 감쌈
         padding: const EdgeInsets.all(16.0), // 여백 설정
         child: Form(
           key: _formKey, // 폼 키 지정
@@ -397,9 +398,5 @@ class _SignupState extends State<Signup> {
         _errorText = "Please check your inputs.";
       });
     }
-  }
-
-  void _forgotPassword() {
-    // 비밀번호 찾기 버튼 클릭 시 실행할 코드 작성
   }
 }

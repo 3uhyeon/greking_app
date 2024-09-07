@@ -46,17 +46,7 @@ class _MyState extends State<My> {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Color(0XFF1DBE92),
-                  child: Text(
-                    'MJ',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                    ),
-                  ),
-                ),
+                SvgPicture.asset('assets/mypicture.svg', width: 52, height: 52),
                 const SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,14 +54,14 @@ class _MyState extends State<My> {
                     Text(
                       'Kim MinJune',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
                       '1234545@example.com',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,
                         color: Colors.grey,
                       ),
                     ),
@@ -89,7 +79,7 @@ class _MyState extends State<My> {
                     Text(
                       'Level 1',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Color(0XFF0D615C),
                       ),
@@ -97,7 +87,7 @@ class _MyState extends State<My> {
                     Text(
                       '  1000/6000',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,
                         color: Colors.grey,
                       ),
                     ),
@@ -126,10 +116,12 @@ class _MyState extends State<My> {
                   text: 'Rent reservation',
                   onTap: () {},
                 ),
+                SizedBox(height: 2),
                 buildMenuItem(
                   text: 'App version',
                   onTap: () {},
                 ),
+                SizedBox(height: 2),
                 buildMenuItem(
                   text: 'Notification',
                   onTap: () {},
@@ -144,10 +136,12 @@ class _MyState extends State<My> {
                     );
                   },
                 ),
+                SizedBox(height: 2),
                 buildMenuItem(
                   text: 'Location Information',
                   onTap: () {},
                 ),
+                SizedBox(height: 2),
                 buildMenuItem(
                   text: 'Privacy policy',
                   onTap: () {
@@ -237,6 +231,7 @@ class _MyState extends State<My> {
       height: 64,
       decoration: BoxDecoration(
         color: Color(0xFFECF0F2),
+        borderRadius: BorderRadius.circular(10),
       ),
       padding: const EdgeInsets.symmetric(
         vertical: 10,

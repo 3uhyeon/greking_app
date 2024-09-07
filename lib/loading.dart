@@ -14,20 +14,20 @@ class LoadingScreen extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(50.0),
               child: Container(
-                child: LoadingAnimationWidget.inkDrop(
-                  color: const Color(0xFF004F9E),
+                child: LoadingAnimationWidget.halfTriangleDot(
                   size: 70.0,
+                  color: Color(0xff1dbe92),
                 ),
               ),
             ),
             const SizedBox(height: 30.0),
             const Text(
-              '잠시만 기다려주세요...',
+              'Just a moment...',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 12,
-                fontFamily: 'Inter',
+                fontFamily: 'Pretendard',
                 fontWeight: FontWeight.w400,
                 height: 0.13,
               ),

@@ -84,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center, // 세로 방향으로 가운데 정렬
               crossAxisAlignment: CrossAxisAlignment.stretch, // 가로 방향으로 꽉 채움
               children: <Widget>[
-                SizedBox(height: 40.0), // 공간 추가
+                SizedBox(height: 30.0), // 공간 추가
                 Text(
                   'Welcome Please\nSign in', // 제목 텍스트
                   style: TextStyle(
@@ -187,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     _errorText,
                     style: TextStyle(color: const Color(0xFFFF74440)),
                   ),
-                SizedBox(height: 180.0),
+                SizedBox(height: 100.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

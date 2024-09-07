@@ -1,0 +1,4 @@
+<resources>
+    <!-- 원하는 배경색으로 설정 -->
+    <color name="splash_background">#FFFFFFFF</color>
+</resources>

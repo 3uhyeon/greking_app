@@ -5,6 +5,7 @@
 
     <item>
         <bitmap
+            android:color="@android:color/white"
             android:gravity="center"
             android:src="@mipmap/ic_launcher"
             android:tileMode="disabled"

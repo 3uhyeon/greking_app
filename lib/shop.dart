@@ -67,39 +67,42 @@ class _ShopState extends State<Shop> {
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CategoryButton(
-                  label: 'Hiking Clothes',
-                  isSelected: selectedIndex == 0,
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = 0;
-                    });
-                  },
-                ),
-                const SizedBox(width: 8),
-                CategoryButton(
-                  label: 'Hiking boots',
-                  isSelected: selectedIndex == 1,
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = 1;
-                    });
-                  },
-                ),
-                const SizedBox(width: 8),
-                CategoryButton(
-                  label: 'Hiking gear',
-                  isSelected: selectedIndex == 2,
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = 2;
-                    });
-                  },
-                ),
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CategoryButton(
+                    label: 'Hiking Outers',
+                    isSelected: selectedIndex == 0,
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = 0;
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  CategoryButton(
+                    label: 'Hiking boots',
+                    isSelected: selectedIndex == 1,
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = 1;
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  CategoryButton(
+                    label: 'Hiking gear',
+                    isSelected: selectedIndex == 2,
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = 2;
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
             Align(
@@ -230,7 +233,7 @@ class CategoryButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 35,
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.0),
         decoration: BoxDecoration(
           color: isSelected ? Color(0XFF1DBE92) : Colors.white,
           borderRadius: BorderRadius.circular(20.0),
@@ -343,169 +346,171 @@ class ProductDetailPage extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20.0),
-                child: Image.asset('assets/outer$index.png'),
-              ),
-            ),
-            const SizedBox(height: 100),
-            Text(
-              'Product Detail',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
-                color: Color(0XFF868c90),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0XFF0D615C),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              price,
-              style: TextStyle(
-                fontSize: 16,
-                color: Color(0XFF868C90),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              description,
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0XFF555A5C),
-              ),
-            ),
-            SizedBox(height: 30),
-            Text(
-              'Location',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              height: 143,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: FlutterMap(
-                options: MapOptions(
-                  initialZoom: 10,
-                  minZoom: 10,
-                  maxZoom: 12,
-                  initialCenter: LatLng(37.4602, 126.4407),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20.0),
+                  child: Image.asset('assets/outer$index.png'),
                 ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        "https://api.mapbox.com/styles/v1/suzzinova/cm054z5r000i201rbdvg243vw/tiles/256/{z}/{x}/{y}@2x?access_token=sk.eyJ1Ijoic3V6emlub3ZhIiwiYSI6ImNtMDUyOW54bzBiaDkya3NiNGdhbjVqeDgifQ.nvB1cGwKQEgxdlqGWe-hQw",
-                  ),
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: LatLng(37.4602, 126.4407),
-                        width: 80,
-                        height: 80,
-                        child: Icon(
-                          Icons.location_on,
-                          color: Colors.red,
-                          size: 40.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
               ),
-            ),
-            const SizedBox(height: 32),
-            Text('Caution',
+              const SizedBox(height: 100),
+              Text(
+                'Product Detail',
                 style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Pretendard')),
-            SizedBox(height: 14),
-            Text(
-              '# Please return the product by 6:00 PM on the day of rental. \n# If you do not return the product by the due date, you will be charged a late fee.\n# If the product is damaged, you will be charged a repair fee.',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF555A5C),
+                  fontSize: 12,
+                  fontWeight: FontWeight.normal,
+                  color: Color(0XFF868c90),
+                ),
               ),
-            ),
-            const SizedBox(height: 22),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  // "Currently out of stock" 알림 메시지 출력
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Container(),
-                        content: Container(
-                          width: 500,
-                          height: 30,
-                          child: Center(
-                            child: Text('Currently out of stock',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Text(
+                name,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0XFF0D615C),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                price,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0XFF868C90),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                description,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0XFF555A5C),
+                ),
+              ),
+              SizedBox(height: 30),
+              Text(
+                'Location',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 143,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: FlutterMap(
+                  options: MapOptions(
+                    initialZoom: 10,
+                    minZoom: 10,
+                    maxZoom: 12,
+                    initialCenter: LatLng(37.4602, 126.4407),
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          "https://api.mapbox.com/styles/v1/suzzinova/cm054z5r000i201rbdvg243vw/tiles/256/{z}/{x}/{y}@2x?access_token=sk.eyJ1Ijoic3V6emlub3ZhIiwiYSI6ImNtMDUyOW54bzBiaDkya3NiNGdhbjVqeDgifQ.nvB1cGwKQEgxdlqGWe-hQw",
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: LatLng(37.4602, 126.4407),
+                          width: 80,
+                          height: 80,
+                          child: Icon(
+                            Icons.location_on,
+                            color: Colors.red,
+                            size: 40.0,
                           ),
                         ),
-                        actions: [
-                          Center(
-                            child: TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text(
-                                'OK',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+              Text('Caution',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Pretendard')),
+              SizedBox(height: 14),
+              Text(
+                '# Please return the product by 6:00 PM on the day of rental. \n# If you do not return the product by the due date, you will be charged a late fee.\n# If the product is damaged, you will be charged a repair fee.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF555A5C),
+                ),
+              ),
+              const SizedBox(height: 22),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // "Currently out of stock" 알림 메시지 출력
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Container(),
+                          content: Container(
+                            width: 500,
+                            height: 30,
+                            child: Center(
+                              child: Text('Currently out of stock',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                          actions: [
+                            Center(
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  'OK',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0XFF1DBE92),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0XFF1DBE92),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
-                ),
-                child: Text(
-                  'Rent',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
+                  child: Text(
+                    'Rent',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -109,12 +109,12 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                     return Builder(
                       builder: (BuildContext context) {
                         return Container(
-                          width: MediaQuery.of(context).size.width * 0.9,
+                          width: MediaQuery.of(context).size.width * 1,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             image: DecorationImage(
                               image: AssetImage('assets/title$i.png'),
-                              fit: BoxFit.cover,
+                              fit: BoxFit.fitWidth,
                             ),
                           ),
                           child: Align(
@@ -234,7 +234,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
                 Stack(
                   children: [
                     InkWell(
@@ -253,7 +252,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
                 const Text(
                   '  Rental',
                   style: TextStyle(
@@ -273,7 +271,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 const Text(
                   '  Review',
                   style: TextStyle(
@@ -421,10 +419,10 @@ class ReviewItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.network(
-            'https://via.placeholder.com/100',
-            width: 50,
-            height: 50,
+          Image.asset(
+            'assets/image.png',
+            width: 80,
+            height: 80,
             fit: BoxFit.cover,
           ),
           const SizedBox(width: 8),

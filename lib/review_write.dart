@@ -83,7 +83,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                 return IconButton(
                   icon: Icon(
                     Icons.star,
-                    size: 32.0,
+                    size: 50.0,
                     color: index < _selectedStar
                         ? Color(0XFF1DBE92)
                         : Colors.grey[300],
@@ -151,7 +151,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                 ),
                 child: Text(
                   'Submit',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(color: Colors.white, fontSize: 17),
                 ),
               ),
             ),

@@ -240,7 +240,7 @@ class _TrackingPageState extends State<TrackingPage> {
                           minimumSize: Size(122, 44), // Change width and height
                         ),
                       ),
-                      SizedBox(width: 170.0),
+                      SizedBox(width: 100.0),
                       SvgPicture.asset('assets/sos.svg'),
                     ],
                   ),
@@ -287,7 +287,7 @@ class _TrackingPageState extends State<TrackingPage> {
 
   Widget _buildInfoCard(String label, String value) {
     return Container(
-      width: 168,
+      width: 148,
       padding: EdgeInsets.all(16.0),
       margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       decoration: BoxDecoration(

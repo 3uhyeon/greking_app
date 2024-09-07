@@ -16,7 +16,7 @@ class Privacy extends StatelessWidget {
           ),
           elevation: 8, // 그림자 높이 설정
           title: Text(
-            "Privacy Policy",
+            "Privacy Policy of Greking", // 제목 설정
             style: TextStyle(color: Colors.black), // 제목 텍스트 색상 설정
           ),
         ),
