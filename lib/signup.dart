@@ -1,15 +1,21 @@
-import 'dart:convert'; // JSON 인코딩을 위해 필요
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // HTTP 요청을 위해 추가
+import 'package:http/http.dart' as http;
 import 'package:my_app/loading.dart';
+import 'package:my_app/question.dart';
 import 'package:my_app/terms.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'privacy.dart';
+import 'main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'loading.dart';
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false, // 디버그 배너 제거
+      debugShowCheckedModeBanner: false,
       home: Signup(),
     );
   }
@@ -21,26 +27,40 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
-  String _errorText = ""; // 오류 메시지를 저장할 변수
-  bool isLoading = false; // 로딩 상태를 저장할 변수
-  final _formKey = GlobalKey<FormState>(); // 폼 키
+  String _errorText = "";
+  String _emailMessage = "";
+  String _passwordMessage = "";
+  String _passwordConfirmMessage = "";
+  String _nicknameMessage = "";
+
+  Color _emailMessageColor = Colors.red;
+  Color _passwordMessageColor = Colors.red;
+  Color _passwordConfirmMessageColor = Colors.red;
+  Color _nicknameMessageColor = Colors.black;
+
+  Color _errorMessageColor = Color(0xfff74440);
+  Color _successMessageColor = Color(0xff0d615c);
+
+  bool isLoading = false;
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _passwordConfirmController =
       TextEditingController();
   final TextEditingController _nicknameController = TextEditingController();
-  bool _obscureText = true; // 비밀번호 숨김 여부
-  bool _isCheckingNickname = false; // 닉네임 중복 확인 상태
-  bool _isNicknameValid = false; // 닉네임 유효성 여부
-  bool _isFormValid = false; // 폼의 유효성 상태
-  bool _isAgreed = false; // 약관 동의 여부
-  bool _isPrivacyAgreed = false; // 개인정보 처리방침 동의 여부
-  final String _emailPattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'; // 이메일 정규식
+  bool _obscureText = true;
+  bool _isNicknameValid = false;
+  bool _isFormValid = false;
+  bool _isAgreed = false;
+  bool _isPrivacyAgreed = false;
+  final String _emailPattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
 
-  // 폼의 모든 필드가 유효한지 확인하는 함수
   void _validateForm() {
     setState(() {
-      _isFormValid = _formKey.currentState!.validate() && _isNicknameValid;
+      _isFormValid = _formKey.currentState!.validate() &&
+          _isNicknameValid &&
+          _isAgreed &&
+          _isPrivacyAgreed;
     });
   }
 
@@ -52,16 +72,9 @@ class _SignupState extends State<Signup> {
       return Scaffold(
         appBar: AppBar(
           title: Container(),
-          backgroundColor: Colors.white.withOpacity(0.0), // 투명도 설정된 상단바 배경색
+          backgroundColor: Colors.white.withOpacity(0.0),
           bottomOpacity: 0.0,
           elevation: 0.0,
-          scrolledUnderElevation: 0,
-          shape: const Border(
-            bottom: BorderSide(
-              color: Colors.transparent,
-              width: 0.0,
-            ),
-          ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () {
@@ -69,303 +82,122 @@ class _SignupState extends State<Signup> {
             },
           ),
         ),
-
         resizeToAvoidBottomInset: true,
-        backgroundColor: const Color(0xFFF4F6F7), // 배경색 설정
+        backgroundColor: const Color(0xFFF4F6F7),
         body: SingleChildScrollView(
-          // SingleChildScrollView로 전체를 감쌈
-          padding: const EdgeInsets.all(16.0), // 여백 설정
+          padding: const EdgeInsets.all(16.0),
           child: Form(
-            key: _formKey, // 폼 키 지정
-            onChanged: _validateForm, // 폼의 상태가 변경될 때마다 유효성 검사
+            key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center, // 세로 방향으로 가운데 정렬
-              crossAxisAlignment: CrossAxisAlignment.stretch, // 가로 방향으로 꽉 채움
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                SizedBox(height: 40.0), // 공간 추가
+                SizedBox(height: 40.0),
                 Text(
-                  'Please create\nyour account', // 제목 텍스트
+                  'Please create\nyour account',
                   style: TextStyle(
                     fontSize: 24.0,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Pretendard',
                   ),
                 ),
-                SizedBox(height: 40.0), // 공간 추가
-                Text(
-                  'Email',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Pretendard',
-                  ),
-                ),
-                SizedBox(height: 8.0),
-                TextFormField(
+                SizedBox(height: 40.0),
+                _buildTextField(
                   controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Please enter your email',
-                    labelStyle: TextStyle(
-                      color: Colors.grey,
-                    ),
-                    hintText: '',
-                    filled: true,
-                    fillColor: const Color(0xFFECF0F2),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
+                  label: 'Email',
+                  onChanged: (value) {
                     final regex = RegExp(_emailPattern);
-                    if (!regex.hasMatch(value)) {
-                      return 'Please check your email format';
-                    }
-                    return null;
+                    setState(() {
+                      if (value.isEmpty || !regex.hasMatch(value)) {
+                        _emailMessage = 'Please check your email';
+                        _emailMessageColor = Color(0xfff74440);
+                      } else {
+                        _emailMessage = 'Email is valid';
+                        _emailMessageColor = _successMessageColor;
+                      }
+                    });
                   },
                 ),
-                SizedBox(height: 24.0),
+                SizedBox(height: 5.0),
                 Text(
-                  'Password',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Pretendard',
-                  ),
+                  _emailMessage,
+                  style: TextStyle(color: _emailMessageColor, fontSize: 12),
                 ),
-                SizedBox(height: 8.0),
-                TextFormField(
+                SizedBox(height: 24.0),
+                _buildTextField(
                   controller: _passwordController,
+                  label: 'Password',
                   obscureText: _obscureText,
-                  decoration: InputDecoration(
-                      labelText: 'Please enter your password',
-                      labelStyle: TextStyle(
-                        color: Colors.grey,
-                      ),
-                      hintText: '',
-                      filled: true,
-                      fillColor: const Color(0xFFECF0F2),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide.none,
-                      ),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureText
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureText = !_obscureText;
-                          });
-                        },
-                      )),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 8 || value.length > 16) {
-                      return 'Password must be 8-16 characters';
-                    }
-                    if (!RegExp(r'^(?=.*?[0-9])(?=.*?[!@#$%^&*()_\-+=]).*$')
-                        .hasMatch(value)) {
-                      return 'Password must contain a number and a special character';
-                    }
-                    return null;
+                  onChanged: (value) {
+                    setState(() {
+                      if (value.isEmpty) {
+                        _passwordMessage = 'Please check your password';
+                        _passwordMessageColor = Color(0xfff74440);
+                      } else if (value.length < 8 || value.length > 16) {
+                        _passwordMessage = 'Password must be 8-16 characters';
+                        _passwordMessageColor = Color(0xfff74440);
+                      } else if (!RegExp(
+                              r'^(?=.*?[0-9])(?=.*?[!@#$%^&*()_\-+=]).*$')
+                          .hasMatch(value)) {
+                        _passwordMessage =
+                            'Password must contain a number and a special character';
+                        _passwordMessageColor = Color(0xfff74440);
+                      } else {
+                        _passwordMessage = 'Password is valid';
+                        _passwordMessageColor = _successMessageColor;
+                      }
+                    });
                   },
                 ),
-                SizedBox(height: 24.0),
+                SizedBox(height: 5.0),
                 Text(
-                  'Confirm Password',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Pretendard',
-                  ),
+                  _passwordMessage,
+                  style: TextStyle(color: _passwordMessageColor, fontSize: 12),
                 ),
-                SizedBox(height: 8.0),
-                TextFormField(
+                SizedBox(height: 24.0),
+                _buildTextField(
                   controller: _passwordConfirmController,
+                  label: 'Confirm Password',
                   obscureText: _obscureText,
-                  decoration: InputDecoration(
-                    labelText: 'Please confirm your password',
-                    labelStyle: TextStyle(
-                      color: Colors.grey,
-                    ),
-                    hintText: '',
-                    filled: true,
-                    fillColor: const Color(0xFFECF0F2),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureText ? Icons.visibility_off : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
+                  onChanged: (value) {
+                    setState(() {
+                      if (value.isEmpty) {
+                        _passwordConfirmMessage =
+                            'Please check your password again';
+                        _passwordConfirmMessageColor = Color(0xfff74440);
+                      } else if (value != _passwordController.text) {
+                        _passwordConfirmMessage = 'Passwords do not match';
+                        _passwordConfirmMessageColor = Color(0xfff74440);
+                      } else {
+                        _passwordConfirmMessage = 'Successfully confirmed';
+                        _passwordConfirmMessageColor = _successMessageColor;
+                      }
+                    });
                   },
+                ),
+                SizedBox(height: 5.0),
+                Text(
+                  _passwordConfirmMessage,
+                  style: TextStyle(
+                      color: _passwordConfirmMessageColor, fontSize: 12),
                 ),
                 SizedBox(height: 24.0),
+                _buildNicknameField(),
+                SizedBox(height: 5.0),
                 Text(
-                  'Nickname',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Pretendard',
-                  ),
+                  _nicknameMessage,
+                  style: TextStyle(color: _nicknameMessageColor, fontSize: 12),
                 ),
-                SizedBox(height: 8.0),
-                TextFormField(
-                  controller: _nicknameController,
-                  decoration: InputDecoration(
-                    labelText: 'Please create your nickname',
-                    labelStyle: TextStyle(
-                      color: Colors.grey,
-                    ),
-                    hintText: '',
-                    filled: true,
-                    fillColor: const Color(0xFFECF0F2),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    suffixIcon: _isCheckingNickname
-                        ? LoadingScreen() // 중복 확인 중 로딩 아이콘
-                        : ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xff1dbe92),
-                            ),
-                            onPressed: _checkNickname, // 닉네임 중복 확인 함수 호출
-                            child: Text('Check ',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 10)),
-                          ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please create your nickname';
-                    }
-                    if (!_isNicknameValid) {
-                      return 'This nickname is already taken';
-                    } else {
-                      return 'This nickname is available';
-                    }
-                  },
-                ),
-                SizedBox(height: 10.0),
-                if (_errorText.isNotEmpty)
-                  Text(
-                    _errorText,
-                    style: TextStyle(color: const Color(0xFFFF74440)),
-                  ),
-                SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: _isAgreed,
-                      onChanged: (value) {
-                        setState(() {
-                          _isAgreed = value!;
-                        });
-                      },
-                      activeColor: Color(
-                          0xff1dbe92), // Set the background color of the checkbox when checked
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return Privacy();
-                        }));
-                      },
-                      child: Text(
-                        'Agree to Privacy Policy',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Pretendard',
-                          decoration: TextDecoration.underline,
-                          color: Colors.black,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        elevation: 0,
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ],
-                ),
-
-                Row(
-                  children: [
-                    Checkbox(
-                      value: _isPrivacyAgreed,
-                      onChanged: (value) {
-                        setState(() {
-                          _isPrivacyAgreed = value!;
-                        });
-                      },
-                      activeColor: Color(
-                          0xff1dbe92), // Set the background color of the checkbox when checked
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return TermsOfUse();
-                        }));
-                      },
-                      child: Text(
-                        'Agree to Terms of Use',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Pretendard',
-                          decoration: TextDecoration.underline,
-                          color: Colors.black,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        elevation: 0,
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ],
-                ),
+                SizedBox(height: 8),
+                _buildAgreements(),
                 SizedBox(height: 100.0),
                 ElevatedButton(
-                  onPressed: _isFormValid ? _signUp : null, // 유효할 때만 버튼 활성화
+                  onPressed: _isFormValid ? _signUp : null,
                   child: Text('Sign up',
                       style: TextStyle(color: Colors.white, fontSize: 20.0)),
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(352, 70),
-                    backgroundColor: _isFormValid
-                        ? const Color(0xFF1dbe92)
-                        : Colors.grey, // 유효하지 않으면 회색
+                    backgroundColor:
+                        _isFormValid ? const Color(0xFF1dbe92) : Colors.grey,
                     padding: EdgeInsets.symmetric(vertical: 15.0),
                     textStyle: TextStyle(
                       fontSize: 20.0,
@@ -383,79 +215,241 @@ class _SignupState extends State<Signup> {
     }
   }
 
-  // 닉네임 중복 확인 함수 (API 연동 필요)
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required void Function(String) onChanged,
+    bool obscureText = false,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.grey),
+        filled: true,
+        fillColor: const Color(0xFFECF0F2),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _buildNicknameField() {
+    return TextFormField(
+      controller: _nicknameController,
+      decoration: InputDecoration(
+        labelText: 'Please create your nickname',
+        labelStyle: TextStyle(color: Colors.grey),
+        filled: true,
+        fillColor: const Color(0xFFECF0F2),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide.none,
+        ),
+        suffixIcon: ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: Color(0xff1dbe92)),
+          onPressed: _checkNickname,
+          child: Text('Check',
+              style: TextStyle(color: Colors.white, fontSize: 12)),
+        ),
+      ),
+      onChanged: (value) {
+        if (value.isEmpty) {
+          setState(() {
+            _nicknameMessage = '';
+          });
+        }
+      },
+    );
+  }
+
+  Widget _buildAgreements() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Checkbox(
+              value: _isAgreed,
+              onChanged: (value) {
+                setState(() {
+                  _isAgreed = value!;
+                  _validateForm();
+                });
+              },
+              activeColor: Color(0xff1dbe92),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Privacy()));
+              },
+              child: Text(
+                'Agree to Privacy Policy',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Pretendard',
+                  decoration: TextDecoration.underline,
+                  color: Colors.black,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                padding: EdgeInsets.zero,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            Checkbox(
+              value: _isPrivacyAgreed,
+              onChanged: (value) {
+                setState(() {
+                  _isPrivacyAgreed = value!;
+                  _validateForm();
+                });
+              },
+              activeColor: Color(0xff1dbe92),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => TermsOfUse()));
+              },
+              child: Text(
+                'Agree to Terms of Use',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Pretendard',
+                  decoration: TextDecoration.underline,
+                  color: Colors.black,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                padding: EdgeInsets.zero,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Future<void> _checkNickname() async {
     setState(() {
-      _isCheckingNickname = true;
+      isLoading = true;
     });
 
-    // Call the API to validate the nickname
     var response = await http.get(
-      Uri.parse('http://localhost:8080/api/users/validate/UserNickname2'),
+      Uri.parse(
+          'http://172.16.101.77:8080/api/users/validate/${_nicknameController.text}'),
     );
 
     if (response.statusCode == 200) {
-      // Nickname is valid (not duplicate)
       setState(() {
-        _isCheckingNickname = false;
         _isNicknameValid = true;
-        _validateForm();
+        isLoading = false;
+        _nicknameMessage = "Nickname is available";
+        _nicknameMessageColor = Colors.green;
       });
     } else {
-      // Nickname is invalid (duplicate)
       setState(() {
-        _isCheckingNickname = false;
         _isNicknameValid = false;
-        _validateForm();
+        isLoading = false;
+        _nicknameMessage = "This nickname is already taken";
+        _nicknameMessageColor = Colors.red;
       });
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
-  // 회원가입 함수 (Spring Boot 서버 API 연동)
   Future<void> _signUp() async {
+    setState(() {
+      isLoading = true;
+    });
     if (_formKey.currentState!.validate() && _isAgreed && _isPrivacyAgreed) {
       try {
-        isLoading = true; // 로딩 상태로 변경
-        var response = await http.post(
-          Uri.parse('http://localhost:8080/api/users/register'), // API URL
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode({
-            "email": _emailController.text,
-            "password": _passwordController.text,
-            "nickname": _nicknameController.text,
-            "termsOfServiceAccepted": _isAgreed,
-            "privacyPolicyAccepted": _isPrivacyAgreed,
-            "grade": {
-              "level": 1,
-              "experience": 0,
-            }
-          }),
-        );
+        // Firebase로부터 UID 가져오기
+        FirebaseAuth auth = FirebaseAuth.instance;
 
-        if (response.statusCode == 200) {
-          isLoading = false; // 로딩 상태 해제
-          // 회원가입 성공 처리 (예: 메인 페이지로 이동)
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => MyApp()));
+        // UserCredential에서 user 객체를 가져와야 함
+        UserCredential userCredential =
+            await auth.createUserWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
+        print('set');
+        User? user = userCredential.user;
+        if (user != null) {
+          String uid = user.uid;
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('uid', uid); // UID를 SharedPreferences에 저장
+
+          // 서버로 UID 전송
+          var response = await http.post(
+            Uri.parse('http://172.16.101.77:8080/api/users/register'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode({
+              "email": _emailController.text,
+              "userid": uid, // 서버에 UID 전송
+              "password": _passwordController.text,
+              "nickname": _nicknameController.text,
+              "termsOfServiceAccepted": _isAgreed,
+              "privacyPolicyAccepted": _isPrivacyAgreed,
+              "grade": {
+                "level": 1,
+                "experience": 0,
+              }
+            }),
+          );
+
+          if (response.statusCode == 200) {
+            setState(() {
+              isLoading = false;
+            });
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => QuestionScreen(uid: uid)));
+          } else {
+            setState(() {
+              isLoading = false;
+              _errorText = "Failed to Sign up. Please try again.";
+            });
+          }
         } else {
           setState(() {
-            isLoading = false; // 로딩 상태 해제
-            _errorText = "Failed to Sign up. Please try again.";
+            isLoading = false;
+            _errorText = "No UID found. Please log in first.";
           });
         }
       } catch (e) {
         setState(() {
-          isLoading = false; // 로딩 상태 해제
+          isLoading = false;
           _errorText = "Error occurred. Please try again.";
         });
       }
     } else {
       setState(() {
-        _isAgreed = false;
+        isLoading = false;
         _errorText = "Please agree to the terms and privacy policy.";
       });
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 }

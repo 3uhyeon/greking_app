@@ -41,6 +41,122 @@ class _ShopState extends State<Shop> {
 
   int selectedIndex = 0;
 
+  // 섹션별 이미지 및 데이터
+  final List<List<Map<String, String>>> productData = [
+    [
+      {
+        'category': 'outer',
+        'image': 'assets/outer1.png',
+        'image-1': 'assets/outer1-1.png',
+        'name': 'OLA HYBRID',
+        'price': '1DAY \$3 ',
+        'description': 'Training set-up that can be worn up to winter'
+      },
+      {
+        'category': 'outer',
+        'image': 'assets/outer2.png',
+        'image-1': 'assets/outer2-1.png',
+        'name': 'SURROUND jacket',
+        'price': '1DAY \$3',
+        'description':
+            'Applying the exterior of the mechanical stretch with a natural touch'
+      },
+      {
+        'category': 'outer',
+        'image': 'assets/outer3.png',
+        'image-1': 'assets/outer3-1.png',
+        'name': 'ALP Professional Waterproofing',
+        'price': '1DAY \$3',
+        'description':
+            'It is light and fits well when professional hiking by applying C-KNIT BACKER made of Gore 3L material with excellent moisture permeability'
+      },
+      {
+        'category': 'outer',
+        'image': 'assets/outer4.png',
+        'image-1': 'assets/outer4-1.png',
+        'name': 'BLANC 2L jacket',
+        'price': '1DAY \$3',
+        'description':
+            'Applying the exterior of the mechanical stretch with a natural touch'
+      },
+    ],
+    [
+      {
+        'category': 'shoes',
+        'image': 'assets/shoes1.png',
+        'image-1': 'assets/shoes1-1.png',
+        'name': 'Beige E2',
+        'price': '1DAY \$3',
+        'description':
+            '[X FOAM and X GRIP reduce foot fatigue, provide excellent stability, and GORE-TEX basic tracking with leather sprit overlay]'
+      },
+      {
+        'category': 'shoes',
+        'image': 'assets/shoes2.png',
+        'image-1': 'assets/shoes2-1.png',
+        'name': 'Flyhike Sphere',
+        'price': '1DAY \$3',
+        'description':
+            'Upper injection to control the distortion of the foot is applied to control the foot stably'
+      },
+      {
+        'category': 'shoes',
+        'image': 'assets/shoes3.png',
+        'image-1': 'assets/shoes3-1.png',
+        'name': 'Flyhike Prime',
+        'price': '1DAY \$3',
+        'description':
+            'The upper is applied with air cushion molding that is light and has a good three-dimensional effect'
+      },
+      {
+        'category': 'shoes',
+        'image': 'assets/shoes4.png',
+        'image-1': 'assets/shoes4-1.png',
+        'name': 'Kante',
+        'price': '1DAY \$3',
+        'description': 'A style dedicated to the Amreung and Riji Mountain'
+      },
+    ],
+    [
+      {
+        'category': 'stick',
+        'image': 'assets/stick1.png',
+        'image-1': 'assets/stick1-1.png',
+        'name': 'Flash_Premium Carbon',
+        'price': '1DAY \$3',
+        'description':
+            'Excellent lightweight carbon 3-layer stick SET (including case)'
+      },
+      {
+        'category': 'stick',
+        'image': 'assets/stick2.png',
+        'image-1': 'assets/stick2-1.png',
+        'name': 'Carbon three-tiered stick',
+        'price': '1DAY \$3',
+        'description':
+            'Excellent lightweight carbon 3-layer stick SET (including case)'
+      },
+      {
+        'category': 'stick',
+        'image': 'assets/stick3.png',
+        'image-1': 'assets/stick3-1.png',
+        'name': 'T-grip 3-tier stick',
+        'price': '1DAY \$3',
+        'description':
+            'Duralumin T-grip 3-tier stick with double grip for light walking and trekking'
+      },
+      {
+        'category': 'stick',
+        'image': 'assets/stick4.png',
+        'image-1': 'assets/stick4-1.png',
+        'name': 'Carbon stick',
+        'price': '1DAY \$3',
+        'description':
+            'Carbon 4-layer stick set for women with excellent lightweight (including case)'
+      },
+    ],
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,7 +223,7 @@ class _ShopState extends State<Shop> {
                   ),
                   const SizedBox(width: 8),
                   CategoryButton(
-                    label: 'Hiking boots',
+                    label: 'Hiking shoes',
                     isSelected: selectedIndex == 1,
                     onTap: () {
                       setState(() {
@@ -117,7 +233,7 @@ class _ShopState extends State<Shop> {
                   ),
                   const SizedBox(width: 8),
                   CategoryButton(
-                    label: 'Hiking gear',
+                    label: 'Hiking sticks',
                     isSelected: selectedIndex == 2,
                     onTap: () {
                       setState(() {
@@ -132,7 +248,7 @@ class _ShopState extends State<Shop> {
             Align(
               alignment: Alignment.centerRight,
               child: Text(
-                '검색결과 (?)    ',
+                '검색결과 (${productData[selectedIndex].length})    ',
                 style: TextStyle(
                   color: Colors.grey,
                   fontSize: 12,
@@ -143,7 +259,7 @@ class _ShopState extends State<Shop> {
             const SizedBox(height: 16),
             Expanded(
               child: GridView.builder(
-                itemCount: 4,
+                itemCount: productData[selectedIndex].length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   childAspectRatio: 0.75,
@@ -151,22 +267,26 @@ class _ShopState extends State<Shop> {
                   mainAxisSpacing: 15.0,
                 ),
                 itemBuilder: (BuildContext context, int index) {
+                  final product = productData[selectedIndex][index];
                   return ProductItem(
                     index: (index + 1).toString(),
-                    name: 'Product Name',
-                    price: '\$1000',
-                    description:
-                        'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.',
+                    name: product['name']!,
+                    price: product['price']!,
+                    description: product['description']!,
+                    imagePath: product['image']!,
+                    category: product['category']!,
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ProductDetailPage(
                             index: (index + 1).toString(),
-                            name: 'Product Name',
-                            price: '\$1000',
-                            description:
-                                'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.',
+                            name: product['name']!,
+                            price: product['price']!,
+                            description: product['description']!,
+                            imagePath: product['image']!,
+                            imageDetailPath: product['image-1']!,
+                            category: product['category']!,
                           ),
                         ),
                       );
@@ -183,7 +303,6 @@ class _ShopState extends State<Shop> {
         currentIndex: 3,
         onTap: (index) async {
           if ((index == 2) && !await _checkLoginBeforeNavigate()) {
-            // 로그인되지 않은 경우 로그인 페이지로 이동
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -289,14 +408,18 @@ class ProductItem extends StatelessWidget {
   final String name;
   final String price;
   final String description;
+  final String imagePath;
   final VoidCallback onTap;
+  final String category;
 
   const ProductItem({
     required this.index,
     required this.name,
     required this.price,
     required this.description,
+    required this.imagePath,
     required this.onTap,
+    required this.category,
   });
 
   @override
@@ -320,12 +443,12 @@ class ProductItem extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
-                  child: Image.asset('assets/outer$index.png'),
+                  child: Image.asset(imagePath, fit: BoxFit.fitWidth),
                 ),
               ),
               const SizedBox(height: 8.0),
@@ -359,12 +482,18 @@ class ProductDetailPage extends StatelessWidget {
   final String name;
   final String price;
   final String description;
+  final String imagePath;
+  final String imageDetailPath;
+  final String category;
 
   const ProductDetailPage({
     required this.index,
     required this.name,
     required this.price,
     required this.description,
+    required this.imagePath,
+    required this.imageDetailPath,
+    required this.category,
   });
 
   @override
@@ -387,36 +516,44 @@ class ProductDetailPage extends StatelessWidget {
               Center(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
-                  child: Image.asset('assets/outer$index.png'),
+                  child: Image.asset(imagePath,
+                      fit: BoxFit.cover, width: 300, height: 350),
                 ),
               ),
-              const SizedBox(height: 100),
-              Text(
-                'Product Detail',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.normal,
-                  color: Color(0XFF868c90),
-                ),
+              const SizedBox(height: 50),
+              Row(
+                children: [
+                  Icon(Icons.hiking, color: Color(0XFF868c90), size: 16),
+                  SizedBox(width: 4),
+                  Text(
+                    'Hiking ' + category,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.normal,
+                      color: Color(0XFF868c90),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               Text(
                 name,
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Color(0XFF0D615C),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 20),
               Text(
-                price,
+                'Description',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Color(0XFF868C90),
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(
                 description,
                 style: TextStyle(
@@ -424,7 +561,62 @@ class ProductDetailPage extends StatelessWidget {
                   color: Color(0XFF555A5C),
                 ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 32),
+              Text('Detail Image',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black)),
+              const SizedBox(height: 10),
+              if (category.toLowerCase().contains("stick")) ...[
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20.0),
+                    child: Image.asset(imagePath,
+                        fit: BoxFit.cover, width: 300, height: 350),
+                  ),
+                ),
+              ] else ...[
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20.0),
+                    child: Image.asset(imageDetailPath,
+                        fit: BoxFit.cover, width: 300, height: 350),
+                  ),
+                ),
+              ],
+              if (category.toLowerCase().contains("stick") == false) ...[
+                Text(
+                  'Size',
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                if (category.toLowerCase().contains("stick") == false) ...[
+                  Table(
+                    border: TableBorder.all(),
+                    children: category.toLowerCase().contains("shoes")
+                        ? _buildShoesSizeTable()
+                        : _buildOuterSizeTable(),
+                  ),
+                ],
+                const SizedBox(height: 32),
+              ],
+              Text(
+                'Rental Price',
+                style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Table(
+                border: TableBorder.all(),
+                children: _buildRentalPriceTable(),
+              ),
+              const SizedBox(height: 32),
               Text(
                 'Location',
                 style: TextStyle(
@@ -433,7 +625,7 @@ class ProductDetailPage extends StatelessWidget {
                   color: Colors.black,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Container(
                 height: 143,
                 decoration: BoxDecoration(
@@ -488,7 +680,6 @@ class ProductDetailPage extends StatelessWidget {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {
-                    // "Currently out of stock" 알림 메시지 출력
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
@@ -544,6 +735,73 @@ class ProductDetailPage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Shoes 사이즈 표
+  List<TableRow> _buildShoesSizeTable() {
+    return [
+      TableRow(children: [
+        _buildTableCell('US 8'),
+        _buildTableCell('US 8.5'),
+        _buildTableCell('US 9'),
+        _buildTableCell('US 9.5'),
+        _buildTableCell('US 10'),
+      ]),
+      TableRow(children: [
+        _buildTableCell('US 11'),
+        _buildTableCell('US 11.5'),
+        _buildTableCell('US 12'),
+        _buildTableCell('US 12.5'),
+        _buildTableCell('US 13'),
+      ]),
+    ];
+  }
+
+  // Outer 사이즈 표
+  List<TableRow> _buildOuterSizeTable() {
+    return [
+      TableRow(children: [
+        _buildTableCell('S'),
+        _buildTableCell('M'),
+        _buildTableCell('L'),
+        _buildTableCell('XL'),
+        _buildTableCell('XXL'),
+      ]),
+    ];
+  }
+
+  // 렌탈 프라이스 표 (고정된 값으로 설정)
+  List<TableRow> _buildRentalPriceTable() {
+    return [
+      TableRow(children: [
+        _buildTableCell('1 day', isHeader: true),
+        _buildTableCell('3 days', isHeader: true),
+        _buildTableCell('5 days', isHeader: true),
+        _buildTableCell('10 days', isHeader: true),
+        _buildTableCell('15 days', isHeader: true),
+      ]),
+      TableRow(children: [
+        _buildTableCell('\$3'),
+        _buildTableCell('\$5'),
+        _buildTableCell('\$8'),
+        _buildTableCell('\$15'),
+        _buildTableCell('\$22'),
+      ]),
+    ];
+  }
+
+  // 표 셀을 만드는 메서드
+  Widget _buildTableCell(String text, {bool isHeader = false}) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
+        ),
+        textAlign: TextAlign.center,
       ),
     );
   }

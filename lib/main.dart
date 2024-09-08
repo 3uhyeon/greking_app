@@ -282,11 +282,19 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                     ),
                   ],
                 ),
-                const Text(
-                  '  Rental',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Shop()),
+                    );
+                  },
+                  child: const Text(
+                    '  Rental >',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -303,7 +311,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  '  Review',
+                  '  Review >',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -451,13 +459,13 @@ class RentalItem extends StatelessWidget {
       width: 124,
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: Colors.grey[300],
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Center(
         child: Image.asset(
           'assets/outer$index.png',
-          fit: BoxFit.cover,
+          fit: BoxFit.fitWidth,
         ),
       ),
     );
