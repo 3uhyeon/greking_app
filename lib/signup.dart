@@ -414,9 +414,6 @@ class _SignupState extends State<Signup> {
         _nicknameMessageColor = Colors.red;
       });
     }
-    setState(() {
-      isLoading = false;
-    });
   }
 
   Future<void> _signUp() async {
@@ -434,7 +431,7 @@ class _SignupState extends State<Signup> {
           email: _emailController.text,
           password: _passwordController.text,
         );
-        print('set');
+
         User? user = userCredential.user;
         if (user != null) {
           String uid = user.uid;

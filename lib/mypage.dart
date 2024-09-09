@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:my_app/location_info.dart';
 import 'package:my_app/privacy.dart';
 import 'package:my_app/terms.dart';
 import 'login.dart';
@@ -15,6 +16,7 @@ class _MyState extends State<My> {
   bool isLoggedIn = false;
   String? email;
   String? name;
+  bool _isChecked = false;
 
   @override
   void initState() {
@@ -26,6 +28,7 @@ class _MyState extends State<My> {
   Future<void> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
+
     String? token = prefs.getString('token');
     String? savedEmail = prefs.getString('email'); // 저장된 이메일
     String? savedName = prefs.getString('name'); // 저장된 사용자 이름
@@ -197,15 +200,89 @@ class _MyState extends State<My> {
               children: [
                 buildMenuItem(
                   text: 'Rent reservation',
-                  onTap: () {},
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Container(),
+                          content: Container(
+                            width: 500,
+                            height: 20,
+                            child: Center(
+                              child: Text('Contact us at exaple@com',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                          actions: [
+                            Center(
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  'OK',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
                 SizedBox(height: 2),
                 buildMenuItem(
                   text: 'App version',
-                  onTap: () {},
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Container(),
+                          content: Container(
+                            width: 500,
+                            height: 20,
+                            child: Center(
+                              child: Text('App version 2.0.0',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                          actions: [
+                            Center(
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  'OK',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
                 SizedBox(height: 2),
-                buildMenuItem(
+                buildNoticeItem(
                   text: 'Notification',
                   onTap: () {},
                 ),
@@ -238,7 +315,27 @@ class _MyState extends State<My> {
                 SizedBox(height: 2),
                 buildMenuItem(
                   text: 'Location Information',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            LocationInformation(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 나오게
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+
+                          return SlideTransition(
+                              position: offsetAnimation, child: child);
+                        },
+                      ),
+                    );
+                  },
                 ),
                 SizedBox(height: 2),
                 buildMenuItem(
@@ -303,6 +400,49 @@ class _MyState extends State<My> {
               Icons.arrow_forward_ios,
               color: Color(0xFF1D2228),
               size: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildNoticeItem({required String text, required VoidCallback onTap}) {
+    return Container(
+      width: double.infinity,
+      height: 64,
+      decoration: BoxDecoration(
+        color: Color(0xFFECF0F2),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      padding: const EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: 20,
+      ),
+      child: InkWell(
+        onTap: onTap,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              text,
+              style: TextStyle(
+                color: Color(0xFF1D2228),
+                fontSize: 16,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Switch(
+              value: _isChecked,
+              activeColor: Color(0xff1dbe92),
+              activeTrackColor: Color(0xff0d615c).withOpacity(1),
+              inactiveTrackColor: Colors.white,
+              onChanged: (value) {
+                setState(() {
+                  _isChecked = value;
+                });
+              },
             ),
           ],
         ),

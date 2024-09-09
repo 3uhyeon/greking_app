@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:my_app/question.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'loading.dart';
@@ -9,6 +10,7 @@ import 'mypage.dart';
 import 'mycourse.dart';
 import 'login.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'question.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,10 +86,12 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       bool isValid = await _validateToken(token, loginMethod);
       setState(() {
         isLoggedIn = isValid;
+        isLoading = false;
       });
     } else {
       setState(() {
         isLoggedIn = false;
+        isLoading = false;
       });
     }
   }
@@ -390,49 +394,34 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
             ),
             const SizedBox(height: 8),
             Container(
-              height: 328,
-              width: 400,
-              child: PageView.builder(
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  return Stack(
-                    children: [
-                      Positioned.fill(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            image: DecorationImage(
-                              image: AssetImage('assets/recom1.png'),
-                              fit: BoxFit.cover,
+                height: 328,
+                width: 400,
+                child: PageView.builder(
+                  itemCount: 3,
+                  controller: PageController(
+                      viewportFraction: 0.8), // 화면의 80%만 차지하고 다음 아이템이 보이도록 설정
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0), // 양쪽에 여백 추가
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                image: DecorationImage(
+                                  image: AssetImage('assets/recom1.png'),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                      Positioned(
-                        bottom: 16,
-                        left: 16,
-                        right: 16,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.all(8),
-                          child: const Text(
-                            'Mt. Seolark',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
+                    );
+                  },
+                )),
             const SizedBox(height: 16),
             const Text(
               '  Popular course',
@@ -462,11 +451,11 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               children: [
                 InkWell(
                   onTap: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //       builder: (context) => LoginScreen()),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => QuestionScreen(uid: '')),
+                    );
                   },
                   child: SvgPicture.asset(
                     'assets/banners.svg',

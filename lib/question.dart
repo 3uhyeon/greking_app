@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:my_app/main.dart';
+import 'package:lottie/lottie.dart';
 
 class QuestionScreen extends StatefulWidget {
   final String uid;
@@ -216,6 +217,7 @@ class CompletionScreen extends StatelessWidget {
                 'You have completed the survey.',
                 style: TextStyle(fontSize: 18.0, color: Colors.grey[600]),
               ),
+              Lottie.asset('assets/cong.json'),
               SizedBox(height: 40.0),
               ElevatedButton(
                 onPressed: () {

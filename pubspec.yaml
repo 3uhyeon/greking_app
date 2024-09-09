@@ -26,6 +26,7 @@ dependencies:
   flutter_signin_button : ^2.0.0
   loading_animation_widget : ^1.2.1
   flutter_native_splash : ^2.4.1
+  lottie : ^3.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
