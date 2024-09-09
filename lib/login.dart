@@ -6,6 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart'; // SharedPreference
 import 'package:http/http.dart' as http; // HTTP 요청을 위해 추가
 import 'signup.dart';
 import 'question.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'main.dart'; // 로그인 성공 후 메인 화면으로 이동하기 위해 추가
 
 class LoginScreen extends StatefulWidget {
@@ -14,6 +17,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   bool isLoading = false; // 로딩 상태를 저장할 변수
   String _errorText = ""; // 오류 메시지를 저장할 변수
   final _formKey = GlobalKey<FormState>(); // 폼 키
@@ -29,7 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         String email = _emailController.text;
         String password = _passwordController.text;
-        isLoading = true; // 로딩 상태 변경
+        setState(() {
+          isLoading = true; // 로딩 상태 변경
+        });
         // API 요청 보내기
         var response = await http.post(
           Uri.parse('http://localhost:8080/api/users/login'), // 서버 URL
@@ -45,7 +52,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (response.statusCode == 200) {
           var responseData = jsonDecode(response.body);
-          isLoading = false; // 로딩 상태 변경
+          setState(() {
+            isLoading = false; // 로딩 상태 변경
+          });
           // 로그인 성공 시 로그인 상태 저장
           await _saveLoginState('email', responseData['uid'], email, '');
 
@@ -65,9 +74,27 @@ class _LoginScreenState extends State<LoginScreen> {
       } catch (e) {
         setState(() {
           isLoading = false; // 로딩 상태 변경
-          _errorText = "error occurred. Please try again.";
+          _errorText = "Error occurred. Please try again.";
         });
       }
+    }
+  }
+
+  Future<UserCredential?> _signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser!.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      return await _auth.signInWithCredential(credential);
+    } catch (e) {
+      setState(() {
+        _errorText = "Google 로그인에 실패했습니다.";
+      });
+      return null;
     }
   }
 
@@ -85,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading == true) {
+    if (isLoading) {
       return LoadingScreen();
     } else {
       return Scaffold(
@@ -109,7 +136,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         backgroundColor: const Color(0xFFF4F6F7), // 배경색 설정
-
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0), // 여백 설정
@@ -239,11 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       TextButton(
                         onPressed: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //       builder: (context) => QuestionScreen()),
-                          // );
+                          // 비밀번호 찾기 로직 추가
                         },
                         child: Text('Find password',
                             style:
@@ -252,7 +274,30 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   SizedBox(height: 10.0),
-
+                  ElevatedButton(
+                    onPressed: () =>
+                        _signInWithGoogle(), // 구글 로그인 버튼 클릭 시 실행할 함수
+                    child: Row(
+                      children: [
+                        SizedBox(width: 20.0),
+                        SvgPicture.asset('assets/google.svg'),
+                        Text('            Sign In with Google',
+                            style:
+                                TextStyle(color: Colors.black, fontSize: 20.0)),
+                      ],
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 15.0),
+                      textStyle: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Pretendard',
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10.0),
                   ElevatedButton(
                     onPressed: _signInWithEmail, // 이메일/비밀번호 로그인 버튼
                     child: Text('Sign In',

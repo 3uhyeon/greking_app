@@ -12,8 +12,6 @@ import 'mycourse.dart';
 import 'login.dart';
 
 class AppConstants {
-  static const String mapBoxAccessToken =
-      'sk.eyJ1Ijoic3V6emlub3ZhIiwiYSI6ImNtMDUyOW54bzBiaDkya3NiNGdhbjVqeDgifQ.nvB1cGwKQEgxdlqGWe-hQw'; // 회원가입해야 받을 수 있음
   static const String mapBoxStyleId = 'suzzinova'; // 회원가입 시 제공되는 스타일 ID
 
   static final LatLng kangwondoCenter = LatLng(37.5550, 128.2098); // 강원도 중심 좌표
@@ -168,14 +166,14 @@ class _Treking extends State<Treking> {
             mapController: _mapController,
             options: MapOptions(
               maxZoom: 12,
-              minZoom: 10,
+              minZoom: 8,
               initialZoom: 10,
               initialCenter: LatLng(38.1195, 128.4656),
             ),
             children: [
               TileLayer(
                 urlTemplate:
-                    "https://api.mapbox.com/styles/v1/suzzinova/cm054z5r000i201rbdvg243vw/tiles/256/{z}/{x}/{y}@2x?access_token=${AppConstants.mapBoxAccessToken}",
+                    "https://api.mapbox.com/styles/v1/suzzinova/cm0e0akh400xh01ps9yvn19ek/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1Ijoic3V6emlub3ZhIiwiYSI6ImNtMDFvYW5jZjA0djUycnEzYTQ3ZnYwZ2MifQ._fiK5XHOO8_j1uFBrfK__g",
               ),
               MarkerLayer(
                 markers: mountainData.map((mountain) {
@@ -456,72 +454,6 @@ class _Treking extends State<Treking> {
               ),
             ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 1,
-        onTap: (index) async {
-          if ((index == 2) && !await _checkLoginBeforeNavigate()) {
-            // 로그인되지 않은 경우 로그인 페이지로 이동
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => LoginScreen()),
-            );
-          } else {
-            switch (index) {
-              case 0:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainPage()),
-                );
-                break;
-              case 1:
-                break;
-              case 2:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyCourse()),
-                );
-                break;
-              case 3:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Shop()),
-                );
-                break;
-              case 4:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => My()),
-                );
-                break;
-            }
-          }
-        },
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_home_off.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_second_on.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_third_off.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_four_off.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_five_off.svg'),
-            label: '',
-          ),
-        ],
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
       ),
     );
   }

@@ -56,24 +56,6 @@ class _MyCourseState extends State<MyCourse>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: Row(
-          children: [
-            SizedBox(width: 16.0),
-            Text(
-              '  My Course',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        leadingWidth: 200,
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.black,
@@ -103,64 +85,6 @@ class _MyCourseState extends State<MyCourse>
           buildHikingList(),
           buildHikingList(isCompleted: true),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 2,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MainPage()),
-              );
-              break;
-            case 1:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Treking()),
-              );
-              break;
-            case 2:
-              break;
-            case 3:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Shop()),
-              );
-              break;
-            case 4:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => My()),
-              );
-              break;
-          }
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_home_off.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_second_off.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_third_on.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_four_off.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_five_off.svg'),
-            label: '',
-          ),
-        ],
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
       ),
     );
   }

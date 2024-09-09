@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'loading.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'loading.dart';
 import 'map.dart';
 import 'shop.dart';
 import 'mypage.dart';
@@ -60,7 +60,9 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   bool isLoading = true;
   bool isLoggedIn = false;
-  final PageController _pageController = PageController(viewportFraction: 0.8);
+  final PageController _pageController = PageController(); // PageController 추가
+  final PageController _pageController2 = PageController(); // PageController 추가
+  int _currentIndex = 0; // 현재 바텀 네비게이션의 인덱스
 
   @override
   void initState() {
@@ -70,6 +72,9 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
 
   // 로그인 상태 확인 및 SharedPreferences에서 저장된 정보 불러오기
   Future<void> _checkLoginStatus() async {
+    setState(() {
+      isLoading = true;
+    });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
     String? token = prefs.getString('token');
@@ -95,21 +100,71 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     return true;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (isLoading) {
-      return LoadingScreen(); // 로딩 화면
+  void _onPageChanged(int index) async {
+    if (index == 2 && !await _checkLoginBeforeNavigate()) {
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              LoginScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(0.0, 1.0); // 아래에서 위로 올라오게
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+
+            return SlideTransition(position: offsetAnimation, child: child);
+          },
+        ),
+      ).then((_) {
+        _pageController.jumpToPage(0); // 뒤로가기 시 홈 화면으로 이동
+      });
     } else {
-      // 일단 메인페이지 이동
-      return Scaffold(
-        appBar: AppBar(
+      setState(() {
+        _currentIndex = index;
+      });
+    }
+  }
+
+  // 바텀 네비게이션 클릭 시 호출되는 함수
+  Future<void> _onItemTapped(int index) async {
+    if (index == 2 && !await _checkLoginBeforeNavigate()) {
+      // 로그인되지 않은 경우 LoginScreen으로 Hero 애니메이션과 함께 이동
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(),
+        ),
+      );
+    } else {
+      _pageController.jumpToPage(index); // PageView로 페이지 이동
+    }
+  }
+
+  Future<bool> _checkLoginBeforeNavigate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? loginMethod = prefs.getString('loginMethod');
+    String? token = prefs.getString('token');
+    return (loginMethod != null && token != null);
+  }
+
+  // 각 페이지마다 다른 AppBar 설정
+  PreferredSizeWidget _buildAppBar() {
+    switch (_currentIndex) {
+      case 0:
+        return AppBar(
+          leadingWidth: 200,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           leading: Row(
-            children: const [
+            children: [
               SizedBox(width: 16.0),
               Text(
                 '  Greking',
                 style: TextStyle(
-                  color: Color(0XFF0D615C),
+                  color: Color(0xff1DBE92),
                   fontSize: 24,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.bold,
@@ -117,285 +172,143 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               ),
             ],
           ),
+        );
+      case 1:
+        return AppBar(
           leadingWidth: 200,
           backgroundColor: Colors.transparent,
-          foregroundColor: Colors.black,
-          bottomOpacity: 0.0,
-          elevation: 0.0,
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CarouselSlider(
-                  options: CarouselOptions(
-                    height: 100,
-                    enlargeCenterPage: true,
-                    autoPlay: true,
-                  ),
-                  items: [1, 2, 3, 4].map((i) {
-                    return Builder(
-                      builder: (BuildContext context) {
-                        return Container(
-                          width: MediaQuery.of(context).size.width * 1,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            image: DecorationImage(
-                              image: AssetImage('assets/title$i.png'),
-                              fit: BoxFit.fitWidth,
-                            ),
-                          ),
-                          child: Align(
-                            alignment: Alignment.bottomRight,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                color: Colors.black.withOpacity(0.5),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Text(
-                                    '$i/6',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }).toList(),
+          elevation: 0,
+          leading: Row(
+            children: [
+              SizedBox(width: 16.0),
+              Text(
+                '  Map',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 24,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  '  Recommend course',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  height: 328,
-                  width: 400,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: 3,
-                    itemBuilder: (context, index) {
-                      return AnimatedBuilder(
-                        animation: _pageController,
-                        builder: (context, child) {
-                          double value = 1.0;
-                          if (_pageController.position.haveDimensions) {
-                            value = _pageController.page! - index;
-                            value = (1 - (value.abs() * 0.25)).clamp(0.0, 1.0);
-                          }
-                          return Transform.scale(
-                            scale: Curves.easeInOut.transform(value),
-                            child: Opacity(
-                              opacity: value,
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: Stack(
-                          children: [
-                            Positioned.fill(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  image: DecorationImage(
-                                    image: AssetImage('assets/recom1.png'),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 16,
-                              left: 16,
-                              right: 16,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.5),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding: const EdgeInsets.all(8),
-                                child: const Text(
-                                  'Mt. Seolark',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  '  Popular course',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: Container(
-                    height: 300,
-                    width: 420,
-                    child: ListView(
-                      scrollDirection: Axis.vertical,
-                      children: [
-                        PopularCourseItem(index: 1),
-                        const SizedBox(height: 12),
-                        PopularCourseItem(index: 2),
-                        const SizedBox(height: 12),
-                        PopularCourseItem(index: 3),
-                      ],
-                    ),
-                  ),
-                ),
-                Stack(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => LoginScreen()),
-                        );
-                      },
-                      child: SvgPicture.asset(
-                        'assets/banners.svg',
-                        width: double.infinity,
-                        height: 200, // Set an appropriate height
-                      ),
-                    ),
-                  ],
-                ),
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Shop()),
-                    );
-                  },
-                  child: const Text(
-                    '  Rental >',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  height: 122,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: const [
-                      RentalItem(index: '1'),
-                      RentalItem(index: '2'),
-                      RentalItem(index: '3'),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  '  Review >',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const ReviewItem(),
-                const SizedBox(height: 50),
-                Center(
-                  child: TextButton(
-                    onPressed: () => {},
-                    child: const Text(
-                      ' ',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                        fontFamily: 'Pretendard',
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
+        );
+      case 2:
+        return AppBar(
+          leadingWidth: 200,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: Row(
+            children: [
+              SizedBox(width: 16.0),
+              Text(
+                '  My Course',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 24,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      case 3:
+        return AppBar(
+          leadingWidth: 200,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: Row(
+            children: [
+              SizedBox(width: 16.0),
+              Text(
+                '  Rental Service',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 24,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      case 4:
+        return AppBar(
+          leadingWidth: 200,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: Row(
+            children: [
+              SizedBox(width: 16.0),
+              Text(
+                '  MyPage',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 24,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      default:
+        return AppBar();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return LoadingScreen(); // 로딩 화면
+    } else {
+      return Scaffold(
+        appBar: _buildAppBar(), // 각 페이지에 맞는 AppBar
+        body: PageView(
+          controller: _pageController,
+          onPageChanged: _onPageChanged,
+          children: [
+            _buildHomePage(),
+            Treking(),
+            MyCourse(),
+            Shop(),
+            My(),
+          ],
         ),
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
-          currentIndex: 0,
-          onTap: (index) async {
-            if ((index == 2) && !await _checkLoginBeforeNavigate()) {
-              // 로그인되지 않은 경우 로그인 페이지로 이동
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => LoginScreen()),
-              );
-            } else {
-              // 네비게이션 인덱스에 따라 페이지 이동
-              switch (index) {
-                case 0:
-                  break;
-                case 1:
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Treking()),
-                  );
-                  break;
-                case 2:
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MyCourse()),
-                  );
-                  break;
-                case 3:
-                  Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => Shop()));
-                  break;
-                case 4:
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => My()),
-                  );
-                  break;
-              }
-            }
-          },
+          currentIndex: _currentIndex,
+          onTap: _onItemTapped,
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: SvgPicture.asset('assets/navi_home_on.svg'),
+              icon: SvgPicture.asset(_currentIndex == 0
+                  ? 'assets/navi_home_on.svg'
+                  : 'assets/navi_home_off.svg'),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: SvgPicture.asset('assets/navi_second_off.svg'),
+              icon: SvgPicture.asset(_currentIndex == 1
+                  ? 'assets/navi_second_on.svg'
+                  : 'assets/navi_second_off.svg'),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: SvgPicture.asset('assets/navi_third_off.svg'),
+              icon: SvgPicture.asset(_currentIndex == 2
+                  ? 'assets/navi_third_on.svg'
+                  : 'assets/navi_third_off.svg'),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: SvgPicture.asset('assets/navi_four_off.svg'),
+              icon: SvgPicture.asset(_currentIndex == 3
+                  ? 'assets/navi_four_on.svg'
+                  : 'assets/navi_four_off.svg'),
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: SvgPicture.asset('assets/navi_five_off.svg'),
+              icon: SvgPicture.asset(_currentIndex == 4
+                  ? 'assets/navi_five_on.svg'
+                  : 'assets/navi_five_off.svg'),
               label: '',
             ),
           ],
@@ -406,23 +319,206 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     }
   }
 
-  // 로그아웃 처리 및 SharedPreferences에서 데이터 삭제
-  Future<void> _logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('loginMethod');
-    await prefs.remove('token');
-    setState(() {
-      isLoggedIn = false;
-    });
-  }
-
-  // 네비게이션 클릭 전에 로그인 상태 확인 함수
-  Future<bool> _checkLoginBeforeNavigate() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? loginMethod = prefs.getString('loginMethod');
-    String? token = prefs.getString('token');
-
-    return (loginMethod != null && token != null);
+  Widget _buildHomePage() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 100,
+                enlargeCenterPage: true,
+                autoPlay: true,
+              ),
+              items: [1, 2, 3, 4].map((i) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width * 1,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        image: DecorationImage(
+                          image: AssetImage('assets/title$i.png'),
+                          fit: BoxFit.fitWidth,
+                        ),
+                      ),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12.0, horizontal: 10.0),
+                          child: Container(
+                            height: 22,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: Colors.black.withOpacity(0.5),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Text(
+                                '$i/4',
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 12),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '  Recommend course',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              height: 328,
+              width: 400,
+              child: PageView.builder(
+                itemCount: 3,
+                itemBuilder: (context, index) {
+                  return Stack(
+                    children: [
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            image: DecorationImage(
+                              image: AssetImage('assets/recom1.png'),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 16,
+                        left: 16,
+                        right: 16,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: const Text(
+                            'Mt. Seolark',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '  Popular course',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: Container(
+                height: 300,
+                width: 420,
+                child: ListView(
+                  scrollDirection: Axis.vertical,
+                  children: [
+                    PopularCourseItem(index: 1),
+                    const SizedBox(height: 12),
+                    PopularCourseItem(index: 2),
+                    const SizedBox(height: 12),
+                    PopularCourseItem(index: 3),
+                  ],
+                ),
+              ),
+            ),
+            Stack(
+              children: [
+                InkWell(
+                  onTap: () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //       builder: (context) => LoginScreen()),
+                    // );
+                  },
+                  child: SvgPicture.asset(
+                    'assets/banners.svg',
+                    width: double.infinity,
+                    height: 200, // Set an appropriate height
+                  ),
+                ),
+              ],
+            ),
+            InkWell(
+              onTap: () {
+                _onItemTapped(3);
+              },
+              child: const Text(
+                '  Rental >',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              height: 122,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: const [
+                  RentalItem(index: '1'),
+                  RentalItem(index: '2'),
+                  RentalItem(index: '3'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              '  Review >',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const ReviewItem(),
+            const SizedBox(height: 50),
+            Center(
+              child: TextButton(
+                onPressed: () => {},
+                child: const Text(
+                  ' ',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                    fontFamily: 'Pretendard',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

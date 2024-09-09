@@ -61,26 +61,6 @@ class _MyState extends State<My> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: Row(
-          children: [
-            SizedBox(width: 16.0),
-            Text(
-              '  MyPage',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        leadingWidth: 200,
-        elevation: 0,
-        centerTitle: true,
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -245,73 +225,6 @@ class _MyState extends State<My> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 4,
-        onTap: (index) async {
-          if ((index == 2) && !await _checkLoginBeforeNavigate()) {
-            // 로그인되지 않은 경우 로그인 페이지로 이동
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => LoginScreen()),
-            );
-          } else {
-            switch (index) {
-              case 0:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainPage()),
-                );
-                break;
-              case 1:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Treking()),
-                );
-                break;
-              case 2:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyCourse()),
-                );
-                break;
-              case 3:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Shop()),
-                );
-                break;
-              case 4:
-                // Current page
-                break;
-            }
-          }
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_home_off.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_second_off.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_third_off.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_four_off.svg'),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset('assets/navi_five_on.svg'),
-            label: '',
-          ),
-        ],
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
       ),
     );
   }
