@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'main.dart';
-import 'map.dart';
-import 'shop.dart';
-import 'mypage.dart';
 import 'review_write.dart';
-import 'shop.dart';
 import 'gpx_treking.dart';
-import 'review_write.dart';
 
 void main() {
   runApp(const MyApp());

@@ -58,7 +58,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
-  bool isLoading = true;
+  bool isLoading = false;
   bool isLoggedIn = false;
   final PageController _pageController = PageController(); // PageController 추가
   final PageController _pageController2 = PageController(); // PageController 추가
@@ -84,12 +84,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       bool isValid = await _validateToken(token, loginMethod);
       setState(() {
         isLoggedIn = isValid;
-        isLoading = false;
       });
     } else {
       setState(() {
         isLoggedIn = false;
-        isLoading = false;
       });
     }
   }
@@ -134,8 +132,19 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       // 로그인되지 않은 경우 LoginScreen으로 Hero 애니메이션과 함께 이동
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => LoginScreen(),
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              LoginScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(0.0, 1.0); // 아래에서 위로 올라오게
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+
+            return SlideTransition(position: offsetAnimation, child: child);
+          },
         ),
       );
     } else {
@@ -176,7 +185,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       case 1:
         return AppBar(
           leadingWidth: 200,
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.white.withOpacity(0.0),
           elevation: 0,
           leading: Row(
             children: [
@@ -196,7 +205,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       case 2:
         return AppBar(
           leadingWidth: 200,
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.white.withOpacity(0.0),
           elevation: 0,
           leading: Row(
             children: [

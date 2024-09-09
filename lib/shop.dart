@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'map.dart';
-import 'main.dart';
-import 'mypage.dart';
-import 'mycourse.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'login.dart';
 
 class Shop extends StatefulWidget {
   const Shop({super.key});
@@ -364,7 +358,10 @@ class ProductItem extends StatelessWidget {
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
-                  child: Image.asset(imagePath, fit: BoxFit.fitWidth),
+                  child: Hero(
+                    tag: 'product_$index', // 각 상품마다 고유한 태그 설정
+                    child: Image.asset(imagePath, fit: BoxFit.fitWidth),
+                  ),
                 ),
               ),
               const SizedBox(height: 8.0),
@@ -432,8 +429,11 @@ class ProductDetailPage extends StatelessWidget {
               Center(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
-                  child: Image.asset(imagePath,
-                      fit: BoxFit.cover, width: 300, height: 350),
+                  child: Hero(
+                    tag: 'product_$index', // 상품 리스트와 같은 tag 사용
+                    child: Image.asset(imagePath,
+                        fit: BoxFit.cover, width: 300, height: 350),
+                  ),
                 ),
               ),
               const SizedBox(height: 50),
@@ -603,7 +603,7 @@ class ProductDetailPage extends StatelessWidget {
                           title: Container(),
                           content: Container(
                             width: 500,
-                            height: 30,
+                            height: 20,
                             child: Center(
                               child: Text('Currently out of stock',
                                   style: TextStyle(

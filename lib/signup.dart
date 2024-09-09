@@ -1,15 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:my_app/loading.dart';
 import 'package:my_app/question.dart';
 import 'package:my_app/terms.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'privacy.dart';
-import 'main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'loading.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -108,19 +106,30 @@ class _SignupState extends State<Signup> {
                     final regex = RegExp(_emailPattern);
                     setState(() {
                       if (value.isEmpty || !regex.hasMatch(value)) {
-                        _emailMessage = 'Please check your email';
+                        _emailMessage = '    Please check your email';
                         _emailMessageColor = Color(0xfff74440);
                       } else {
-                        _emailMessage = 'Email is valid';
+                        _emailMessage = '    Email is valid';
                         _emailMessageColor = _successMessageColor;
                       }
                     });
                   },
                 ),
                 SizedBox(height: 5.0),
-                Text(
-                  _emailMessage,
-                  style: TextStyle(color: _emailMessageColor, fontSize: 12),
+                Row(
+                  children: [
+                    SizedBox(width: 8.0),
+                    if (_emailMessageColor == _successMessageColor)
+                      SvgPicture.asset('assets/check_circle.svg',
+                          width: 16, height: 16),
+                    if (_emailMessageColor == Color(0xfff74440))
+                      SvgPicture.asset('assets/check_circle2.svg',
+                          width: 16, height: 16),
+                    Text(
+                      _emailMessage,
+                      style: TextStyle(color: _emailMessageColor, fontSize: 12),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 24.0),
                 _buildTextField(
@@ -130,28 +139,41 @@ class _SignupState extends State<Signup> {
                   onChanged: (value) {
                     setState(() {
                       if (value.isEmpty) {
-                        _passwordMessage = 'Please check your password';
+                        _passwordMessage = '    Please check your password';
                         _passwordMessageColor = Color(0xfff74440);
                       } else if (value.length < 8 || value.length > 16) {
-                        _passwordMessage = 'Password must be 8-16 characters';
+                        _passwordMessage =
+                            '    Password must be 8-16 characters';
                         _passwordMessageColor = Color(0xfff74440);
                       } else if (!RegExp(
                               r'^(?=.*?[0-9])(?=.*?[!@#$%^&*()_\-+=]).*$')
                           .hasMatch(value)) {
                         _passwordMessage =
-                            'Password must contain a number and a special character';
+                            '    Password must contain a number, special character';
                         _passwordMessageColor = Color(0xfff74440);
                       } else {
-                        _passwordMessage = 'Password is valid';
+                        _passwordMessage = '    Password is valid';
                         _passwordMessageColor = _successMessageColor;
                       }
                     });
                   },
                 ),
                 SizedBox(height: 5.0),
-                Text(
-                  _passwordMessage,
-                  style: TextStyle(color: _passwordMessageColor, fontSize: 12),
+                Row(
+                  children: [
+                    SizedBox(width: 8.0),
+                    if (_passwordMessageColor == _successMessageColor)
+                      SvgPicture.asset('assets/check_circle.svg',
+                          width: 16, height: 16),
+                    if (_passwordMessageColor == Color(0xfff74440))
+                      SvgPicture.asset('assets/check_circle2.svg',
+                          width: 16, height: 16),
+                    Text(
+                      _passwordMessage,
+                      style:
+                          TextStyle(color: _passwordMessageColor, fontSize: 12),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 24.0),
                 _buildTextField(
@@ -162,30 +184,53 @@ class _SignupState extends State<Signup> {
                     setState(() {
                       if (value.isEmpty) {
                         _passwordConfirmMessage =
-                            'Please check your password again';
+                            '    Please check your password again';
                         _passwordConfirmMessageColor = Color(0xfff74440);
                       } else if (value != _passwordController.text) {
-                        _passwordConfirmMessage = 'Passwords do not match';
+                        _passwordConfirmMessage = '    Passwords do not match';
                         _passwordConfirmMessageColor = Color(0xfff74440);
                       } else {
-                        _passwordConfirmMessage = 'Successfully confirmed';
+                        _passwordConfirmMessage = '    Successfully confirmed';
                         _passwordConfirmMessageColor = _successMessageColor;
                       }
                     });
                   },
                 ),
                 SizedBox(height: 5.0),
-                Text(
-                  _passwordConfirmMessage,
-                  style: TextStyle(
-                      color: _passwordConfirmMessageColor, fontSize: 12),
+                Row(
+                  children: [
+                    SizedBox(width: 8.0),
+                    if (_passwordConfirmMessageColor == _successMessageColor)
+                      SvgPicture.asset('assets/check_circle.svg',
+                          width: 16, height: 16),
+                    if (_passwordConfirmMessageColor == Color(0xfff74440))
+                      SvgPicture.asset('assets/check_circle2.svg',
+                          width: 16, height: 16),
+                    Text(
+                      _passwordConfirmMessage,
+                      style: TextStyle(
+                          color: _passwordConfirmMessageColor, fontSize: 12),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 24.0),
                 _buildNicknameField(),
                 SizedBox(height: 5.0),
-                Text(
-                  _nicknameMessage,
-                  style: TextStyle(color: _nicknameMessageColor, fontSize: 12),
+                Row(
+                  children: [
+                    SizedBox(width: 8.0),
+                    if (_nicknameMessageColor == Colors.green)
+                      SvgPicture.asset('assets/check_circle.svg',
+                          width: 16, height: 16),
+                    if (_nicknameMessageColor == Colors.red)
+                      SvgPicture.asset('assets/check_circle2.svg',
+                          width: 16, height: 16),
+                    Text(
+                      _nicknameMessage,
+                      style:
+                          TextStyle(color: _nicknameMessageColor, fontSize: 12),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 8),
                 _buildAgreements(),
@@ -294,7 +339,7 @@ class _SignupState extends State<Signup> {
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Pretendard',
                   decoration: TextDecoration.underline,
-                  color: Colors.black,
+                  color: Color(0xff0d615c),
                 ),
               ),
               style: ElevatedButton.styleFrom(
@@ -329,7 +374,7 @@ class _SignupState extends State<Signup> {
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Pretendard',
                   decoration: TextDecoration.underline,
-                  color: Colors.black,
+                  color: Color(0xff0d615c),
                 ),
               ),
               style: ElevatedButton.styleFrom(

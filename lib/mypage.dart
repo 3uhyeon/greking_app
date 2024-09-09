@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/privacy.dart';
 import 'package:my_app/terms.dart';
-import 'map.dart';
-import 'main.dart';
-import 'shop.dart';
-import 'mycourse.dart';
-import 'privacy.dart';
-import 'terms.dart';
 import 'login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -110,8 +104,27 @@ class _MyState extends State<My> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                        builder: (context) => LoginScreen()),
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation,
+                                              secondaryAnimation) =>
+                                          LoginScreen(),
+                                      transitionsBuilder: (context, animation,
+                                          secondaryAnimation, child) {
+                                        const begin =
+                                            Offset(0.0, 1.0); // 아래에서 위로 올라오게
+                                        const end = Offset.zero;
+                                        const curve = Curves.easeInOut;
+                                        var tween = Tween(
+                                                begin: begin, end: end)
+                                            .chain(CurveTween(curve: curve));
+                                        var offsetAnimation =
+                                            animation.drive(tween);
+
+                                        return SlideTransition(
+                                            position: offsetAnimation,
+                                            child: child);
+                                      },
+                                    ),
                                   );
                                 },
                                 child: Text('Login',
@@ -202,7 +215,23 @@ class _MyState extends State<My> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => TermsOfUse()),
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            TermsOfUse(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 나오게
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ),
                     );
                   },
                 ),
@@ -217,7 +246,22 @@ class _MyState extends State<My> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => Privacy()),
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            Privacy(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 나오게
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+
+                          return SlideTransition(
+                              position: offsetAnimation, child: child);
+                        },
+                      ),
                     );
                   },
                 ),

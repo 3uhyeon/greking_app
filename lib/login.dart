@@ -5,9 +5,7 @@ import 'package:my_app/loading.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // SharedPreferences 추가
 import 'package:http/http.dart' as http; // HTTP 요청을 위해 추가
 import 'signup.dart';
-import 'question.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'main.dart'; // 로그인 성공 후 메인 화면으로 이동하기 위해 추가
 
@@ -20,7 +18,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   bool isLoading = false; // 로딩 상태를 저장할 변수
-  String _errorText = ""; // 오류 메시지를 저장할 변수
+  String _errorText = ""; // 전체 오류 메시지를 저장할 변수
+  String _emailErrorMessage = ""; // 이메일 오류 메시지
+  String _passwordErrorMessage = ""; // 비밀번호 오류 메시지
+  Color _emailMessageColor = Colors.red; // 이메일 메시지 색상
+  Color _passwordMessageColor = Colors.red; // 비밀번호 메시지 색상
+
   final _formKey = GlobalKey<FormState>(); // 폼 키
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -92,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
       return await _auth.signInWithCredential(credential);
     } catch (e) {
       setState(() {
-        _errorText = "Google 로그인에 실패했습니다.";
+        _errorText = "Failed to Google Sign in.";
       });
       return null;
     }
@@ -121,13 +124,6 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.white.withOpacity(0.0), // 투명도 설정된 상단바 배경색
           bottomOpacity: 0.0,
           elevation: 0.0,
-          scrolledUnderElevation: 0,
-          shape: const Border(
-            bottom: BorderSide(
-              color: Colors.transparent,
-              width: 0.0,
-            ),
-          ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () {
@@ -169,9 +165,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                       labelText: 'Please enter your email',
                       labelStyle: TextStyle(
-                        color: Colors.grey, // Set the text color to blue
+                        color: Colors.grey,
                       ),
-                      hintText: ' ',
                       filled: true,
                       fillColor: const Color(0xFFECF0F2),
                       border: OutlineInputBorder(
@@ -180,16 +175,35 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
+                    onChanged: (value) {
                       final regex = RegExp(_emailPattern);
-                      if (!regex.hasMatch(value)) {
-                        return 'Please check your ID or Password';
-                      }
-                      return null;
+                      setState(() {
+                        if (value.isEmpty || !regex.hasMatch(value)) {
+                          _emailErrorMessage = '    Please check your email';
+                          _emailMessageColor = Color(0xfff74440);
+                        } else {
+                          _emailErrorMessage = '    This email is correct form';
+                          _emailMessageColor = Colors.green;
+                        }
+                      });
                     },
+                  ),
+                  SizedBox(height: 5.0),
+                  Row(
+                    children: [
+                      SizedBox(width: 8.0),
+                      if (_emailMessageColor == Colors.green)
+                        SvgPicture.asset('assets/check_circle.svg',
+                            width: 16, height: 16),
+                      if (_emailMessageColor == Color(0xfff74440))
+                        SvgPicture.asset('assets/check_circle2.svg',
+                            width: 16, height: 16),
+                      Text(
+                        _emailErrorMessage,
+                        style:
+                            TextStyle(color: _emailMessageColor, fontSize: 12),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 24.0),
                   Text(
@@ -207,9 +221,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                         labelText: 'Please enter your password',
                         labelStyle: TextStyle(
-                          color: Colors.grey, // Set the text color to blue
+                          color: Colors.grey,
                         ),
-                        hintText: ' ',
                         filled: true,
                         fillColor: const Color(0xFFECF0F2),
                         border: OutlineInputBorder(
@@ -228,19 +241,45 @@ class _LoginScreenState extends State<LoginScreen> {
                             });
                           },
                         )),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (value.length < 8 || value.length > 16) {
-                        return 'Please check your ID or Password';
-                      }
-                      if (!RegExp(r'^(?=.*?[0-9])(?=.*?[!@#$%^&*()_\-+=]).*$')
-                          .hasMatch(value)) {
-                        return 'Please check your ID or Password';
-                      }
-                      return null;
+                    onChanged: (value) {
+                      setState(() {
+                        if (value.isEmpty) {
+                          _passwordErrorMessage =
+                              '    Please check your password';
+                          _passwordMessageColor = Color(0xfff74440);
+                        } else if (value.length < 8 || value.length > 16) {
+                          _passwordErrorMessage =
+                              '    Password must be 8-16 characters';
+                          _passwordMessageColor = Color(0xfff74440);
+                        } else if (!RegExp(
+                                r'^(?=.*?[0-9])(?=.*?[!@#$%^&*()_\-+=]).*$')
+                            .hasMatch(value)) {
+                          _passwordErrorMessage =
+                              '    Password must contain a number and special character';
+                          _passwordMessageColor = Color(0xfff74440);
+                        } else {
+                          _passwordErrorMessage =
+                              '    This Password is correct form';
+                          _passwordMessageColor = Colors.green;
+                        }
+                      });
                     },
+                  ),
+                  SizedBox(height: 5.0),
+                  Row(
+                    children: [
+                      if (_passwordMessageColor == Colors.green)
+                        SvgPicture.asset('assets/check_circle.svg',
+                            width: 16, height: 16),
+                      if (_passwordMessageColor == Color(0xfff74440))
+                        SvgPicture.asset('assets/check_circle2.svg',
+                            width: 16, height: 16),
+                      Text(
+                        _passwordErrorMessage,
+                        style: TextStyle(
+                            color: _passwordMessageColor, fontSize: 12),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 10.0),
                   if (_errorText.isNotEmpty)
@@ -248,7 +287,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       _errorText,
                       style: TextStyle(color: const Color(0xFFFF74440)),
                     ),
-                  SizedBox(height: 100.0),
+                  SizedBox(height: 70.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -256,7 +295,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => Signup()),
+                            PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      Signup(),
+                              transitionsBuilder: (context, animation,
+                                  secondaryAnimation, child) {
+                                const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로
+                                const end = Offset.zero;
+                                const curve = Curves.easeInOut;
+                                var tween = Tween(begin: begin, end: end)
+                                    .chain(CurveTween(curve: curve));
+                                var offsetAnimation = animation.drive(tween);
+
+                                return SlideTransition(
+                                    position: offsetAnimation, child: child);
+                              },
+                            ),
                           );
                         },
                         child: Text('Sign up',
@@ -265,7 +320,43 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       TextButton(
                         onPressed: () {
-                          // 비밀번호 찾기 로직 추가
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Container(),
+                                content: Container(
+                                  color: Colors.white.withOpacity(0.0),
+                                  width: 500,
+                                  height: 30,
+                                  child: Center(
+                                    child: Text('Please Contact the Admin',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold)),
+                                  ),
+                                ),
+                                actions: [
+                                  Center(
+                                    child: TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                        'OK',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                         child: Text('Find password',
                             style:
