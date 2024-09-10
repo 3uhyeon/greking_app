@@ -432,7 +432,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
                                 image: DecorationImage(
-                                  image: AssetImage('assets/recom1.png'),
+                                  image: AssetImage('assets/image.png'),
                                   fit: BoxFit.cover,
                                 ),
                               ),

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'review.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'mycourse.dart';
+import 'login.dart'; // 로그인 화면
+import 'review.dart'; // 리뷰 페이지
 
-class MountainDetailPage extends StatelessWidget {
+class MountainDetailPage extends StatefulWidget {
   final String mountainName;
   final String courseName;
   final String distance;
@@ -21,7 +24,99 @@ class MountainDetailPage extends StatelessWidget {
     required this.altitude,
   });
 
-  final LatLng _mapCenter = LatLng(37.5550, 128.2098); // 강원도 중심 좌표
+  @override
+  _MountainDetailPageState createState() => _MountainDetailPageState();
+}
+
+class _MountainDetailPageState extends State<MountainDetailPage> {
+  bool isLoading = false;
+  bool isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus(); // 처음 페이지가 로드되면 로그인 상태를 확인
+  }
+
+  // 로그인 상태를 확인하는 함수
+  Future<void> _checkLoginStatus() async {
+    setState(() {
+      isLoading = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? loginMethod = prefs.getString('loginMethod');
+    String? token = prefs.getString('token');
+
+    if (loginMethod != null && token != null) {
+      bool isValid = await _validateToken(token, loginMethod);
+      setState(() {
+        isLoggedIn = isValid;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoggedIn = false;
+        isLoading = false;
+      });
+    }
+  }
+
+  // 토큰 유효성 확인
+  Future<bool> _validateToken(String token, String loginMethod) async {
+    // 서버와 토큰 유효성 검사 로직 추가 가능
+    return true; // 예시로 항상 유효하다고 가정
+  }
+
+  // 예약 버튼 눌렀을 때 처리하는 함수
+  Future<void> _bookCourse() async {
+    if (!isLoggedIn) {
+      // 로그인 상태가 아니면 로그인 화면으로 이동
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              LoginScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(0.0, 1.0); // 아래에서 위로 슬라이드 애니메이션
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+
+            return SlideTransition(position: offsetAnimation, child: child);
+          },
+        ),
+      );
+    } else {
+      // 로그인 상태면 예약 페이지로 이동하고 서버로 예약 정보 전달
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MyCourse(), // 예약 페이지로 이동
+        ),
+      );
+
+      // 서버에 예약 정보를 전송하는 함수 호출 (예시 코드)
+      _sendBookingInfoToServer();
+    }
+  }
+
+  // 서버로 예약 정보 전송
+  Future<void> _sendBookingInfoToServer() async {
+    // 예약 정보를 서버에 POST로 전송하는 코드 추가
+    final courseData = {
+      'mountainName': widget.mountainName,
+      'courseName': widget.courseName,
+      'distance': widget.distance,
+      'duration': widget.duration,
+      'difficulty': widget.difficulty,
+      'altitude': widget.altitude,
+    };
+
+    // 서버에 예약 정보를 전송하는 로직을 여기에 추가
+    print("Booking course data: $courseData");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,16 +125,9 @@ class MountainDetailPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(' '),
-          backgroundColor: Colors.white.withOpacity(0.0), // 투명도 설정된 상단바 배경색
-          bottomOpacity: 0.0,
+          backgroundColor: Colors.white.withOpacity(0.0),
           elevation: 0.0,
           scrolledUnderElevation: 0,
-          shape: const Border(
-            bottom: BorderSide(
-              color: Colors.transparent,
-              width: 0.0,
-            ),
-          ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () {
@@ -50,8 +138,8 @@ class MountainDetailPage extends StatelessWidget {
         body: Column(
           children: [
             Container(
-              height: 224,
-              width: 352,
+              height: 200,
+              width: 330,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 image: DecorationImage(
@@ -76,8 +164,8 @@ class MountainDetailPage extends StatelessWidget {
               indicatorColor: Colors.black,
               indicatorSize: TabBarIndicatorSize.tab,
               tabs: [
-                Tab(text: "Hiking Information"),
-                Tab(text: "Nearby Restaurants"),
+                Tab(text: "Information"),
+                Tab(text: "Restaurants"),
               ],
             ),
             Expanded(
@@ -93,9 +181,7 @@ class MountainDetailPage extends StatelessWidget {
         bottomNavigationBar: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
-            onPressed: () {
-              // Booking 버튼 눌렀을 때 동작
-            },
+            onPressed: _bookCourse, // 예약 버튼 클릭 시 호출
             child: Text('Booking',
                 style: TextStyle(
                     color: Colors.white,
@@ -145,7 +231,7 @@ class MountainDetailPage extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  mountainName,
+                  widget.mountainName,
                   style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -154,7 +240,7 @@ class MountainDetailPage extends StatelessWidget {
                 ),
                 SizedBox(width: 8),
                 Text(
-                  courseName,
+                  widget.courseName,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -177,10 +263,10 @@ class MountainDetailPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildInfoChip('Level', difficulty),
-                _buildInfoChip('Time', duration),
-                _buildInfoChip('Distance', distance),
-                _buildInfoChip('Altitude', altitude),
+                _buildInfoChip('Level', widget.difficulty),
+                _buildInfoChip('Time', widget.duration),
+                _buildInfoChip('Distance', widget.distance),
+                _buildInfoChip('Altitude', widget.altitude),
               ],
             ),
             SizedBox(height: 30),
@@ -193,7 +279,7 @@ class MountainDetailPage extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: Color(0xFFF5F7F8), // 배경색
+                color: Color(0xFFF5F7F8),
                 borderRadius: BorderRadius.circular(20.0),
               ),
               child: Row(
@@ -214,7 +300,7 @@ class MountainDetailPage extends StatelessWidget {
             ),
             SizedBox(height: 30),
             Text(
-              'Way to Come',
+              'Location',
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -301,7 +387,7 @@ class MountainDetailPage extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: Colors.white, // 배경색
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(20.0),
               ),
               child: Column(
@@ -339,7 +425,7 @@ class MountainDetailPage extends StatelessWidget {
                   SizedBox(height: 8),
                   Text(
                     'This is a great mountain to hike. The views are amazing and the trails are well-maintained. I would definitely recommend it to anyone looking for a challenging hike with beautiful scenery.',
-                    maxLines: 2, // 2줄만 보여줌
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 12,
@@ -361,7 +447,7 @@ class MountainDetailPage extends StatelessWidget {
                           ReviewPage(),
                       transitionsBuilder:
                           (context, animation, secondaryAnimation, child) {
-                        const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로
+                        const begin = Offset(1.0, 0.0);
                         const end = Offset.zero;
                         const curve = Curves.easeInOut;
                         var tween = Tween(begin: begin, end: end)
@@ -445,133 +531,130 @@ class MountainDetailPage extends StatelessWidget {
       ],
     );
   }
-}
 
-Widget _buildNearbyRestaurantsTab() {
-  // 근처 식당 정보를 여기에 추가합니다.
-  return ListView.builder(
-    itemCount: 10,
-    itemBuilder: (context, index) {
-      return Card(
-        color: Colors.transparent, // Set the background color to transparent
-        elevation: 0, // No shadow
-
-        child: ListTile(
-          leading: Container(
-            width: 60,
-            height: 150, // 원하는 높이로 설정
-
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0), // 이미지의 모서리를 둥글게 만듦
-              child: Image.asset(
-                'assets/mo.png',
-                fit: BoxFit.cover, // 이미지를 컨테이너 크기에 맞게 조정
+  Widget _buildNearbyRestaurantsTab() {
+    return ListView.builder(
+      itemCount: 10,
+      itemBuilder: (context, index) {
+        return Card(
+          color: Colors.transparent,
+          elevation: 0,
+          child: ListTile(
+            leading: Container(
+              width: 60,
+              height: 150,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.asset(
+                  'assets/mo.png',
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          minTileHeight: 68,
-          title: Text('Suhyeon sikdang',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Pretendard',
-              )),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 5),
-              Row(
-                children: [
-                  Icon(Icons.location_on, color: Colors.grey, size: 10),
+            minVerticalPadding: 16,
+            title: Text('Suhyeon sikdang',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Pretendard',
+                )),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 5),
+                Row(
+                  children: [
+                    Icon(Icons.location_on, color: Colors.grey, size: 10),
+                    Text(
+                      '  서울시 성북구 솔샘로16길 31-5',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Pretendard',
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 5),
+                Row(children: [
+                  Icon(
+                    Icons.phone,
+                    color: Colors.grey,
+                    size: 10,
+                  ),
                   Text(
-                    '  서울시 성북구 솔샘로16길 31-5',
+                    '  02-1234-5678',
                     style: TextStyle(
                       fontSize: 12,
                       fontFamily: 'Pretendard',
                     ),
                   ),
-                ],
+                ]),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoChip(String label, String value) {
+    return Column(
+      children: [
+        Container(
+          width: 82,
+          height: 62,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Color(0xFFECF0F2),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: Color(0xFF858C90),
+                  fontSize: 12,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w400,
+                  height: 0.10,
+                ),
               ),
-              SizedBox(height: 5),
-              Row(children: [
-                Icon(
-                  Icons.phone,
-                  color: Colors.grey,
-                  size: 10,
+              SizedBox(height: 20),
+              Text(
+                value,
+                style: TextStyle(
+                  color: Color(0xFF242729),
+                  fontSize: 12,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.bold,
+                  height: 0.10,
                 ),
-                Text(
-                  '  02-1234-5678',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'Pretendard',
-                  ),
-                ),
-              ]),
+              ),
             ],
           ),
         ),
-      );
-    },
-  );
-}
+      ],
+    );
+  }
 
-Widget _buildInfoChip(String label, String value) {
-  return Column(
-    children: [
-      Container(
-        width: 82,
-        height: 62,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: Color(0xFFECF0F2),
-          borderRadius: BorderRadius.circular(20),
+  Widget _buildEquipmentIcon(String label) {
+    return Column(
+      children: [
+        SvgPicture.asset('assets/equipment.svg'),
+        SizedBox(height: 10),
+        Text(
+          label,
+          style: TextStyle(
+            color: Color(0xFF1d2228),
+            fontSize: 12,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w400,
+            height: 0.10,
+          ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: Color(0xFF858C90),
-                fontSize: 12,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w400,
-                height: 0.10,
-              ),
-            ),
-            SizedBox(height: 20),
-            Text(
-              value,
-              style: TextStyle(
-                color: Color(0xFF242729),
-                fontSize: 12,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.bold,
-                height: 0.10,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ],
-  );
-}
-
-Widget _buildEquipmentIcon(String label) {
-  return Column(
-    children: [
-      SvgPicture.asset('assets/equipment.svg'),
-      SizedBox(height: 10),
-      Text(
-        label,
-        style: TextStyle(
-          color: Color(0xFF1d2228),
-          fontSize: 12,
-          fontFamily: 'Pretendard',
-          fontWeight: FontWeight.w400,
-          height: 0.10,
-        ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }
