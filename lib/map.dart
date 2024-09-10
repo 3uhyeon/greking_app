@@ -228,7 +228,7 @@ class _Treking extends State<Treking> {
                 right: 0,
                 child: CarouselSlider(
                   options: CarouselOptions(
-                    height: 187.0,
+                    height: 200.0,
                     enlargeCenterPage: false,
                     autoPlay: false,
                     viewportFraction: 0.8,
@@ -270,6 +270,8 @@ class _Treking extends State<Treking> {
                           },
                           child: Container(
                             width: MediaQuery.of(context).size.width * 0.7,
+                            height: MediaQuery.of(context).size.height *
+                                0.7, // Updated height
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(20.0),
@@ -285,18 +287,12 @@ class _Treking extends State<Treking> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 ClipRRect(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(20.0),
-                                      topRight: Radius.circular(20.0),
-                                      bottomLeft: Radius.circular(20.0),
-                                      bottomRight: Radius.circular(20.0),
-                                    ),
                                     child: Image.asset(
-                                      'assets/image.png',
-                                      width: 200,
-                                      height: 100,
-                                      fit: BoxFit.fitWidth,
-                                    )),
+                                  'assets/image.png',
+                                  width: 200,
+                                  height: 100,
+                                  fit: BoxFit.fitWidth,
+                                )),
                                 SizedBox(height: 10.0),
                                 Row(
                                   children: [

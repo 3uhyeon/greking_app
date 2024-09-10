@@ -11,6 +11,7 @@ import 'mycourse.dart';
 import 'login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'question.dart';
+import 'package:lottie/lottie.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,17 +63,16 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   bool isLoading = false;
   bool isLoggedIn = false;
-  final PageController _pageController = PageController(); // PageController 추가
-  final PageController _pageController2 = PageController(); // PageController 추가
-  int _currentIndex = 0; // 현재 바텀 네비게이션의 인덱스
+  final PageController _pageController = PageController();
+  final PageController _pageController2 = PageController();
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus(); // 로그인 상태 확인
+    _checkLoginStatus();
   }
 
-  // 로그인 상태 확인 및 SharedPreferences에서 저장된 정보 불러오기
   Future<void> _checkLoginStatus() async {
     setState(() {
       isLoading = true;
@@ -82,7 +82,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     String? token = prefs.getString('token');
 
     if (loginMethod != null && token != null) {
-      // 로그인 상태 유효성 확인 (서버 확인 필요시 추가 구현)
       bool isValid = await _validateToken(token, loginMethod);
       setState(() {
         isLoggedIn = isValid;
@@ -96,9 +95,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     }
   }
 
-  // 서버 또는 Firebase에 토큰 유효성 검사 (여기서는 예시로 true 반환)
   Future<bool> _validateToken(String token, String loginMethod) async {
-    // 여기에서 Firebase 또는 서버에 유효성 검사 로직 추가 가능
     return true;
   }
 
@@ -110,7 +107,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
           pageBuilder: (context, animation, secondaryAnimation) =>
               LoginScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(0.0, 1.0); // 아래에서 위로 올라오게
+            const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
             const curve = Curves.easeInOut;
             var tween =
@@ -121,7 +118,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
           },
         ),
       ).then((_) {
-        _pageController.jumpToPage(0); // 뒤로가기 시 홈 화면으로 이동
+        _pageController.jumpToPage(0);
       });
     } else {
       setState(() {
@@ -130,17 +127,15 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     }
   }
 
-  // 바텀 네비게이션 클릭 시 호출되는 함수
   Future<void> _onItemTapped(int index) async {
     if (index == 2 && !await _checkLoginBeforeNavigate()) {
-      // 로그인되지 않은 경우 LoginScreen으로 Hero 애니메이션과 함께 이동
       Navigator.push(
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
               LoginScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(0.0, 1.0); // 아래에서 위로 올라오게
+            const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
             const curve = Curves.easeInOut;
             var tween =
@@ -152,7 +147,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         ),
       );
     } else {
-      _pageController.jumpToPage(index); // PageView로 페이지 이동
+      _pageController.jumpToPage(index);
     }
   }
 
@@ -163,7 +158,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     return (loginMethod != null && token != null);
   }
 
-  // 각 페이지마다 다른 AppBar 설정
   PreferredSizeWidget _buildAppBar() {
     switch (_currentIndex) {
       case 0:
@@ -274,10 +268,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return LoadingScreen(); // 로딩 화면
+      return LoadingScreen();
     } else {
       return Scaffold(
-        appBar: _buildAppBar(), // 각 페이지에 맞는 AppBar
+        appBar: _buildAppBar(),
         body: PageView(
           controller: _pageController,
           onPageChanged: _onPageChanged,
@@ -348,20 +342,46 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               items: [1, 2, 3, 4].map((i) {
                 return Builder(
                   builder: (BuildContext context) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width * 1,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        image: DecorationImage(
-                          image: AssetImage('assets/title$i.png'),
-                          fit: BoxFit.fitWidth,
+                    return Stack(
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width * 1,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            image: DecorationImage(
+                              image: AssetImage('assets/title$i.png'),
+                              fit: BoxFit.fitWidth,
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 12.0, horizontal: 10.0),
+                        Positioned(
+                          left: 20.0, // 왼쪽으로 더 가도록 조정
+                          bottom: 30.0,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _getTitleForIndex(i), // 슬라이드마다 다른 제목
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                _getSubtitleForIndex(i), // 슬라이드마다 다른 부제목
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          right: 10.0, // 왼쪽으로 더 가도록 조정
+                          bottom: 10.0,
+
                           child: Container(
                             height: 22,
                             decoration: BoxDecoration(
@@ -373,12 +393,15 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                               child: Text(
                                 '$i/4',
                                 style: const TextStyle(
-                                    color: Colors.white, fontSize: 12),
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
+                            alignment: Alignment.bottomRight,
                           ),
-                        ),
-                      ),
+                        )
+                      ],
                     );
                   },
                 );
@@ -398,12 +421,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 width: 400,
                 child: PageView.builder(
                   itemCount: 3,
-                  controller: PageController(
-                      viewportFraction: 0.8), // 화면의 80%만 차지하고 다음 아이템이 보이도록 설정
+                  controller: PageController(viewportFraction: 0.8),
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0), // 양쪽에 여백 추가
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Stack(
                         children: [
                           Positioned.fill(
@@ -453,16 +474,21 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => QuestionScreen(uid: '')),
+                      MaterialPageRoute(builder: (context) => MyCourse()),
                     );
                   },
                   child: SvgPicture.asset(
                     'assets/banners.svg',
                     width: double.infinity,
-                    height: 200, // Set an appropriate height
+                    height: 200,
                   ),
                 ),
+                Positioned(
+                  right: 00,
+                  bottom: 40,
+                  child: Lottie.asset('assets/insurance2.json',
+                      width: 110, height: 110),
+                )
               ],
             ),
             InkWell(
@@ -518,26 +544,117 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       ),
     );
   }
+
+  // 각 슬라이드에 맞는 제목을 반환하는 함수
+  String _getTitleForIndex(int index) {
+    switch (index) {
+      case 1:
+        return 'KTX easy Guide';
+      case 2:
+        return 'Incheon Airport pro tips';
+      case 3:
+        return 'Can rental in Gangwon-do';
+      case 4:
+        return 'Beginner climbing 101';
+      default:
+        return 'Guide';
+    }
+  }
+
+  // 각 슬라이드에 맞는 부제목을 반환하는 함수
+  String _getSubtitleForIndex(int index) {
+    switch (index) {
+      case 1:
+        return '5min quick guide';
+      case 2:
+        return '5min quick guide';
+      case 3:
+        return 'How to rent a car';
+      case 4:
+        return 'Travel safely with us';
+      default:
+        return 'Subtitle';
+    }
+  }
 }
 
 class PopularCourseItem extends StatelessWidget {
   final int index;
+  // 각 슬라이드에 맞는 제목을 반환하는 함수
+  String _getTitleForIndex2(int index) {
+    switch (index) {
+      case 1:
+        return 'Seoraksan';
+      case 2:
+        return 'Chiaksan';
+      case 3:
+        return 'Dutasan';
+
+      default:
+        return 'Guide';
+    }
+  }
+
+  // 각 슬라이드에 맞는 부제목을 반환하는 함수
+  String _getSubtitleForIndex2(int index) {
+    switch (index) {
+      case 1:
+        return 'Daechengbong Course';
+      case 2:
+        return 'Birobong Course';
+      case 3:
+        return 'Daejae Course';
+
+      default:
+        return 'Subtitle';
+    }
+  }
 
   const PopularCourseItem({required this.index});
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 342,
-      height: 87,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(20),
-        image: DecorationImage(
-          image: AssetImage('assets/pop$index.png'),
-          fit: BoxFit.cover,
+    return Stack(
+      children: [
+        Container(
+          width: 342,
+          height: 87,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(20),
+            image: DecorationImage(
+              image: AssetImage('assets/pop$index.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
         ),
-      ),
+        Positioned(
+          left: 20,
+          bottom: 20,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _getTitleForIndex2(index), // 코스 이름
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _getSubtitleForIndex2(index), // 코스 설명
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

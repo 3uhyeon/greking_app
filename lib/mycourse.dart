@@ -124,12 +124,8 @@ class _MyCourseState extends State<MyCourse>
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
-                child: Image.network(
-                  'https://via.placeholder.com/100',
-                  width: 121,
-                  height: 82,
-                  fit: BoxFit.cover,
-                ),
+                child: Image.asset('assets/image.png',
+                    width: 100, height: 80, fit: BoxFit.cover),
               ),
               const SizedBox(width: 16.0),
               Expanded(

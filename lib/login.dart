@@ -143,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: <Widget>[
                   SizedBox(height: 30.0), // 공간 추가
                   Text(
-                    'Welcome Please\nSign in', // 제목 텍스트
+                    'Welcome Please\nSign In', // 제목 텍스트
                     style: TextStyle(
                       fontSize: 24.0,
                       fontWeight: FontWeight.bold,

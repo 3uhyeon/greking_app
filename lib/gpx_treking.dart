@@ -22,8 +22,10 @@ class AppConstants {
 class _TrackingPageState extends State<TrackingPage> {
   late MapController _mapController;
   StreamSubscription<Position>? _positionStream;
-  final List<LatLng> _routePoints = [];
+  final List<LatLng> _routePoints = []; // 기존 경로 포인트
   final List<Marker> _markers = [];
+  LatLng? _currentLocation;
+  double _currentHeading = 0.0; // 바라보는 방향
   double _totalDistance = 0.0;
   double _totalCalories = 0.0;
   Duration _totalTime = Duration.zero;
@@ -83,8 +85,7 @@ class _TrackingPageState extends State<TrackingPage> {
         _markers.add(
           Marker(
             point: _routePoints.first,
-            child:
-                SvgPicture.asset('assets/dot.svg', width: 40.0, height: 40.0),
+            child: SvgPicture.asset('assets/Go.svg', width: 40.0, height: 40.0),
           ),
         );
 
@@ -92,7 +93,7 @@ class _TrackingPageState extends State<TrackingPage> {
           Marker(
             point: _routePoints.last,
             child:
-                SvgPicture.asset('assets/dot.svg', width: 40.0, height: 40.0),
+                SvgPicture.asset('assets/End.svg', width: 40.0, height: 40.0),
           ),
         );
 
@@ -123,41 +124,16 @@ class _TrackingPageState extends State<TrackingPage> {
       });
     });
 
+    // 현 위치 추적 스트림 시작
     _positionStream =
         Geolocator.getPositionStream().listen((Position position) {
       final currentPoint = LatLng(position.latitude, position.longitude);
-      if (_routePoints.isNotEmpty) {
-        final lastPoint = _routePoints.last;
 
-        setState(() {
-          _routePoints.add(currentPoint);
-          _totalDistance += Geolocator.distanceBetween(
-                lastPoint.latitude,
-                lastPoint.longitude,
-                currentPoint.latitude,
-                currentPoint.longitude,
-              ) /
-              1000;
-          _totalCalories = _calculateCalories(_totalDistance);
-        });
-      } else {
-        setState(() {
-          _routePoints.add(currentPoint);
-          _markers.add(Marker(
-            point: currentPoint,
-            child: Icon(
-              Icons.location_on,
-              color: Colors.green,
-              size: 40.0,
-            ),
-          ));
-        });
-      }
+      setState(() {
+        _currentLocation = currentPoint;
+        _currentHeading = position.heading; // 바라보는 방향
+      });
     });
-  }
-
-  double _calculateCalories(double distance) {
-    return distance * 60;
   }
 
   void _stopTracking() {
@@ -183,7 +159,10 @@ class _TrackingPageState extends State<TrackingPage> {
           Expanded(
             child: FlutterMap(
               mapController: _mapController,
-              options: MapOptions(),
+              options: MapOptions(
+                minZoom: 10,
+                maxZoom: 18,
+              ),
               children: [
                 TileLayer(
                   urlTemplate:
@@ -192,14 +171,26 @@ class _TrackingPageState extends State<TrackingPage> {
                 PolylineLayer(
                   polylines: [
                     Polyline(
-                      points: _routePoints,
-                      strokeWidth: 8.0,
+                      points: _routePoints, // GPX 로드된 경로
+                      strokeWidth: 4.0,
                       color: Color(0xff0d615c),
                     ),
                   ],
                 ),
                 MarkerLayer(
-                  markers: _markers,
+                  markers: [
+                    if (_currentLocation != null)
+                      Marker(
+                        point: _currentLocation!,
+                        rotate: true,
+                        child: SvgPicture.asset(
+                          'assets/mygps.svg',
+                          width: 60.0,
+                          height: 60.0,
+                        ),
+                      ),
+                    ..._markers, // 마커 리스트
+                  ],
                 ),
               ],
             ),

@@ -95,7 +95,7 @@ class _MyState extends State<My> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                '  Need to sign in',
+                                '  Need to Sign In',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -361,6 +361,32 @@ class _MyState extends State<My> {
                       ),
                     );
                   },
+                ),
+                SizedBox(height: 30),
+                TextButton(
+                  onPressed: () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => LoginScreen(),
+                    //   ),
+                    // );
+                  },
+                  child: Text('Delete account',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 16,
+                      )),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFECF0F2),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 20,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                 ),
               ],
             ),

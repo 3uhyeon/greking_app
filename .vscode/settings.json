@@ -1,5 +1,7 @@
 {
     "java.compile.nullAnalysis.mode": "automatic",
     "java.configuration.updateBuildConfiguration": "disabled",
-    "dart.showTodos": false
+    "dart.showTodos": false,
+    "dart.flutterSdkPath": "/Users/ansuhyeon/Desktop/greking_app-Dev/flutter/flutter/flutter/bin",
+   
 }
