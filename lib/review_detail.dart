@@ -7,13 +7,13 @@ import 'loading.dart';
 import 'mycourse.dart';
 import 'login.dart';
 
-class ReviewWritingPage extends StatefulWidget {
-  const ReviewWritingPage({Key? key}) : super(key: key);
+class ReviewDetailPage extends StatefulWidget {
+  const ReviewDetailPage({Key? key}) : super(key: key);
   @override
-  _ReviewWritingPageState createState() => _ReviewWritingPageState();
+  _ReviewDetailPageState createState() => _ReviewDetailPageState();
 }
 
-class _ReviewWritingPageState extends State<ReviewWritingPage> {
+class _ReviewDetailPageState extends State<ReviewDetailPage> {
   int _selectedStar = 0;
   int _selectedDifficulty = -1;
   bool isLoading = false;
@@ -137,7 +137,11 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
     } else {
       return Scaffold(
         appBar: AppBar(
-          title: Text(''),
+          title: Text('Review detail',
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Pretendard')),
           leading: IconButton(
             icon: Icon(Icons.close),
             onPressed: () {
@@ -182,19 +186,15 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                   ),
                 ),
                 SizedBox(height: 32.0),
-                Text('   Rating',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Pretendard')),
-                SizedBox(height: 8.0),
+                Icon(Icons.sentiment_dissatisfied,
+                    size: 40, color: Color(0XFF1DBE92)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(5, (index) {
                     return IconButton(
                       icon: Icon(
                         Icons.star,
-                        size: 50.0,
+                        size: 20.0,
                         color: index < _selectedStar
                             ? Color(0XFF1DBE92)
                             : Colors.grey[300],
@@ -222,12 +222,6 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                   ],
                 ),
                 SizedBox(height: 32.0),
-                Text('  Write a Review',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Pretendard')),
-                SizedBox(height: 12.0),
                 TextField(
                   controller: _reviewController,
                   maxLines: 4,
@@ -237,24 +231,6 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                     hintStyle: TextStyle(color: Color(0xFFA9B0B5)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 50.0),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _reviewRegister,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0XFF1DBE92),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 130, vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Text(
-                      'Submit',
-                      style: TextStyle(color: Colors.white, fontSize: 17),
                     ),
                   ),
                 ),

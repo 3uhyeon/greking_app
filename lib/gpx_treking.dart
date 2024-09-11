@@ -71,6 +71,19 @@ class _TrackingPageState extends State<TrackingPage> {
     _startTracking(); // 위치 권한이 허용되었을 때만 추적 시작
   }
 
+  Future<String> getCurrentAltitude() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best, // Best accuracy for altitude
+      );
+
+      return "${position.altitude}"; // Altitude in meters
+    } catch (e) {
+      print("Error getting altitude: $e");
+      return '';
+    }
+  }
+
   Future<void> _loadGpxFile() async {
     String gpxData = await DefaultAssetBundle.of(context)
         .loadString('assets/chiaksan_0000000001.gpx');
@@ -85,7 +98,7 @@ class _TrackingPageState extends State<TrackingPage> {
         _markers.add(
           Marker(
             point: _routePoints.first,
-            child: SvgPicture.asset('assets/Go.svg', width: 40.0, height: 40.0),
+            child: SvgPicture.asset('assets/Go.svg', width: 50.0, height: 50.0),
           ),
         );
 
@@ -93,7 +106,7 @@ class _TrackingPageState extends State<TrackingPage> {
           Marker(
             point: _routePoints.last,
             child:
-                SvgPicture.asset('assets/End.svg', width: 40.0, height: 40.0),
+                SvgPicture.asset('assets/End.svg', width: 50.0, height: 50.0),
           ),
         );
 
@@ -241,7 +254,7 @@ class _TrackingPageState extends State<TrackingPage> {
                     children: [
                       _buildInfoCard('Distance',
                           '${_totalDistance.toStringAsFixed(2)} km'),
-                      _buildInfoCard('Altitude', 'N/A'),
+                      _buildInfoCard('Altitude', '${getCurrentAltitude()}'),
                     ],
                   ),
                   Row(

@@ -1,0 +1,23 @@
+# This is a generated file; do not edit or check into version control.
+firebase_auth=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/firebase_auth-5.2.0/
+firebase_auth_web=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/firebase_auth_web-5.12.6/
+firebase_core=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/firebase_core-3.4.0/
+firebase_core_web=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/firebase_core_web-2.17.5/
+flutter_native_splash=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/flutter_native_splash-2.4.1/
+geolocator=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/geolocator-12.0.0/
+geolocator_android=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/geolocator_android-4.6.1/
+geolocator_apple=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.7/
+geolocator_web=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/geolocator_web-4.0.0/
+geolocator_windows=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/geolocator_windows-0.2.3/
+google_sign_in=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/google_sign_in-6.2.1/
+google_sign_in_android=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/google_sign_in_android-6.1.30/
+google_sign_in_ios=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/google_sign_in_ios-5.7.7/
+google_sign_in_web=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/google_sign_in_web-0.12.4+2/
+path_provider_linux=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+path_provider_windows=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+shared_preferences=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/shared_preferences-2.3.2/
+shared_preferences_android=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/shared_preferences_android-2.3.2/
+shared_preferences_foundation=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.2/
+shared_preferences_linux=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.4.1/
+shared_preferences_web=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/shared_preferences_web-2.4.2/
+shared_preferences_windows=/Users/ansuhyeon/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.4.1/
