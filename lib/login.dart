@@ -141,16 +141,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center, // 세로 방향으로 가운데 정렬
                 crossAxisAlignment: CrossAxisAlignment.stretch, // 가로 방향으로 꽉 채움
                 children: <Widget>[
-                  SizedBox(height: 30.0), // 공간 추가
-                  Text(
-                    'Welcome Please\nSign In', // 제목 텍스트
-                    style: TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Pretendard',
-                    ),
-                  ),
-                  SizedBox(height: 40.0), // 공간 추가
+                  SvgPicture.asset('assets/Greking_login.svg',
+                      width: 30, height: 40),
+
+                  SizedBox(height: 60.0), // 공간 추가
                   Text(
                     'Email',
                     style: TextStyle(

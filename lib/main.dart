@@ -171,7 +171,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               Text(
                 '  Greking',
                 style: TextStyle(
-                  color: Color(0xff1DBE92),
+                  color: Color(0xff0d615c),
                   fontSize: 24,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.bold,
@@ -416,33 +416,35 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               ),
             ),
             const SizedBox(height: 8),
-            Container(
-                height: 328,
-                width: 400,
-                child: PageView.builder(
-                  itemCount: 3,
-                  controller: PageController(viewportFraction: 0.8),
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                image: DecorationImage(
-                                  image: AssetImage('assets/image.png'),
-                                  fit: BoxFit.cover,
-                                ),
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 330,
+                viewportFraction: 0.8,
+                enableInfiniteScroll: true,
+                autoPlay: true,
+              ),
+              items: [
+                for (int i = 0; i < 3; i++)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              image: DecorationImage(
+                                image: AssetImage('assets/image.png'),
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                )),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: 16),
             const Text(
               '  Popular course',

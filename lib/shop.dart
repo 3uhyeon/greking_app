@@ -512,7 +512,10 @@ class ProductDetailPage extends StatelessWidget {
                 const SizedBox(height: 10),
                 if (category.toLowerCase().contains("stick") == false) ...[
                   Table(
-                    border: TableBorder.all(),
+                    border: TableBorder.all(
+                      color: Color(0xffdadada), // 테두리 색상 설정
+                      width: 1.5, // 테두리 두께 설정
+                    ),
                     children: category.toLowerCase().contains("shoes")
                         ? _buildShoesSizeTable()
                         : _buildOuterSizeTable(),
@@ -529,7 +532,10 @@ class ProductDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Table(
-                border: TableBorder.all(),
+                border: TableBorder.all(
+                  color: Color(0xffdadada), // 테두리 색상 설정
+                  width: 1.5, // 테두리 두께 설정
+                ),
                 children: _buildRentalPriceTable(),
               ),
               const SizedBox(height: 32),
