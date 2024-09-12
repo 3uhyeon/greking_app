@@ -139,7 +139,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
         appBar: AppBar(
           title: Text(''),
           leading: IconButton(
-            icon: Icon(Icons.close),
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.of(context).pop();
             },
@@ -157,7 +157,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                   padding:
                       EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                   decoration: BoxDecoration(
-                    color: Colors.grey[200],
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(
@@ -233,9 +233,12 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                   maxLines: 4,
                   maxLength: 200,
                   decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Color(0XFFEBEFF2),
                     hintText: 'Write your review here in 200 characters',
                     hintStyle: TextStyle(color: Color(0xFFA9B0B5)),
                     border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                   ),
@@ -245,9 +248,8 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                   child: ElevatedButton(
                     onPressed: _reviewRegister,
                     style: ElevatedButton.styleFrom(
+                      minimumSize: Size(350, 45),
                       backgroundColor: Color(0XFF1DBE92),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 130, vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -274,7 +276,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
         decoration: BoxDecoration(
           color: _selectedDifficulty == index
               ? Color(0XFF1DBE92)
-              : Colors.grey[200],
+              : Color(0XFFEBEFF2),
           borderRadius: BorderRadius.circular(20.0),
         ),
         child: Column(

@@ -143,7 +143,7 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Pretendard')),
           leading: IconButton(
-            icon: Icon(Icons.close),
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.of(context).pop();
             },
@@ -161,7 +161,7 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
                   padding:
                       EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                   decoration: BoxDecoration(
-                    color: Colors.grey[200],
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(
@@ -191,11 +191,11 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
                     Icon(Icons.sentiment_dissatisfied,
                         size: 40, color: Color(0XFF1DBE92)),
                     SizedBox(width: 16),
-                    Icon(Icons.star, size: 16, color: Color(0xffa9b0b5)),
-                    Icon(Icons.star, size: 16, color: Color(0xffa9b0b5)),
-                    Icon(Icons.star, size: 16, color: Color(0xffa9b0b5)),
-                    Icon(Icons.star, size: 16, color: Color(0xffa9b0b5)),
-                    Icon(Icons.star_border, size: 16, color: Color(0xffa9b0b5)),
+                    Icon(Icons.star, size: 16, color: Color(0xFFA9B0B5)),
+                    Icon(Icons.star, size: 16, color: Color(0xFFA9B0B5)),
+                    Icon(Icons.star, size: 16, color: Color(0xFFA9B0B5)),
+                    Icon(Icons.star, size: 16, color: Color(0xFFA9B0B5)),
+                    Icon(Icons.star_border, size: 16, color: Color(0xFFA9B0B5)),
                   ],
                 ),
                 SizedBox(height: 32.0),
@@ -204,9 +204,12 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
                   maxLines: 7,
                   maxLength: 400,
                   decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Color(0XFFEBEFF2),
                     hintText: 'Write your review here in 200 characters',
                     hintStyle: TextStyle(color: Color(0xFFA9B0B5)),
                     border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                   ),

@@ -49,7 +49,7 @@ class _MyCourseState extends State<MyCourse>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        bottom: TabBar(
+        title: TabBar(
           controller: _tabController,
           labelColor: Colors.black,
           labelStyle: TextStyle(
@@ -192,8 +192,19 @@ class _MyCourseState extends State<MyCourse>
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => ReviewWritingPage()),
+                        PageRouteBuilder(
+                          pageBuilder: (_, __, ___) => ReviewWritingPage(),
+                          transitionsBuilder:
+                              (_, Animation<double> animation, __, child) {
+                            return SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(1, 0),
+                                end: Offset.zero,
+                              ).animate(animation),
+                              child: child,
+                            );
+                          },
+                        ),
                       );
                     },
                     child: Text(

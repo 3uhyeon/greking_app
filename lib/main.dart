@@ -106,6 +106,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       Navigator.push(
         context,
         PageRouteBuilder(
+          transitionDuration: Duration(milliseconds: 1),
           pageBuilder: (context, animation, secondaryAnimation) =>
               LoginScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -530,9 +531,9 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               child: const Text(
                 'Review >',
                 style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
               ),
             ),
             const SizedBox(height: 8),
