@@ -8,7 +8,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+<<<<<<< HEAD
 import '/Users/ansuhyeon/Desktop/greking_app-Dev/lib/main.dart';
+=======
+import '/Users/ansuhyeon/greking_app-Dev/lib/main.dart';
+>>>>>>> addc236 (Feat: 다시)
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
