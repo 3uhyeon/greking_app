@@ -1,3 +1,4 @@
+import 'dart:convert'; // JSON 인코딩을 위해 필요
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -5,11 +6,11 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:my_app/loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import 'course_detail.dart';
 
 class AppConstants {
   static const String mapBoxStyleId = 'suzzinova'; // 회원가입 시 제공되는 스타일 ID
-
   static final LatLng kangwondoCenter = LatLng(37.5550, 128.2098); // 강원도 중심 좌표
 }
 
@@ -23,56 +24,35 @@ class _Treking extends State<Treking> {
     {
       'name': 'Seoraksan',
       'location': LatLng(38.12016, 128.4657),
-      'courses': [
-        {
-          'courseName': 'Seorak Trail',
-          'distance': '10km',
-          'duration': '5h',
-          'difficulty': 'Hard',
-          'altitude': '1,708m',
-        },
-        {
-          'courseName': 'Ulsanbawi Trail',
-          'distance': '8km',
-          'duration': '4h',
-          'difficulty': 'Medium',
-          'altitude': '876m',
-        },
-      ],
     },
     {
       'name': 'Odaesan',
       'location': LatLng(37.79815, 128.5430),
-      'courses': [
-        {
-          'courseName': 'Odaesan Ridge',
-          'distance': '12km',
-          'duration': '6h',
-          'difficulty': 'Hard',
-          'altitude': '1,563m',
-        },
-      ],
     },
     {
       'name': 'Chiaksan',
       'location': LatLng(37.37172, 128.0505),
-      'courses': [
-        {
-          'courseName': 'Chiaksan Loop',
-          'distance': '7km',
-          'duration': '3h',
-          'difficulty': 'Easy',
-          'altitude': '1,288m',
-        },
-        {
-          'courseName': 'Chiaksan Summit',
-          'distance': '10km',
-          'duration': '5h',
-          'difficulty': 'Medium',
-          'altitude': '1,288m',
-        },
-      ],
     },
+    {'name': 'Taebaeksan', 'location': LatLng(37.0957536, 128.9152435)},
+    {'name': 'Dutasan', 'location': LatLng(37.26003, 129.1000)},
+    {'name': 'Myeongseong', 'location': LatLng(38.10780, 127.3404)},
+    {'name': 'Jeombongsan', 'location': LatLng(38.04930, 128.4253)},
+    {'name': 'Hwangbyeong', 'location': LatLng(37.75783, 128.6634)},
+    {'name': 'Daeamsan', 'location': LatLng(38.21123, 128.1351)},
+    {'name': 'Garisan', 'location': LatLng(37.87344, 127.9609)},
+    {'name': 'Gariwangsan', 'location': LatLng(37.46250, 128.5634)},
+    {'name': 'Gyebangsan', 'location': LatLng(37.72831, 128.4655)},
+    {'name': 'Gongjaksan', 'location': LatLng(37.71566, 128.0100)},
+    {'name': 'Baekunsan', 'location': LatLng(37.29616, 127.9586)},
+    {'name': 'Bangtaesan', 'location': LatLng(37.89488, 128.3560)},
+    {'name': 'Baekdeoksan', 'location': LatLng(37.39657, 128.2934)},
+    {'name': 'Samaksan', 'location': LatLng(37.83991, 127.6603)},
+    {'name': 'Obongsan', 'location': LatLng(38.00078, 127.8061)},
+    {'name': 'Yonghwasan', 'location': LatLng(38.03942, 127.7438)},
+    {'name': 'Eungbongsan', 'location': LatLng(38.1017, 127.57)},
+    {'name': 'Taehwasan', 'location': LatLng(37.4003, 127.5822)},
+    {'name': 'Palbongsan', 'location': LatLng(37.70287, 127.7540)},
+    {'name': 'Deokhangsan', 'location': LatLng(37.30891, 129.0117)}
   ];
 
   // 네비게이션 클릭 전에 로그인 상태 확인 함수
@@ -90,11 +70,47 @@ class _Treking extends State<Treking> {
   List<Map<String, dynamic>> _selectedMountainCourses = [];
   String _selectedMountainName = ''; // 선택된 산의 이름을 저장할 변수
 
+  // 서버에서 코스 데이터를 불러오는 함수
+  Future<void> _fetchCoursesForMountain(String mountainName) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'http://yourserver.com/api/courses?mountain=$mountainName'), // 서버 API URL
+      );
+
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+        setState(() {
+          _selectedMountainCourses =
+              List<Map<String, dynamic>>.from(responseData['courses']);
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to load courses")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error loading courses: $e")),
+      );
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   void _onMarkerTap(Map<String, dynamic> mountain) {
     setState(() {
-      _selectedMountainCourses = mountain['courses'];
       _selectedMountainName = mountain['name']; // 산의 이름을 저장
     });
+
+    // 해당 산의 코스 정보를 서버에서 가져옴
+    _fetchCoursesForMountain(_selectedMountainName);
   }
 
   void _onSearch() {
@@ -157,7 +173,6 @@ class _Treking extends State<Treking> {
                   ),
                 ],
               ),
-              // Add more widgets here if needed
             ],
           ),
           centerTitle: true,

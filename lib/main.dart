@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/question.dart';
+import 'package:my_app/review_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'loading.dart';
@@ -12,6 +13,7 @@ import 'login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'question.dart';
 import 'package:lottie/lottie.dart';
+import 'review_detail.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -518,11 +520,19 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              '  Review >',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ReviewDetailPage()),
+                );
+              },
+              child: const Text(
+                'Review >',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(height: 8),

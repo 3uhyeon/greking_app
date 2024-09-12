@@ -186,46 +186,23 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
                   ),
                 ),
                 SizedBox(height: 32.0),
-                Icon(Icons.sentiment_dissatisfied,
-                    size: 40, color: Color(0XFF1DBE92)),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(5, (index) {
-                    return IconButton(
-                      icon: Icon(
-                        Icons.star,
-                        size: 20.0,
-                        color: index < _selectedStar
-                            ? Color(0XFF1DBE92)
-                            : Colors.grey[300],
-                      ),
-                      onPressed: () => _selectStar(index + 1),
-                    );
-                  }),
-                ),
-                SizedBox(height: 32.0),
-                Text('   Level',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Pretendard')),
-                SizedBox(height: 8.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildDifficultyButton(
-                        0, 'Difficult', Icons.sentiment_very_dissatisfied),
-                    _buildDifficultyButton(
-                        1, 'Manageable', Icons.sentiment_neutral),
-                    _buildDifficultyButton(
-                        2, 'Easy', Icons.sentiment_very_satisfied),
+                  children: const [
+                    Icon(Icons.sentiment_dissatisfied,
+                        size: 40, color: Color(0XFF1DBE92)),
+                    SizedBox(width: 16),
+                    Icon(Icons.star, size: 16, color: Color(0xffa9b0b5)),
+                    Icon(Icons.star, size: 16, color: Color(0xffa9b0b5)),
+                    Icon(Icons.star, size: 16, color: Color(0xffa9b0b5)),
+                    Icon(Icons.star, size: 16, color: Color(0xffa9b0b5)),
+                    Icon(Icons.star_border, size: 16, color: Color(0xffa9b0b5)),
                   ],
                 ),
                 SizedBox(height: 32.0),
                 TextField(
                   controller: _reviewController,
-                  maxLines: 4,
-                  maxLength: 200,
+                  maxLines: 7,
+                  maxLength: 400,
                   decoration: InputDecoration(
                     hintText: 'Write your review here in 200 characters',
                     hintStyle: TextStyle(color: Color(0xFFA9B0B5)),
