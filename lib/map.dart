@@ -147,17 +147,10 @@ class _Treking extends State<Treking> {
                 children: [
                   Expanded(
                     child: Container(
-                      height: 50.0,
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            offset: Offset(0.0, 10.0),
-                            blurRadius: 10.0,
-                          ),
-                        ],
                       ),
                       child: TextField(
                         controller: _searchController,
@@ -165,7 +158,7 @@ class _Treking extends State<Treking> {
                           prefixIcon: Icon(Icons.search),
                           hintText: 'Search',
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(13.0),
+                          contentPadding: EdgeInsets.all(10.0),
                         ),
                         onSubmitted: (_) => _onSearch(),
                       ),

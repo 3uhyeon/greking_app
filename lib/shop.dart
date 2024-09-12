@@ -175,7 +175,7 @@ class _ShopState extends State<Shop> {
               child: TextField(
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.search),
-                  hintText: 'search',
+                  hintText: 'Search',
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(10.0),
                 ),
