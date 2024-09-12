@@ -35,6 +35,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _signInWithEmail() async {
     if (_formKey.currentState!.validate()) {
       try {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String uid = prefs.getString('uid') ?? '';
+        String nickname = '';
         String email = _emailController.text;
         String password = _passwordController.text;
         setState(() {
@@ -49,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
           body: jsonEncode(<String, String>{
             'email': email,
             'password': password,
-            'uid': 'some-unique-id', // Firebase UID가 없을 경우 고유 식별자 생성 필요
+            'uid': uid, // Firebase UID가 없을 경우 고유 식별자 생성 필요
           }),
         );
 
@@ -59,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
             isLoading = false; // 로딩 상태 변경
           });
           // 로그인 성공 시 로그인 상태 저장
-          await _saveLoginState('email', responseData['uid'], email, '');
+          await _saveLoginState('email', uid, email, nickname);
 
           // 메인 페이지로 이동
           Navigator.pushReplacement(

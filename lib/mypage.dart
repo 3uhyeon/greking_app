@@ -5,6 +5,10 @@ import 'package:my_app/privacy.dart';
 import 'package:my_app/terms.dart';
 import 'login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class My extends StatefulWidget {
   const My({super.key});
@@ -17,6 +21,10 @@ class _MyState extends State<My> {
   String? email;
   String? name;
   bool _isChecked = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  bool isLoading = false;
+  String _errorText = '';
 
   @override
   void initState() {
@@ -28,7 +36,6 @@ class _MyState extends State<My> {
   Future<void> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
-
     String? token = prefs.getString('token');
     String? savedEmail = prefs.getString('email'); // 저장된 이메일
     String? savedName = prefs.getString('name'); // 저장된 사용자 이름
@@ -46,13 +53,146 @@ class _MyState extends State<My> {
     }
   }
 
-  // 네비게이션 클릭 전에 로그인 상태 확인 함수
-  Future<bool> _checkLoginBeforeNavigate() async {
+  // 이메일/비밀번호 회원 탈퇴
+  Future<void> _deleteAccount() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? loginMethod = prefs.getString('loginMethod');
+    String? uid = prefs.getString('uid');
     String? token = prefs.getString('token');
 
-    return (loginMethod != null && token != null);
+    if (uid == null || token == null) {
+      setState(() {
+        _errorText = "User not logged in.";
+      });
+      return;
+    }
+
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      var response = await http.delete(
+        Uri.parse('http://10.223.121.249:8080/api/users/$uid'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token', // 인증 토큰
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          isLoading = false;
+        });
+
+        await prefs.clear(); // SharedPreferences 데이터 제거
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoginScreen(),
+          ),
+        );
+      } else {
+        setState(() {
+          isLoading = false;
+          _errorText = "Failed to delete account.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        _errorText = "Error occurred. Please try again.";
+      });
+    }
+  }
+
+  // Google 계정 삭제
+  Future<void> _deleteGoogleAccount() async {
+    try {
+      User? user = _auth.currentUser;
+
+      if (user != null) {
+        setState(() {
+          isLoading = true;
+        });
+
+        await user.delete(); // Firebase에서 계정 삭제
+
+        setState(() {
+          isLoading = false;
+        });
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.clear(); // SharedPreferences 데이터 제거
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoginScreen(),
+          ),
+        );
+      } else {
+        setState(() {
+          _errorText = "No user found.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        _errorText = "Failed to delete Google account.";
+      });
+    }
+  }
+
+  // 회원탈퇴 다이얼로그
+  Future<void> _showDeleteAccountDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Center(
+          child: AlertDialog(
+            content: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  Text('Are you sure you want to delete your account? '),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Cancel',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                    )),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              SizedBox(width: 20),
+              TextButton(
+                child: Text('Delete',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                    )),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  String? loginMethod = prefs.getString('loginMethod');
+
+                  if (loginMethod == 'email') {
+                    await _deleteAccount(); // 이메일 로그인 사용자의 회원 탈퇴
+                  } else if (loginMethod == 'google') {
+                    await _deleteGoogleAccount(); // Google 로그인 사용자의 회원 탈퇴
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -70,7 +210,6 @@ class _MyState extends State<My> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 로그인된 경우 이름과 이메일 표시, 로그인되지 않은 경우 "Need to sign in" 및 로그인 버튼 표시
                     isLoggedIn
                         ? Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,8 +252,7 @@ class _MyState extends State<My> {
                                           LoginScreen(),
                                       transitionsBuilder: (context, animation,
                                           secondaryAnimation, child) {
-                                        const begin =
-                                            Offset(0.0, 1.0); // 아래에서 위로 올라오게
+                                        const begin = Offset(0.0, 1.0);
                                         const end = Offset.zero;
                                         const curve = Curves.easeInOut;
                                         var tween = Tween(
@@ -154,132 +292,25 @@ class _MyState extends State<My> {
               ],
             ),
             const SizedBox(height: 24),
-            // 로그인 상태일 때만 레벨과 진행 상태 표시
-            if (isLoggedIn)
-              Row(
-                children: [
-                  Column(
-                    children: [
-                      SizedBox(height: 20),
-                      Text(
-                        'Level 1',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0XFF0D615C),
-                        ),
-                      ),
-                      Text(
-                        '  1000/6000',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                  SvgPicture.asset(
-                    'assets/level_icon.svg',
-                    width: 100,
-                    height: 100,
-                  ),
-                  SizedBox(width: 10),
-                ],
-              ),
+            // 로그인 상태일 때만 표시
             if (isLoggedIn)
               LinearProgressIndicator(
                 value: 1000 / 6000,
                 backgroundColor: Colors.grey[300],
                 color: Color(0XFF1DBE92),
                 minHeight: 16,
-                borderRadius: BorderRadius.circular(10),
               ),
             const SizedBox(height: 24),
             Column(
               children: [
                 buildMenuItem(
                   text: 'Rent reservation',
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Container(),
-                          content: Container(
-                            width: 500,
-                            height: 20,
-                            child: Center(
-                              child: Text('Contact us at exaple@com',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                          ),
-                          actions: [
-                            Center(
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(
-                                  'OK',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
+                  onTap: () {},
                 ),
                 SizedBox(height: 2),
                 buildMenuItem(
                   text: 'App version',
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Container(),
-                          content: Container(
-                            width: 500,
-                            height: 20,
-                            child: Center(
-                              child: Text('App version 2.0.0',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                          ),
-                          actions: [
-                            Center(
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(
-                                  'OK',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
+                  onTap: () {},
                 ),
                 SizedBox(height: 2),
                 buildNoticeItem(
@@ -289,88 +320,22 @@ class _MyState extends State<My> {
                 SizedBox(height: 20),
                 buildMenuItem(
                   text: 'Terms of Use',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            TermsOfUse(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 나오게
-                          const end = Offset.zero;
-                          const curve = Curves.easeInOut;
-                          var tween = Tween(begin: begin, end: end)
-                              .chain(CurveTween(curve: curve));
-                          var offsetAnimation = animation.drive(tween);
-                          return SlideTransition(
-                            position: offsetAnimation,
-                            child: child,
-                          );
-                        },
-                      ),
-                    );
-                  },
+                  onTap: () {},
                 ),
                 SizedBox(height: 2),
                 buildMenuItem(
                   text: 'Location Information',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            LocationInformation(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 나오게
-                          const end = Offset.zero;
-                          const curve = Curves.easeInOut;
-                          var tween = Tween(begin: begin, end: end)
-                              .chain(CurveTween(curve: curve));
-                          var offsetAnimation = animation.drive(tween);
-
-                          return SlideTransition(
-                              position: offsetAnimation, child: child);
-                        },
-                      ),
-                    );
-                  },
+                  onTap: () {},
                 ),
                 SizedBox(height: 2),
                 buildMenuItem(
                   text: 'Privacy policy',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            Privacy(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 나오게
-                          const end = Offset.zero;
-                          const curve = Curves.easeInOut;
-                          var tween = Tween(begin: begin, end: end)
-                              .chain(CurveTween(curve: curve));
-                          var offsetAnimation = animation.drive(tween);
-
-                          return SlideTransition(
-                              position: offsetAnimation, child: child);
-                        },
-                      ),
-                    );
-                  },
+                  onTap: () {},
                 ),
                 SizedBox(height: 30),
                 TextButton(
                   onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => LoginScreen(),
-                    //   ),
-                    // );
+                    _showDeleteAccountDialog(); // 탈퇴 확인 다이얼로그 표시
                   },
                   child: Text('Delete account',
                       style: TextStyle(
