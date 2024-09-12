@@ -342,13 +342,6 @@ class ProductItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              offset: Offset(0.0, 10.0),
-              blurRadius: 10.0,
-            ),
-          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -645,10 +638,11 @@ class ProductDetailPage extends StatelessWidget {
           child: Text('Rent',
               style: TextStyle(
                   color: Colors.white,
-                  fontSize: 20,
+                  fontSize: 16,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.bold)),
           style: ElevatedButton.styleFrom(
+            minimumSize: Size(double.infinity, 45),
             backgroundColor: Color(0XFF1DBE92),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30.0),

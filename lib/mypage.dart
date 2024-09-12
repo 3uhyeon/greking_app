@@ -143,53 +143,144 @@ class _MyState extends State<My> {
     }
   }
 
+  // 로그아웃 함수
+  Future<void> _signOut() async {
+    try {
+      // 구글 로그인 로그아웃 처리
+      if (_googleSignIn.currentUser != null) {
+        await _googleSignIn.signOut();
+      }
+
+      // Firebase 로그아웃 처리
+      await _auth.signOut();
+
+      // SharedPreferences에서 로그인 정보 삭제
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      // 로그인 화면으로 이동
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(),
+        ),
+      );
+    } catch (e) {
+      setState(() {
+        _errorText = "Failed to sign out. Please try again.";
+      });
+    }
+  }
+
   // 회원탈퇴 다이얼로그
   Future<void> _showDeleteAccountDialog() async {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
-        return Center(
-          child: AlertDialog(
-            content: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  Text('Are you sure you want to delete your account? '),
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: Text('Cancel',
-                    style: TextStyle(
+        return AlertDialog(
+          content: Container(
+            width: 500,
+            height: 30,
+            child: Center(
+              child: Text('Are you sure to delete account? ',
+                  style: TextStyle(
                       color: Colors.black,
                       fontSize: 16,
-                    )),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              SizedBox(width: 20),
-              TextButton(
-                child: Text('Delete',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 16,
-                    )),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  String? loginMethod = prefs.getString('loginMethod');
-
-                  if (loginMethod == 'email') {
-                    await _deleteAccount(); // 이메일 로그인 사용자의 회원 탈퇴
-                  } else if (loginMethod == 'google') {
-                    await _deleteGoogleAccount(); // Google 로그인 사용자의 회원 탈퇴
-                  }
-                },
-              ),
-            ],
+                      fontWeight: FontWeight.normal)),
+            ),
           ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  child: TextButton(
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+                SizedBox(width: 50),
+                Container(
+                  child: TextButton(
+                    child: Text(
+                      'Delete',
+                      style: TextStyle(color: Colors.red, fontSize: 16),
+                    ),
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      String? loginMethod = prefs.getString('loginMethod');
+
+                      if (loginMethod == 'email') {
+                        await _deleteAccount(); // 이메일 로그인 사용자의 회원 탈퇴
+                      } else if (loginMethod == 'google') {
+                        await _deleteGoogleAccount(); // Google 로그인 사용자의 회원 탈퇴
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // 회원탈퇴 다이얼로그
+  Future<void> _showSignoutAccountDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            width: 500,
+            height: 30,
+            child: Center(
+              child: Text('Are you sure to Sign out ? ',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal)),
+            ),
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  child: TextButton(
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+                SizedBox(width: 50),
+                Container(
+                  child: TextButton(
+                    child: Text(
+                      'Sign out',
+                      style: TextStyle(color: Colors.red, fontSize: 16),
+                    ),
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await _signOut(); // 로그아웃
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
         );
       },
     );
@@ -217,14 +308,14 @@ class _MyState extends State<My> {
                               Text(
                                 name ?? 'Kim MinJune',
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
                                 email ?? '1234545@example.com',
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 12,
                                   color: Colors.grey,
                                 ),
                               ),
@@ -292,13 +383,46 @@ class _MyState extends State<My> {
               ],
             ),
             const SizedBox(height: 24),
-            // 로그인 상태일 때만 표시
+            // 로그인 상태일 때만 레벨과 진행 상태 표시
+            if (isLoggedIn)
+              Row(
+                children: [
+                  Column(
+                    children: [
+                      SizedBox(height: 20),
+                      Text(
+                        'Level 1',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0XFF0D615C),
+                        ),
+                      ),
+                      Text(
+                        '  1000/6000',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Spacer(),
+                  SvgPicture.asset(
+                    'assets/level_icon.svg',
+                    width: 100,
+                    height: 100,
+                  ),
+                  SizedBox(width: 10),
+                ],
+              ),
             if (isLoggedIn)
               LinearProgressIndicator(
                 value: 1000 / 6000,
                 backgroundColor: Colors.grey[300],
                 color: Color(0XFF1DBE92),
                 minHeight: 16,
+                borderRadius: BorderRadius.circular(10),
               ),
             const SizedBox(height: 24),
             Column(
@@ -332,7 +456,29 @@ class _MyState extends State<My> {
                   text: 'Privacy policy',
                   onTap: () {},
                 ),
-                SizedBox(height: 30),
+                SizedBox(height: 70),
+                TextButton(
+                  onPressed: () {
+                    _showSignoutAccountDialog(); // 로그아웃 확인 다이얼로그 표시
+                  },
+                  child: Text('Sign out',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      )),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(350, 45),
+                    backgroundColor: Color(0xFFECF0F2),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 20,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
                 TextButton(
                   onPressed: () {
                     _showDeleteAccountDialog(); // 탈퇴 확인 다이얼로그 표시
@@ -343,6 +489,7 @@ class _MyState extends State<My> {
                         fontSize: 16,
                       )),
                   style: ElevatedButton.styleFrom(
+                    minimumSize: Size(350, 45),
                     backgroundColor: Color(0xFFECF0F2),
                     padding: const EdgeInsets.symmetric(
                       vertical: 10,

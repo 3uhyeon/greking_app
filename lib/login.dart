@@ -389,9 +389,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ElevatedButton(
                     onPressed: _signInWithEmail, // 이메일/비밀번호 로그인 버튼
                     child: Text('Sign In',
-                        style: TextStyle(color: Colors.white, fontSize: 20.0)),
+                        style: TextStyle(color: Colors.white, fontSize: 16.0)),
                     style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 70),
+                      minimumSize: Size(double.infinity, 45),
                       backgroundColor: const Color(0xFF1dbe92),
                       padding: EdgeInsets.symmetric(vertical: 15.0),
                       textStyle: TextStyle(
