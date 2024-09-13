@@ -112,13 +112,59 @@ class _MyCourseState extends State<MyCourse>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '24.07.06 (Th)',
-            style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w400),
+          Row(
+            children: [
+              Text(
+                '  24.07.06 (Th)',
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w400),
+              ),
+              const Spacer(),
+              PopupMenuButton(
+                constraints: const BoxConstraints(
+                  minWidth: 50,
+                  maxWidth: 100,
+                ),
+
+                color: Color(0xffEBEFF2),
+                icon: Icon(Icons.more_vert),
+                onSelected: (value) {
+                  if (value == 'delete') {
+                    // Delete action
+                    print('Delete action triggered');
+                  }
+                },
+                itemBuilder: (BuildContext context) => [
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Container(
+                      color: Color(0xffEBEFF2),
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, color: Colors.red, size: 20),
+                          SizedBox(width: 10),
+                          Text(
+                            'Delete',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+                offset: Offset(0, 45), // 팝업 메뉴의 위치를 아이콘 아래로 조정
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10), // 모서리 둥글게
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 8.0),
           Row(
