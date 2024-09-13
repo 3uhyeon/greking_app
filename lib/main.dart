@@ -24,10 +24,10 @@ void main() async {
         name: 'greking',
         options: FirebaseOptions(
           apiKey: 'key',
-          appId: '1:1061154392257:android:eaba0b8f02aed76eef2c40',
+          appId: '1:1061154392257:android:62346b5a1fe5a243ef2c40',
           messagingSenderId: 'sendid',
           projectId: 'greking-8e95f',
-          storageBucket: 'myapp-b9yt18.appspot.com',
+          storageBucket: 'greking-8e95f.appspot.com',
         ));
   }
 

@@ -49,6 +49,8 @@ class _MyCourseState extends State<MyCourse>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: Container(),
+        leadingWidth: 0,
         title: TabBar(
           controller: _tabController,
           labelColor: Colors.black,

@@ -396,7 +396,7 @@ class _SignupState extends State<Signup> {
 
     var response = await http.get(
       Uri.parse(
-          'http://43.203.197.86:8080/api/users/validate/${_nicknameController.text}'),
+          'https://b945-1-209-175-114.ngrok-free.app/api/users/validate/${_nicknameController.text}'),
     );
 
     if (response.statusCode == 200) {
@@ -440,7 +440,8 @@ class _SignupState extends State<Signup> {
 
           // 서버로 UID 전송
           var response = await http.post(
-            Uri.parse('http://43.203.197.86:8080/api/users/register'),
+            Uri.parse(
+                'https://b945-1-209-175-114.ngrok-free.app/api/users/register'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
             },

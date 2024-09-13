@@ -45,14 +45,15 @@ class _LoginScreenState extends State<LoginScreen> {
         });
         // API 요청 보내기
         var response = await http.post(
-          Uri.parse('http://43.203.197.86:8080/api/users/login'), // 서버 URL
+          Uri.parse(
+              'https://b945-1-209-175-114.ngrok-free.app/api/users/login'), // 서버 URL
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
           body: jsonEncode(<String, String>{
             'email': email,
             'password': password,
-            'uid': uid, // Firebase UID가 없을 경우 고유 식별자 생성 필요
+            'userId': uid, // Firebase UID가 없을 경우 고유 식별자 생성 필요
           }),
         );
 

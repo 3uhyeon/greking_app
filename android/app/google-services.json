@@ -7,12 +7,25 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1061154392257:android:eaba0b8f02aed76eef2c40",
+        "mobilesdk_app_id": "1:1061154392257:android:62346b5a1fe5a243ef2c40",
         "android_client_info": {
-          "package_name": "com.kshareplace.greking_frontend"
+          "package_name": "com.greking.android"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1061154392257-t552e8cvq3gu8kli90phgssq2b2as0qc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.greking.android",
+            "certificate_hash": "05423520cf41c292c78f6d0afeeb8abebc10fe13"
+          }
+        },
+        {
+          "client_id": "1061154392257-6n92opv4rfd7sjoet0j05mbbq5pp1l89.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCllgJKQWo4QiyFCbNPq50eI2XP4NwJ_KA"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1061154392257-6n92opv4rfd7sjoet0j05mbbq5pp1l89.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
