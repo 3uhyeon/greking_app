@@ -269,121 +269,126 @@ class _TrackingPageState extends State<TrackingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Tracking',
-            style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontWeight: FontWeight.bold)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        backgroundColor:
+            Colors.transparent, // Set the background color to transparent
+        elevation: 0, // Remove the shadow
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              height: MediaQuery.of(context).size.height * 0.4, // 높이를 50%로 설정
-              child: FlutterMap(
-                mapController: _mapController,
-                options: MapOptions(
-                  minZoom: 10,
-                  maxZoom: 18,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            bottom: 250,
+            child: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                minZoom: 10,
+                maxZoom: 18,
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate:
+                      "https://api.mapbox.com/styles/v1/suzzinova/cm054z5r000i201rbdvg243vw/tiles/256/{z}/{x}/{y}@2x?access_token=${AppConstants.mapBoxAccessToken}",
                 ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        "https://api.mapbox.com/styles/v1/suzzinova/cm054z5r000i201rbdvg243vw/tiles/256/{z}/{x}/{y}@2x?access_token=${AppConstants.mapBoxAccessToken}",
-                  ),
-                  PolylineLayer(
-                    polylines: [
-                      Polyline(
-                        points: _routePoints, // GPX 로드된 경로
-                        strokeWidth: 4.0,
-                        color: Color(0xff0d615c),
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: _routePoints,
+                      strokeWidth: 4.0,
+                      color: Color(0xff0d615c),
+                    ),
+                  ],
+                ),
+                MarkerLayer(
+                  markers: [
+                    if (_currentLocation != null)
+                      Marker(
+                        point: _currentLocation!,
+                        rotate: true,
+                        child: SvgPicture.asset(
+                          'assets/mygps.svg',
+                          width: 60.0,
+                          height: 60.0,
+                        ),
                       ),
+                    ..._markers,
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // 정보 표시할 Container
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.4,
+              padding: EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30.0),
+                  topRight: Radius.circular(30.0),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    offset: Offset(0, -2),
+                    blurRadius: 8.0,
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      SizedBox(width: 25.0),
+                      ElevatedButton(
+                        onPressed: () => {},
+                        child: Text('Course Name >',
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff1dbe92),
+                          minimumSize: Size(100, 44),
+                        ),
+                      ),
+                      SizedBox(width: 100.0),
+                      SvgPicture.asset('assets/sos.svg'),
                     ],
                   ),
-                  MarkerLayer(
-                    markers: [
-                      if (_currentLocation != null)
-                        Marker(
-                          point: _currentLocation!,
-                          rotate: true,
-                          child: SvgPicture.asset(
-                            'assets/mygps.svg',
-                            width: 60.0,
-                            height: 60.0,
-                          ),
-                        ),
-                      ..._markers, // 마커 리스트
+                  SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildInfoCard('Distance',
+                          '${_totalDistance.toStringAsFixed(2)} km'),
+                      _buildInfoCard('Altitude',
+                          '${_currentAltitude.toStringAsFixed(1)} m'),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildInfoCard('Calories',
+                          '${_totalCalories.toStringAsFixed(0)} kcal'),
+                      _buildInfoCard('Time', _formatDuration(_totalTime)),
                     ],
                   ),
                 ],
               ),
             ),
-            ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30.0),
-                topRight: Radius.circular(30.0),
-              ),
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.4, // 40%로 설정
-                padding: EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      offset: Offset(0, -2),
-                      blurRadius: 8.0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        SizedBox(width: 25.0),
-                        ElevatedButton(
-                          onPressed: () => {},
-                          child: Text('Course Name >',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(
-                                0xff1dbe92), // Change background color to blue
-                            minimumSize:
-                                Size(100, 44), // Change width and height
-                          ),
-                        ),
-                        SizedBox(width: 100.0),
-                        SvgPicture.asset('assets/sos.svg'),
-                      ],
-                    ),
-                    SizedBox(height: 16.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildInfoCard('Distance',
-                            '${_totalDistance.toStringAsFixed(2)} km'),
-                        _buildInfoCard('Altitude',
-                            '${_currentAltitude.toStringAsFixed(1)} m'),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildInfoCard('Calories',
-                            '${_totalCalories.toStringAsFixed(0)} kcal'),
-                        _buildInfoCard('Time', _formatDuration(_totalTime)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(16.0),
@@ -420,7 +425,7 @@ class _TrackingPageState extends State<TrackingPage> {
       padding: EdgeInsets.all(16.0),
       margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Color(0XFFEBEFF2),
         borderRadius: BorderRadius.circular(16.0),
         boxShadow: [
           BoxShadow(

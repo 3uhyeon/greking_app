@@ -115,7 +115,7 @@ class _MyCourseState extends State<MyCourse>
           Row(
             children: [
               Text(
-                '  24.07.06 (Th)',
+                '  Reserved 24.07.06 (Th) ',
                 style: TextStyle(
                     color: Colors.grey,
                     fontSize: 14,
@@ -123,47 +123,49 @@ class _MyCourseState extends State<MyCourse>
                     fontWeight: FontWeight.w400),
               ),
               const Spacer(),
-              PopupMenuButton(
-                constraints: const BoxConstraints(
-                  minWidth: 50,
-                  maxWidth: 100,
-                ),
+              isCompleted
+                  ? Container()
+                  : PopupMenuButton(
+                      constraints: const BoxConstraints(
+                        minWidth: 50,
+                        maxWidth: 100,
+                      ),
 
-                color: Color(0xffEBEFF2),
-                icon: Icon(Icons.more_vert),
-                onSelected: (value) {
-                  if (value == 'delete') {
-                    // Delete action
-                    print('Delete action triggered');
-                  }
-                },
-                itemBuilder: (BuildContext context) => [
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: Container(
                       color: Color(0xffEBEFF2),
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete, color: Colors.red, size: 20),
-                          SizedBox(width: 10),
-                          Text(
-                            'Delete',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                      icon: Icon(Icons.more_vert),
+                      onSelected: (value) {
+                        if (value == 'delete') {
+                          // Delete action
+                          print('Delete action triggered');
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => [
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Container(
+                            color: Color(0xffEBEFF2),
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete, color: Colors.red, size: 20),
+                                SizedBox(width: 10),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
+                      ],
+                      offset: Offset(0, 45), // 팝업 메뉴의 위치를 아이콘 아래로 조정
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // 모서리 둥글게
                       ),
-                    ),
-                  ),
-                ],
-                offset: Offset(0, 45), // 팝업 메뉴의 위치를 아이콘 아래로 조정
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10), // 모서리 둥글게
-                ),
-              ),
+                    )
             ],
           ),
           const SizedBox(height: 8.0),
@@ -279,8 +281,20 @@ class _MyCourseState extends State<MyCourse>
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => TrackingPage()),
+                          PageRouteBuilder(
+                            pageBuilder: (_, __, ___) => TrackingPage(),
+                            transitionDuration: Duration(milliseconds: 100),
+                            transitionsBuilder:
+                                (_, Animation<double> animation, __, child) {
+                              return SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(0, 1),
+                                  end: Offset.zero,
+                                ).animate(animation),
+                                child: child,
+                              );
+                            },
+                          ),
                         );
                       },
                       child: Text(
