@@ -73,7 +73,7 @@ class _MyState extends State<My> {
       });
 
       var response = await http.delete(
-        Uri.parse('http://10.223.121.249:8080/api/users/$uid'),
+        Uri.parse('http://43.203.197.86:8080/api/users/$uid'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token', // 인증 토큰

@@ -73,7 +73,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/api/review/userid/userCouserId'),
+        Uri.parse('http://43.203.197.86:8080/api/review/userid/userCouserId'),
         headers: {
           "Content-Type": "application/json",
         },

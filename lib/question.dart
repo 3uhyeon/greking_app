@@ -61,7 +61,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
     // HTTP POST 요청을 통해 서버로 데이터 전송
     try {
       final response = await http.post(
-        Uri.parse('http://172.16.101.77:8080/api/survey/submit'), // 서버 URL 확인
+        Uri.parse('http://43.203.197.86:8080/api/survey/submit'), // 서버 URL 확인
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data), // 데이터 인코딩
       );
