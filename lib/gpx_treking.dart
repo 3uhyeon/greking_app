@@ -15,7 +15,6 @@ class AppConstants {
   static const String mapBoxAccessToken =
       'sk.eyJ1Ijoic3V6emlub3ZhIiwiYSI6ImNtMDUyOW54bzBiaDkya3NiNGdhbjVqeDgifQ.nvB1cGwKQEgxdlqGWe-hQw';
   static const String mapBoxStyleId = 'suzzinova';
-
   static final LatLng kangwondoCenter = LatLng(37.5550, 128.2098);
 }
 
@@ -25,9 +24,11 @@ class _TrackingPageState extends State<TrackingPage> {
   final List<LatLng> _routePoints = []; // 기존 경로 포인트
   final List<Marker> _markers = [];
   LatLng? _currentLocation;
+  LatLng? _previousLocation; // 이전 위치 저장
   double _currentHeading = 0.0; // 바라보는 방향
   double _totalDistance = 0.0;
   double _totalCalories = 0.0;
+  double _currentAltitude = 0.0; // 고도값
   Duration _totalTime = Duration.zero;
   Timer? _timer;
   bool _isTracking = false;
@@ -71,16 +72,15 @@ class _TrackingPageState extends State<TrackingPage> {
     _startTracking(); // 위치 권한이 허용되었을 때만 추적 시작
   }
 
-  Future<String> getCurrentAltitude() async {
+  Future<double> getCurrentAltitude() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best, // Best accuracy for altitude
       );
-
-      return "${position.altitude}"; // Altitude in meters
+      return position.altitude; // 고도 값을 반환
     } catch (e) {
       print("Error getting altitude: $e");
-      return '';
+      return 0;
     }
   }
 
@@ -120,17 +120,23 @@ class _TrackingPageState extends State<TrackingPage> {
     });
   }
 
-  void _startTracking() {
+  void _startTracking() async {
     setState(() {
       _isTracking = true;
       _totalTime = Duration.zero;
-
-      if (_routePoints.isNotEmpty) {
-        // Start 버튼을 눌렀을 때 줌 레벨을 15로 변경
-        _mapController.move(_routePoints.first, 15.0);
-      }
+      _totalDistance = 0.0; // 거리 초기화
+      _totalCalories = 0.0; // 칼로리 초기화
     });
 
+    // 고도값 가져오기
+    _currentAltitude = await getCurrentAltitude();
+
+    if (_routePoints.isNotEmpty) {
+      // Start 버튼을 눌렀을 때 줌 레벨을 15로 변경
+      _mapController.move(_routePoints.first, 15.0);
+    }
+
+    // 타이머 시작
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         _totalTime += Duration(seconds: 1);
@@ -145,6 +151,23 @@ class _TrackingPageState extends State<TrackingPage> {
       setState(() {
         _currentLocation = currentPoint;
         _currentHeading = position.heading; // 바라보는 방향
+
+        // 거리 계산
+        if (_previousLocation != null) {
+          final distance = Geolocator.distanceBetween(
+            _previousLocation!.latitude,
+            _previousLocation!.longitude,
+            _currentLocation!.latitude,
+            _currentLocation!.longitude,
+          );
+          _totalDistance += distance / 1000; // 미터를 km로 변환
+        }
+
+        // 칼로리 계산 (간단히 1km당 50칼로리 소모로 가정)
+        _totalCalories = _totalDistance * 50;
+
+        // 이전 위치 업데이트
+        _previousLocation = _currentLocation;
       });
     });
   }
@@ -167,124 +190,130 @@ class _TrackingPageState extends State<TrackingPage> {
                 fontSize: 24,
                 fontWeight: FontWeight.bold)),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                minZoom: 10,
-                maxZoom: 18,
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate:
-                      "https://api.mapbox.com/styles/v1/suzzinova/cm054z5r000i201rbdvg243vw/tiles/256/{z}/{x}/{y}@2x?access_token=${AppConstants.mapBoxAccessToken}",
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height * 0.4, // 높이를 50%로 설정
+              child: FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  minZoom: 10,
+                  maxZoom: 18,
                 ),
-                PolylineLayer(
-                  polylines: [
-                    Polyline(
-                      points: _routePoints, // GPX 로드된 경로
-                      strokeWidth: 4.0,
-                      color: Color(0xff0d615c),
-                    ),
-                  ],
-                ),
-                MarkerLayer(
-                  markers: [
-                    if (_currentLocation != null)
-                      Marker(
-                        point: _currentLocation!,
-                        rotate: true,
-                        child: SvgPicture.asset(
-                          'assets/mygps.svg',
-                          width: 60.0,
-                          height: 60.0,
-                        ),
-                      ),
-                    ..._markers, // 마커 리스트
-                  ],
-                ),
-              ],
-            ),
-          ),
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30.0),
-              topRight: Radius.circular(30.0),
-            ),
-            child: Container(
-              height: 420,
-              padding: EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    offset: Offset(0, -2),
-                    blurRadius: 8.0,
-                  ),
-                ],
-              ),
-              child: Column(
                 children: [
-                  Row(
-                    children: [
-                      SizedBox(width: 25.0),
-                      ElevatedButton(
-                        onPressed: () => {},
-                        child: Text('Course Name >',
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(
-                              0xff1dbe92), // Change background color to blue
-                          minimumSize: Size(122, 44), // Change width and height
-                        ),
+                  TileLayer(
+                    urlTemplate:
+                        "https://api.mapbox.com/styles/v1/suzzinova/cm054z5r000i201rbdvg243vw/tiles/256/{z}/{x}/{y}@2x?access_token=${AppConstants.mapBoxAccessToken}",
+                  ),
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: _routePoints, // GPX 로드된 경로
+                        strokeWidth: 4.0,
+                        color: Color(0xff0d615c),
                       ),
-                      SizedBox(width: 100.0),
-                      SvgPicture.asset('assets/sos.svg'),
                     ],
                   ),
-                  SizedBox(height: 16.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildInfoCard('Distance',
-                          '${_totalDistance.toStringAsFixed(2)} km'),
-                      _buildInfoCard('Altitude', '${getCurrentAltitude()}'),
+                  MarkerLayer(
+                    markers: [
+                      if (_currentLocation != null)
+                        Marker(
+                          point: _currentLocation!,
+                          rotate: true,
+                          child: SvgPicture.asset(
+                            'assets/mygps.svg',
+                            width: 60.0,
+                            height: 60.0,
+                          ),
+                        ),
+                      ..._markers, // 마커 리스트
                     ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildInfoCard('Calories',
-                          '${_totalCalories.toStringAsFixed(0)} kcal'),
-                      _buildInfoCard('Time', _formatDuration(_totalTime)),
-                    ],
-                  ),
-                  SizedBox(height: 26.0),
-                  ElevatedButton(
-                    onPressed:
-                        _isTracking ? _stopTracking : _checkLocationPermission,
-                    child: Text(_isTracking ? 'Pause' : 'Start',
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Color(0xff1dbe92), // Change background color to blue
-                      minimumSize: Size(292, 56), // Change width and height
-                    ),
                   ),
                 ],
               ),
             ),
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30.0),
+                topRight: Radius.circular(30.0),
+              ),
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.4, // 40%로 설정
+                padding: EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      offset: Offset(0, -2),
+                      blurRadius: 8.0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(width: 25.0),
+                        ElevatedButton(
+                          onPressed: () => {},
+                          child: Text('Course Name >',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(
+                                0xff1dbe92), // Change background color to blue
+                            minimumSize:
+                                Size(100, 44), // Change width and height
+                          ),
+                        ),
+                        SizedBox(width: 100.0),
+                        SvgPicture.asset('assets/sos.svg'),
+                      ],
+                    ),
+                    SizedBox(height: 16.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildInfoCard('Distance',
+                            '${_totalDistance.toStringAsFixed(2)} km'),
+                        _buildInfoCard('Altitude',
+                            '${_currentAltitude.toStringAsFixed(1)} m'),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildInfoCard('Calories',
+                            '${_totalCalories.toStringAsFixed(0)} kcal'),
+                        _buildInfoCard('Time', _formatDuration(_totalTime)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: ElevatedButton(
+          onPressed: _isTracking ? _stopTracking : _checkLocationPermission,
+          child: Text(_isTracking ? 'Pause' : 'Start',
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor:
+                Color(0xff1dbe92), // Change background color to blue
+            minimumSize: Size(double.infinity, 45), // Change width and height
           ),
-        ],
+        ),
       ),
     );
   }
@@ -312,7 +341,7 @@ class _TrackingPageState extends State<TrackingPage> {
                   fontSize: 12, color: Colors.grey, fontFamily: 'Pretendard')),
           SizedBox(height: 8.0),
           Text(value,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ],
       ),
     );
