@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gpx/gpx.dart';
 import 'dart:async';
+import 'package:http/http.dart' as http;
 
 class TrackingPage extends StatefulWidget {
   @override
@@ -32,6 +33,7 @@ class _TrackingPageState extends State<TrackingPage> {
   Duration _totalTime = Duration.zero;
   Timer? _timer;
   bool _isTracking = false;
+  bool _isPaused = false; // pause 상태를 추가
 
   @override
   void initState() {
@@ -45,6 +47,86 @@ class _TrackingPageState extends State<TrackingPage> {
     _positionStream?.cancel();
     _timer?.cancel();
     super.dispose();
+  }
+
+  void _showBottomSheet(BuildContext context) {
+    double _currentVolume = 0.5; // 초기 볼륨 값
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          height: 200,
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Volumn',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
+                textAlign: TextAlign.center,
+              ),
+              Row(
+                children: [
+                  Icon(Icons.volume_mute, size: 30, color: Colors.black),
+                  Expanded(
+                    child: Slider(
+                      value: _currentVolume,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _currentVolume = newValue;
+                        });
+                      },
+                      min: 0.0,
+                      max: 1.0,
+                      activeColor: Color(0xFF1DBE92),
+                      inactiveColor: Colors.grey[300],
+                    ),
+                  ),
+                  Icon(Icons.volume_up, size: 30, color: Colors.black),
+                ],
+              ),
+              SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: () async {
+                  // API 호출
+                  await _sendDoneAPI();
+                  Navigator.pop(context); // Done 누르면 bottom sheet 닫기
+                },
+                child: Text('Done', style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xff1dbe92),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _sendDoneAPI() async {
+    // 서버로 Done API 요청
+    try {
+      final response = await http.post(
+        Uri.parse('https://your-server-endpoint.com/api/done'), // 여기에 서버 주소 입력
+        headers: {'Content-Type': 'application/json'},
+        body: '{"totalDistance": $_totalDistance, "calories": $_totalCalories}',
+      );
+
+      if (response.statusCode == 200) {
+        print('API 호출 성공!');
+      } else {
+        print('API 호출 실패!');
+      }
+    } catch (e) {
+      print('API 호출 중 오류 발생: $e');
+    }
   }
 
   Future<void> _checkLocationPermission() async {
@@ -123,9 +205,12 @@ class _TrackingPageState extends State<TrackingPage> {
   void _startTracking() async {
     setState(() {
       _isTracking = true;
-      _totalTime = Duration.zero;
-      _totalDistance = 0.0; // 거리 초기화
-      _totalCalories = 0.0; // 칼로리 초기화
+      if (!_isPaused) {
+        _totalTime = Duration.zero;
+        _totalDistance = 0.0; // 거리 초기화
+        _totalCalories = 0.0; // 칼로리 초기화
+      }
+      _isPaused = false; // paused 상태 초기화
     });
 
     // 고도값 가져오기
@@ -175,6 +260,7 @@ class _TrackingPageState extends State<TrackingPage> {
   void _stopTracking() {
     setState(() {
       _isTracking = false;
+      _isPaused = true; // 일시정지 상태 유지
     });
     _positionStream?.cancel();
     _timer?.cancel();
@@ -301,18 +387,28 @@ class _TrackingPageState extends State<TrackingPage> {
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(16.0),
-        child: ElevatedButton(
-          onPressed: _isTracking ? _stopTracking : _checkLocationPermission,
-          child: Text(_isTracking ? 'Pause' : 'Start',
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white)),
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-                Color(0xff1dbe92), // Change background color to blue
-            minimumSize: Size(double.infinity, 45), // Change width and height
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
+              onPressed: _isTracking ? _stopTracking : _checkLocationPermission,
+              child: Text(_isTracking ? 'Pause' : 'Start',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff1dbe92),
+                minimumSize: Size(300, 45),
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.more_vert),
+              onPressed: () {
+                _showBottomSheet(context); // 점 세 개 버튼을 눌렀을 때 bottom sheet 열기
+              },
+            ),
+          ],
         ),
       ),
     );
