@@ -238,9 +238,9 @@ class _SignupState extends State<Signup> {
                 ElevatedButton(
                   onPressed: _isFormValid ? _signUp : null,
                   child: Text('Sign up',
-                      style: TextStyle(color: Colors.white, fontSize: 20.0)),
+                      style: TextStyle(color: Colors.white, fontSize: 16.0)),
                   style: ElevatedButton.styleFrom(
-                    minimumSize: Size(352, 70),
+                    minimumSize: Size(352, 45),
                     backgroundColor:
                         _isFormValid ? const Color(0xFF1dbe92) : Colors.grey,
                     padding: EdgeInsets.symmetric(vertical: 15.0),

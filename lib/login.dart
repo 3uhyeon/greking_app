@@ -368,10 +368,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Row(
                       children: [
                         SizedBox(width: 20.0),
-                        SvgPicture.asset('assets/google.svg'),
-                        Text('            Sign In with Google',
+                        SvgPicture.asset('assets/google.svg',
+                            width: 20, height: 20),
+                        Text('                  Sign In with Google',
                             style:
-                                TextStyle(color: Colors.black, fontSize: 20.0)),
+                                TextStyle(color: Colors.black, fontSize: 16.0)),
                       ],
                     ),
                     style: ElevatedButton.styleFrom(
