@@ -6,6 +6,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:gpx/gpx.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:flutter_map_animations/flutter_map_animations.dart';
+import 'package:flutter_map_animated_marker/flutter_map_animated_marker.dart';
+import 'package:my_app/loading.dart';
 
 class TrackingPage extends StatefulWidget {
   @override
@@ -19,8 +22,9 @@ class AppConstants {
   static final LatLng kangwondoCenter = LatLng(37.5550, 128.2098);
 }
 
-class _TrackingPageState extends State<TrackingPage> {
-  late MapController _mapController;
+class _TrackingPageState extends State<TrackingPage>
+    with TickerProviderStateMixin {
+  late final AnimatedMapController _animatedMapController;
   StreamSubscription<Position>? _positionStream;
   final List<LatLng> _routePoints = []; // 기존 경로 포인트
   final List<Marker> _markers = [];
@@ -34,11 +38,12 @@ class _TrackingPageState extends State<TrackingPage> {
   Timer? _timer;
   bool _isTracking = false;
   bool _isPaused = false; // pause 상태를 추가
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _mapController = MapController();
+    _animatedMapController = AnimatedMapController(vsync: this);
     _loadGpxFile();
   }
 
@@ -46,6 +51,7 @@ class _TrackingPageState extends State<TrackingPage> {
   void dispose() {
     _positionStream?.cancel();
     _timer?.cancel();
+    _animatedMapController.dispose();
     super.dispose();
   }
 
@@ -197,7 +203,7 @@ class _TrackingPageState extends State<TrackingPage> {
           (_routePoints.first.latitude + _routePoints.last.latitude) / 2,
           (_routePoints.first.longitude + _routePoints.last.longitude) / 2,
         );
-        _mapController.move(middlePoint, 12.5);
+        _animatedMapController.animateTo(dest: middlePoint, zoom: 12.5);
       }
     });
   }
@@ -215,18 +221,6 @@ class _TrackingPageState extends State<TrackingPage> {
 
     // 고도값 가져오기
     _currentAltitude = await getCurrentAltitude();
-
-    if (_routePoints.isNotEmpty) {
-      // Start 버튼을 눌렀을 때 줌 레벨을 15로 변경
-      _mapController.move(_routePoints.first, 15.0);
-    }
-
-    // 타이머 시작
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        _totalTime += Duration(seconds: 1);
-      });
-    });
 
     // 현 위치 추적 스트림 시작
     _positionStream =
@@ -253,6 +247,19 @@ class _TrackingPageState extends State<TrackingPage> {
 
         // 이전 위치 업데이트
         _previousLocation = _currentLocation;
+
+        _animatedMapController.animateTo(
+          dest: currentPoint,
+          zoom: 15.0,
+          rotation: position.heading,
+        ); // 목적지와 줌 레벨 설정
+      });
+    });
+
+    // 타이머 시작
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _totalTime += Duration(seconds: 1);
       });
     });
   }
@@ -268,155 +275,181 @@ class _TrackingPageState extends State<TrackingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+    if (_isLoading) {
+      return LoadingScreen();
+    } else {
+      return Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          backgroundColor:
+              Colors.transparent, // Set the background color to transparent
+          elevation: 0, // Remove the shadow
         ),
-        backgroundColor:
-            Colors.transparent, // Set the background color to transparent
-        elevation: 0, // Remove the shadow
-      ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            bottom: 250,
-            child: FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                minZoom: 10,
-                maxZoom: 18,
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate:
-                      "https://api.mapbox.com/styles/v1/suzzinova/cm054z5r000i201rbdvg243vw/tiles/256/{z}/{x}/{y}@2x?access_token=${AppConstants.mapBoxAccessToken}",
+        body: Stack(
+          children: [
+            Positioned.fill(
+              bottom: 250,
+              child: FlutterMap(
+                mapController: _animatedMapController.mapController,
+                options: MapOptions(
+                  minZoom: 10,
+                  maxZoom: 18,
                 ),
-                PolylineLayer(
-                  polylines: [
-                    Polyline(
-                      points: _routePoints,
-                      strokeWidth: 4.0,
-                      color: Color(0xff0d615c),
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        "https://api.mapbox.com/styles/v1/suzzinova/cm054z5r000i201rbdvg243vw/tiles/256/{z}/{x}/{y}@2x?access_token=${AppConstants.mapBoxAccessToken}",
+                    tileBounds: LatLngBounds(
+                      LatLng(33.0, 124.0), // South Korea's southwest coordinate
+                      LatLng(39.0, 132.0), // South Korea's northeast coordinate
+                    ),
+                    subdomains: ['a', 'b', 'c'],
+                    tileSize: 256,
+                    zoomOffset: 0.0,
+                    maxZoom: 18,
+                    minZoom: 10,
+                    backgroundColor: Colors.transparent,
+                    tileDisplay: const TileDisplay.fadeIn(
+                      duration: Duration(milliseconds: 500),
+                    ),
+                    tileProvider: NetworkTileProvider(),
+                    errorTileCallback: (TileImage tile, error, stackTrace) {
+                      print('타일 로드 오류: $error');
+                    },
+                    tileBuilder: (BuildContext context, Widget tile,
+                        TileImage tileImage) {
+                      return tile;
+                    },
+                  ),
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: _routePoints,
+                        strokeWidth: 4.0,
+                        color: Color(0xff0d615c),
+                      ),
+                    ],
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      if (_currentLocation != null)
+                        Marker(
+                          point: _currentLocation!,
+                          rotate: true,
+                          child: SvgPicture.asset(
+                            'assets/mygps.svg',
+                            width: 60.0,
+                            height: 60.0,
+                          ),
+                        ),
+                      ..._markers,
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // 정보 표시할 Container
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.4,
+                padding: EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30.0),
+                    topRight: Radius.circular(30.0),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      offset: Offset(0, -2),
+                      blurRadius: 8.0,
                     ),
                   ],
                 ),
-                MarkerLayer(
-                  markers: [
-                    if (_currentLocation != null)
-                      Marker(
-                        point: _currentLocation!,
-                        rotate: true,
-                        child: SvgPicture.asset(
-                          'assets/mygps.svg',
-                          width: 60.0,
-                          height: 60.0,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(width: 25.0),
+                        ElevatedButton(
+                          onPressed: () => {},
+                          child: Text('Course Name >',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xff1dbe92),
+                            minimumSize: Size(100, 44),
+                          ),
                         ),
-                      ),
-                    ..._markers,
+                        SizedBox(width: 100.0),
+                        SvgPicture.asset('assets/sos.svg'),
+                      ],
+                    ),
+                    SizedBox(height: 16.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildInfoCard('Distance',
+                            '${_totalDistance.toStringAsFixed(2)} km'),
+                        _buildInfoCard('Altitude',
+                            '${_currentAltitude.toStringAsFixed(1)} m'),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildInfoCard('Calories',
+                            '${_totalCalories.toStringAsFixed(0)} kcal'),
+                        _buildInfoCard('Time', _formatDuration(_totalTime)),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          // 정보 표시할 Container
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.4,
-              padding: EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30.0),
-                  topRight: Radius.circular(30.0),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    offset: Offset(0, -2),
-                    blurRadius: 8.0,
-                  ),
-                ],
               ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      SizedBox(width: 25.0),
-                      ElevatedButton(
-                        onPressed: () => {},
-                        child: Text('Course Name >',
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff1dbe92),
-                          minimumSize: Size(100, 44),
-                        ),
-                      ),
-                      SizedBox(width: 100.0),
-                      SvgPicture.asset('assets/sos.svg'),
-                    ],
-                  ),
-                  SizedBox(height: 16.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildInfoCard('Distance',
-                          '${_totalDistance.toStringAsFixed(2)} km'),
-                      _buildInfoCard('Altitude',
-                          '${_currentAltitude.toStringAsFixed(1)} m'),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildInfoCard('Calories',
-                          '${_totalCalories.toStringAsFixed(0)} kcal'),
-                      _buildInfoCard('Time', _formatDuration(_totalTime)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ElevatedButton(
-              onPressed: _isTracking ? _stopTracking : _checkLocationPermission,
-              child: Text(_isTracking ? 'Pause' : 'Start',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff1dbe92),
-                minimumSize: Size(300, 45),
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.more_vert),
-              onPressed: () {
-                _showBottomSheet(context); // 점 세 개 버튼을 눌렀을 때 bottom sheet 열기
-              },
             ),
           ],
         ),
-      ),
-    );
+        bottomNavigationBar: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed:
+                    _isTracking ? _stopTracking : _checkLocationPermission,
+                child: Text(_isTracking ? 'Pause' : 'Start',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xff1dbe92),
+                  minimumSize: Size(300, 45),
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.more_vert),
+                onPressed: () {
+                  _showBottomSheet(context); // 점 세 개 버튼을 눌렀을 때 bottom sheet 열기
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildInfoCard(String label, String value) {

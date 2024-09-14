@@ -121,14 +121,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
-  dart_earcut:
+  dart_exporter_annotation:
     dependency: transitive
     description:
-      name: dart_earcut
-      sha256: "41b493147e30a051efb2da1e3acb7f38fe0db60afba24ac1ea5684cee272721e"
+      name: dart_exporter_annotation
+      sha256: f41e230919ca926e4231fc068f427f8370f33523a3c0900c11417650a4b97fc4
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "2.0.3"
   fake_async:
     dependency: transitive
     description:
@@ -234,10 +234,26 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_map
-      sha256: "2ecb34619a4be19df6f40c2f8dce1591675b4eff7a6857bd8f533706977385da"
+      sha256: "87cc8349b8fa5dccda5af50018c7374b6645334a0d680931c1fe11bce88fa5bb"
       url: "https://pub.dev"
     source: hosted
-    version: "7.0.2"
+    version: "6.2.1"
+  flutter_map_animated_marker:
+    dependency: "direct main"
+    description:
+      name: flutter_map_animated_marker
+      sha256: "92a1590601d6e925f7235adbf8df8474d65950cf7da05c8b00e94abfb4f18bb0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
+  flutter_map_animations:
+    dependency: "direct main"
+    description:
+      name: flutter_map_animations
+      sha256: e4b929632b43a7939ce07a7cdb05613abb25e1996c9767c16469d0cbb9e1c4a9
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
   flutter_native_splash:
     dependency: "direct main"
     description:
