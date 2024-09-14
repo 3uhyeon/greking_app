@@ -19,6 +19,12 @@ dependencies {
   // Add the dependencies for any other desired Firebase products
   // https://firebase.google.com/docs/android/setup#available-libraries
 }
+def keystoreProperties = new Properties() //변수 추가 key.storeProperties을 불러오는 것임 
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.greking.android"
     compileSdk = flutter.compileSdkVersion
@@ -44,12 +50,22 @@ android {
         versionName = flutter.versionName
         multiDexEnabled = true
     }
+    signingConfigs { // 이부분은 추가되었음 특히 file부분은 jks파일이있는 절대 경로로 해야 오류가 안뜨더라 
+    release {
+        keyAlias 'greking'
+        keyPassword 'dbfltkdp45!'
+        storeFile file('C:/Users/skan9/Desktop/Project_1/upload-keystore.jks') // 절대 경로로 설정
+        storePassword 'dbfltkdp45!'
+    }
+}
+
 
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            // signingConfig = signingConfigs.debug
+            signingConfig signingConfigs.release // 변경후
             minifyEnabled = false
         shrinkResources = false
         }
