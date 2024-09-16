@@ -517,10 +517,67 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               height: 122,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children: const [
-                  RentalItem(index: '1'),
-                  RentalItem(index: '2'),
-                  RentalItem(index: '3'),
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetailPage(
+                            index: "1",
+                            name: "OLA HYBRID",
+                            price: "1DAY \$3",
+                            description:
+                                "Training set-up that can be worn up to winter",
+                            imagePath: "assets/outer1.png",
+                            imageDetailPath: "assets/outer1-1.png",
+                            category: "outer",
+                          ),
+                        ),
+                      );
+                    },
+                    child: RentalItem(index: '1'),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetailPage(
+                            index: "2",
+                            name: "SURROUND jacket",
+                            price: "1DAY \$3",
+                            description:
+                                "Applying the exterior of the mechanical stretch with a natural touch",
+                            imagePath: "assets/outer2.png",
+                            imageDetailPath: "assets/outer1-1.png",
+                            category: "outer",
+                          ),
+                        ),
+                      );
+                    },
+                    child: RentalItem(index: '2'),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetailPage(
+                            index: "3",
+                            name: "ALP Professional Waterproofing",
+                            price: "1DAY \$3",
+                            description:
+                                "It is light and fits well when professional hiking by applying C-KNIT BACKER made of Gore 3L material with excellent moisture permeability",
+                            imagePath: "assets/outer3.png",
+                            imageDetailPath: "assets/outer3-1.png",
+                            category: "outer",
+                          ),
+                        ),
+                      );
+                    },
+                    child: RentalItem(index: '3'),
+                  ),
                 ],
               ),
             ),
