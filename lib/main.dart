@@ -14,9 +14,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'question.dart';
 import 'package:lottie/lottie.dart';
 import 'review_detail.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NaverMapSdk.instance.initialize(clientId: 'uiu5p4m0nb');
 
   // Firebase 초기화
   if (Firebase.apps.isEmpty) {
@@ -186,8 +188,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       case 1:
         return AppBar(
           leadingWidth: 200,
-          backgroundColor: Colors.white.withOpacity(0.0),
-          elevation: 0,
           leading: Row(
             children: [
               SizedBox(width: 16.0),
@@ -202,6 +202,9 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               ),
             ],
           ),
+          backgroundColor:
+              Colors.transparent, // Set the background color to transparent
+          elevation: 0, // Remove the shadow
         );
       case 2:
         return AppBar(
@@ -277,6 +280,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         appBar: _buildAppBar(),
         body: PageView(
           controller: _pageController,
+          physics: NeverScrollableScrollPhysics(), // Disable scrolling
           onPageChanged: _onPageChanged,
           children: [
             _buildHomePage(),

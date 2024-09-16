@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_map_animated_marker/flutter_map_animated_marker.dart';
 import 'package:my_app/loading.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 class TrackingPage extends StatefulWidget {
   @override
@@ -16,20 +17,17 @@ class TrackingPage extends StatefulWidget {
 }
 
 class AppConstants {
-  static const String mapBoxAccessToken =
-      'sk.eyJ1Ijoic3V6emlub3ZhIiwiYSI6ImNtMDUyOW54bzBiaDkya3NiNGdhbjVqeDgifQ.nvB1cGwKQEgxdlqGWe-hQw';
-  static const String mapBoxStyleId = 'suzzinova';
-  static final LatLng kangwondoCenter = LatLng(37.5550, 128.2098);
+  static final NLatLng kangwondoCenter = NLatLng(37.5550, 128.2098);
 }
 
 class _TrackingPageState extends State<TrackingPage>
     with TickerProviderStateMixin {
   late final AnimatedMapController _animatedMapController;
   StreamSubscription<Position>? _positionStream;
-  final List<LatLng> _routePoints = []; // 기존 경로 포인트
-  final List<Marker> _markers = [];
-  LatLng? _currentLocation;
-  LatLng? _previousLocation; // 이전 위치 저장
+  final List<NLatLng> _routePoints = []; // 기존 경로 포인트
+  final List<NMarker> _markers = [];
+  NLatLng? _currentLocation;
+  NLatLng? _previousLocation; // 이전 위치 저장
   double _currentHeading = 0.0; // 바라보는 방향
   double _totalDistance = 0.0;
   double _totalCalories = 0.0;
@@ -39,19 +37,18 @@ class _TrackingPageState extends State<TrackingPage>
   bool _isTracking = false;
   bool _isPaused = false; // pause 상태를 추가
   bool _isLoading = false;
+  NaverMapController? _naverMapController;
 
   @override
   void initState() {
     super.initState();
-    _animatedMapController = AnimatedMapController(vsync: this);
-    _loadGpxFile();
   }
 
   @override
   void dispose() {
     _positionStream?.cancel();
     _timer?.cancel();
-    _animatedMapController.dispose();
+
     super.dispose();
   }
 
@@ -156,8 +153,28 @@ class _TrackingPageState extends State<TrackingPage>
       );
       return;
     }
-
+    _customizeLocationOverlay(); // 위치 오버레이 커스텀
     _startTracking(); // 위치 권한이 허용되었을 때만 추적 시작
+  }
+
+  Future<void> _customizeLocationOverlay() async {
+    _naverMapController?.setLocationTrackingMode(NLocationTrackingMode.follow);
+    // 현재 위치 오버레이 가져오기
+    final locationOverlay = await _naverMapController!.getLocationOverlay();
+    locationOverlay.setIsVisible(true);
+
+    locationOverlay.setIcon(
+      // 아이콘 설정
+      NOverlayImage.fromAssetImage('assets/mygps.png'),
+    );
+    locationOverlay.setIconSize(Size(40, 40));
+    locationOverlay
+        .setSubIcon(NOverlayImage.fromAssetImage('assets/mark_sub.png'));
+    locationOverlay.setSubIconSize(Size(20, 20));
+    locationOverlay.setSubAnchor(NPoint(0.5, 1.0));
+    locationOverlay.setCircleRadius(15);
+    locationOverlay.setCircleOutlineWidth(0);
+    locationOverlay.setCircleOutlineColor(Colors.transparent);
   }
 
   Future<double> getCurrentAltitude() async {
@@ -179,31 +196,43 @@ class _TrackingPageState extends State<TrackingPage>
 
     setState(() {
       _routePoints.addAll(gpx.trks[0].trksegs[0].trkpts.map((pt) {
-        return LatLng(pt.lat!, pt.lon!);
+        return NLatLng(pt.lat!, pt.lon!);
       }));
 
       if (_routePoints.isNotEmpty) {
-        _markers.add(
-          Marker(
-            point: _routePoints.first,
-            child: SvgPicture.asset('assets/Go.svg', width: 50.0, height: 50.0),
-          ),
+        final marker_start = NMarker(
+          id: 'start',
+          position: _routePoints.first,
+          icon: NOverlayImage.fromAssetImage('assets/Go.png'),
         );
-
-        _markers.add(
-          Marker(
-            point: _routePoints.last,
-            child:
-                SvgPicture.asset('assets/End.svg', width: 50.0, height: 50.0),
-          ),
+        _naverMapController?.addOverlay(marker_start);
+        final marker_end = NMarker(
+          id: 'end',
+          position: _routePoints.last,
+          icon: NOverlayImage.fromAssetImage('assets/End.png'),
         );
+        _naverMapController?.addOverlay(marker_end);
+        // 폴리라인 생성
+        final polyline = NPolylineOverlay(
+          id: 'route',
+          coords: _routePoints,
+          color: Color(0xff0d615c),
+          width: 5,
+        );
+        _naverMapController?.addOverlay(polyline);
 
         // 페이지 로드 시 초기 줌 레벨을 12.5로 설정
-        final middlePoint = LatLng(
+        final middlePoint = NLatLng(
           (_routePoints.first.latitude + _routePoints.last.latitude) / 2,
           (_routePoints.first.longitude + _routePoints.last.longitude) / 2,
         );
-        _animatedMapController.animateTo(dest: middlePoint, zoom: 12.5);
+
+        final cameraUpdate =
+            NCameraUpdate.scrollAndZoomTo(target: middlePoint, zoom: 11.5);
+
+        cameraUpdate.setAnimation(
+            animation: NCameraAnimation.fly, duration: Duration(seconds: 2));
+        _naverMapController?.updateCamera(cameraUpdate);
       }
     });
   }
@@ -225,7 +254,7 @@ class _TrackingPageState extends State<TrackingPage>
     // 현 위치 추적 스트림 시작
     _positionStream =
         Geolocator.getPositionStream().listen((Position position) {
-      final currentPoint = LatLng(position.latitude, position.longitude);
+      final currentPoint = NLatLng(position.latitude, position.longitude);
 
       setState(() {
         _currentLocation = currentPoint;
@@ -248,11 +277,14 @@ class _TrackingPageState extends State<TrackingPage>
         // 이전 위치 업데이트
         _previousLocation = _currentLocation;
 
-        _animatedMapController.animateTo(
-          dest: currentPoint,
+        final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
+          target: currentPoint,
           zoom: 15.0,
-          rotation: position.heading,
-        ); // 목적지와 줌 레벨 설정
+        );
+
+        cameraUpdate.setAnimation(
+            animation: NCameraAnimation.fly, duration: Duration(seconds: 2));
+        _naverMapController?.updateCamera(cameraUpdate);
       });
     });
 
@@ -295,63 +327,38 @@ class _TrackingPageState extends State<TrackingPage>
           children: [
             Positioned.fill(
               bottom: 250,
-              child: FlutterMap(
-                mapController: _animatedMapController.mapController,
-                options: MapOptions(
-                  minZoom: 10,
-                  maxZoom: 18,
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        "https://api.mapbox.com/styles/v1/suzzinova/cm054z5r000i201rbdvg243vw/tiles/256/{z}/{x}/{y}@2x?access_token=${AppConstants.mapBoxAccessToken}",
-                    tileBounds: LatLngBounds(
-                      LatLng(33.0, 124.0), // South Korea's southwest coordinate
-                      LatLng(39.0, 132.0), // South Korea's northeast coordinate
-                    ),
-                    subdomains: ['a', 'b', 'c'],
-                    tileSize: 256,
-                    zoomOffset: 0.0,
-                    maxZoom: 18,
-                    minZoom: 10,
-                    backgroundColor: Colors.transparent,
-                    tileDisplay: const TileDisplay.fadeIn(
-                      duration: Duration(milliseconds: 500),
-                    ),
-                    tileProvider: NetworkTileProvider(),
-                    errorTileCallback: (TileImage tile, error, stackTrace) {
-                      print('타일 로드 오류: $error');
-                    },
-                    tileBuilder: (BuildContext context, Widget tile,
-                        TileImage tileImage) {
-                      return tile;
-                    },
-                  ),
-                  PolylineLayer(
-                    polylines: [
-                      Polyline(
-                        points: _routePoints,
-                        strokeWidth: 4.0,
-                        color: Color(0xff0d615c),
-                      ),
+              child: NaverMap(
+                forceGesture: true,
+
+                options: const NaverMapViewOptions(
+                    rotationGesturesEnable: false,
+                    initialCameraPosition: NCameraPosition(
+                        target: NLatLng(37.5558, 128.2092), // 강원도 맵 위치
+                        zoom: 15,
+                        bearing: 0,
+                        tilt: 0),
+                    mapType: NMapType.basic,
+                    activeLayerGroups: [
+                      NLayerGroup.building,
+                      NLayerGroup.transit,
+                      NLayerGroup.mountain
                     ],
-                  ),
-                  MarkerLayer(
-                    markers: [
-                      if (_currentLocation != null)
-                        Marker(
-                          point: _currentLocation!,
-                          rotate: true,
-                          child: SvgPicture.asset(
-                            'assets/mygps.svg',
-                            width: 60.0,
-                            height: 60.0,
-                          ),
-                        ),
-                      ..._markers,
-                    ],
-                  ),
-                ],
+                    scrollGesturesFriction: 0.0,
+                    zoomGesturesFriction: 0.0,
+                    rotationGesturesFriction: 0.0,
+                    minZoom: 8, // default is 0
+
+                    extent: NLatLngBounds(
+                      southWest: NLatLng(33.0, 124.0),
+                      northEast: NLatLng(43.0, 132.0),
+                    ),
+                    locale: Locale('en', 'US')), // 지도 옵션을 설정할 수 있습니다.
+
+                onMapReady: (controller) {
+                  _naverMapController = controller;
+
+                  _loadGpxFile();
+                },
               ),
             ),
             // 정보 표시할 Container

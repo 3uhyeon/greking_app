@@ -2,16 +2,17 @@ import 'dart:convert'; // JSON 인코딩을 위해 필요
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:my_app/loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+
+import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'loading.dart';
 import 'course_detail.dart';
 
 class AppConstants {
-  static const String mapBoxStyleId = 'suzzinova'; // 회원가입 시 제공되는 스타일 ID
-  static final LatLng kangwondoCenter = LatLng(37.5550, 128.2098); // 강원도 중심 좌표
+  static const String naverClientId = 'uiu5p4m0nb'; // 네이버맵 Client ID
+  static final NLatLng kangwondoCenter =
+      NLatLng(37.5550, 128.2098); // 강원도 중심 좌표
 }
 
 class Treking extends StatefulWidget {
@@ -23,37 +24,43 @@ class _Treking extends State<Treking> {
   final List<Map<String, dynamic>> mountainData = [
     {
       'name': 'Seoraksan',
-      'location': LatLng(38.12016, 128.4657),
+      'location': NLatLng(38.12016, 128.4657),
     },
     {
       'name': 'Odaesan',
-      'location': LatLng(37.79815, 128.5430),
+      'location': NLatLng(37.79815, 128.5430),
     },
     {
       'name': 'Chiaksan',
-      'location': LatLng(37.37172, 128.0505),
+      'location': NLatLng(37.37172, 128.0505),
     },
-    {'name': 'Taebaeksan', 'location': LatLng(37.0957536, 128.9152435)},
-    {'name': 'Dutasan', 'location': LatLng(37.26003, 129.1000)},
-    {'name': 'Myeongseong', 'location': LatLng(38.10780, 127.3404)},
-    {'name': 'Jeombongsan', 'location': LatLng(38.04930, 128.4253)},
-    {'name': 'Hwangbyeong', 'location': LatLng(37.75783, 128.6634)},
-    {'name': 'Daeamsan', 'location': LatLng(38.21123, 128.1351)},
-    {'name': 'Garisan', 'location': LatLng(37.87344, 127.9609)},
-    {'name': 'Gariwangsan', 'location': LatLng(37.46250, 128.5634)},
-    {'name': 'Gyebangsan', 'location': LatLng(37.72831, 128.4655)},
-    {'name': 'Gongjaksan', 'location': LatLng(37.71566, 128.0100)},
-    {'name': 'Baekunsan', 'location': LatLng(37.29616, 127.9586)},
-    {'name': 'Bangtaesan', 'location': LatLng(37.89488, 128.3560)},
-    {'name': 'Baekdeoksan', 'location': LatLng(37.39657, 128.2934)},
-    {'name': 'Samaksan', 'location': LatLng(37.83991, 127.6603)},
-    {'name': 'Obongsan', 'location': LatLng(38.00078, 127.8061)},
-    {'name': 'Yonghwasan', 'location': LatLng(38.03942, 127.7438)},
-    {'name': 'Eungbongsan', 'location': LatLng(38.1017, 127.57)},
-    {'name': 'Taehwasan', 'location': LatLng(37.4003, 127.5822)},
-    {'name': 'Palbongsan', 'location': LatLng(37.70287, 127.7540)},
-    {'name': 'Deokhangsan', 'location': LatLng(37.30891, 129.0117)}
+    {'name': 'Taebaeksan', 'location': NLatLng(37.0957536, 128.9152435)},
+    {'name': 'Dutasan', 'location': NLatLng(37.26003, 129.1000)},
+    {'name': 'Myeongseong', 'location': NLatLng(38.10780, 127.3404)},
+    {'name': 'Jeombongsan', 'location': NLatLng(38.04930, 128.4253)},
+    {'name': 'Hwangbyeong', 'location': NLatLng(37.75783, 128.6634)},
+    {'name': 'Daeamsan', 'location': NLatLng(38.21123, 128.1351)},
+    {'name': 'Garisan', 'location': NLatLng(37.87344, 127.9609)},
+    {'name': 'Gariwangsan', 'location': NLatLng(37.46250, 128.5634)},
+    {'name': 'Gyebangsan', 'location': NLatLng(37.72831, 128.4655)},
+    {'name': 'Gongjaksan', 'location': NLatLng(37.71566, 128.0100)},
+    {'name': 'Baekunsan', 'location': NLatLng(37.29616, 127.9586)},
+    {'name': 'Bangtaesan', 'location': NLatLng(37.89488, 128.3560)},
+    {'name': 'Baekdeoksan', 'location': NLatLng(37.39657, 128.2934)},
+    {'name': 'Samaksan', 'location': NLatLng(37.83991, 127.6603)},
+    {'name': 'Obongsan', 'location': NLatLng(38.00078, 127.8061)},
+    {'name': 'Yonghwasan', 'location': NLatLng(38.03942, 127.7438)},
+    {'name': 'Eungbongsan', 'location': NLatLng(38.1017, 127.57)},
+    {'name': 'Taehwasan', 'location': NLatLng(37.4003, 127.5822)},
+    {'name': 'Palbongsan', 'location': NLatLng(37.70287, 127.7540)},
+    {'name': 'Deokhangsan', 'location': NLatLng(37.30891, 129.0117)}
   ];
+
+  NaverMapController? _naverMapController;
+  bool isLoading = false;
+  List<Map<String, dynamic>> _selectedMountainCourses = [];
+  String _selectedMountainName = ''; // 선택된 산의 이름을 저장할 변수
+  final TextEditingController _searchController = TextEditingController();
 
   // 네비게이션 클릭 전에 로그인 상태 확인 함수
   Future<bool> _checkLoginBeforeNavigate() async {
@@ -63,12 +70,6 @@ class _Treking extends State<Treking> {
 
     return (loginMethod != null && token != null);
   }
-
-  final TextEditingController _searchController = TextEditingController();
-  final MapController _mapController = MapController();
-  bool isLoading = false;
-  List<Map<String, dynamic>> _selectedMountainCourses = [];
-  String _selectedMountainName = ''; // 선택된 산의 이름을 저장할 변수
 
   // 서버에서 코스 데이터를 불러오는 함수
   Future<void> _fetchCoursesForMountain(String mountainName) async {
@@ -104,13 +105,19 @@ class _Treking extends State<Treking> {
     });
   }
 
-  void _onMarkerTap(Map<String, dynamic> mountain) {
+  // 마커 클릭 시 코스 정보를 가져오는 함수
+  void _onMarkerTap(String mountainName, NLatLng location) {
     setState(() {
-      _selectedMountainName = mountain['name']; // 산의 이름을 저장
+      _selectedMountainName = mountainName;
     });
+    _fetchCoursesForMountain(mountainName);
 
-    // 해당 산의 코스 정보를 서버에서 가져옴
-    _fetchCoursesForMountain(_selectedMountainName);
+    final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
+      target: location,
+      zoom: 12, // 마커에 좀 더 가까이 줌인
+    );
+    cameraUpdate.setAnimation(
+        animation: NCameraAnimation.easing, duration: Duration(seconds: 2));
   }
 
   void _onSearch() {
@@ -121,7 +128,10 @@ class _Treking extends State<Treking> {
     );
 
     if (mountain.isNotEmpty) {
-      _mapController.move(mountain['location'], 10.0);
+      NCameraUpdate.scrollAndZoomTo(
+        target: mountain['location'],
+        zoom: 10,
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Mountain not found")),
@@ -175,65 +185,59 @@ class _Treking extends State<Treking> {
         ),
         body: Stack(
           children: [
-            FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                maxZoom: 12,
-                minZoom: 8,
-                initialZoom: 10,
-                initialCenter: LatLng(38.1195, 128.4656),
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate:
-                      "https://api.mapbox.com/styles/v1/suzzinova/cm0e0akh400xh01ps9yvn19ek/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1Ijoic3V6emlub3ZhIiwiYSI6ImNtMDFvYW5jZjA0djUycnEzYTQ3ZnYwZ2MifQ._fiK5XHOO8_j1uFBrfK__g",
-                ),
-                MarkerLayer(
-                  markers: mountainData.map((mountain) {
-                    return Marker(
-                      point: mountain['location'],
-                      width: 80,
-                      height: 80,
-                      child: GestureDetector(
-                        onTap: () => _onMarkerTap(mountain),
-                        child: Column(
-                          children: [
-                            Image.asset(
-                              'assets/mark.png',
-                              width: 60,
-                              height: 60,
-                            ),
-                            SizedBox(height: 2.0),
-                            Stack(
-                              children: <Widget>[
-                                Text(
-                                  mountain['name'],
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    foreground: Paint()
-                                      ..style = PaintingStyle.stroke
-                                      ..strokeWidth = 3
-                                      ..color = Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  mountain['name'],
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
+            NaverMap(
+              options: const NaverMapViewOptions(
+                  rotationGesturesEnable: false,
+                  initialCameraPosition: NCameraPosition(
+                      target: NLatLng(38.1195, 128.4656), // 초기 맵 위치
+                      zoom: 9,
+                      bearing: 0,
+                      tilt: 0),
+                  mapType: NMapType.satellite,
+                  activeLayerGroups: [
+                    NLayerGroup.building,
+                    NLayerGroup.transit,
+                    NLayerGroup.mountain
+                  ],
+                  scrollGesturesFriction: 0.0,
+                  zoomGesturesFriction: 0.0,
+                  rotationGesturesFriction: 0.0,
+                  minZoom: 8, // default is 0
+                  maxZoom: 16, // default is 21
+                  extent: NLatLngBounds(
+                    southWest: NLatLng(33.0, 124.0),
+                    northEast: NLatLng(43.0, 132.0),
+                  ),
+                  locale: Locale('en', 'US')), // 지도 옵션을 설정할 수 있습니다.
+              onMapReady: (controller) {
+                _naverMapController = controller;
+
+                // 마커 추가 및 클릭 리스너 설정
+                for (var mountain in mountainData) {
+                  final marker = NMarker(
+                    id: mountain['name'],
+                    position: mountain['location'],
+                    caption: NOverlayCaption(text: mountain['name']),
+                    icon: NOverlayImage.fromAssetImage('assets/mark.png'),
+                  );
+
+                  // 마커 클릭 리스너 추가
+                  marker.setOnTapListener((NMarker marker) {
+                    _onMarkerTap(marker.info.id,
+                        mountain['location']); // 마커를 클릭 시 해당 산 정보를 가져옴
+                    return true; // 마커 클릭 이벤트 소비
+                  });
+
+                  _naverMapController!.addOverlay(marker);
+                }
+              },
+              onMapTapped: (point, latLng) {},
+              onSymbolTapped: (symbol) {},
+              onCameraChange: (position, reason) {},
+              onCameraIdle: () {},
+              onSelectedIndoorChanged: (indoor) {},
+              forceGesture:
+                  false, // 지도에 전달되는 제스처 이벤트의 우선순위를 가장 높게 설정할지 여부를 지정합니다.
             ),
             if (_selectedMountainCourses.isNotEmpty)
               Positioned(
