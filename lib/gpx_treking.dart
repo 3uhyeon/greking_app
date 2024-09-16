@@ -8,8 +8,11 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_map_animated_marker/flutter_map_animated_marker.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:my_app/loading.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'dart:math'; // 삼각함수 계산을 위해 필요
 
 class TrackingPage extends StatefulWidget {
   @override
@@ -24,6 +27,7 @@ class _TrackingPageState extends State<TrackingPage>
     with TickerProviderStateMixin {
   late final AnimatedMapController _animatedMapController;
   StreamSubscription<Position>? _positionStream;
+  StreamSubscription? _compassStream;
   final List<NLatLng> _routePoints = []; // 기존 경로 포인트
   final List<NMarker> _markers = [];
   NLatLng? _currentLocation;
@@ -42,14 +46,38 @@ class _TrackingPageState extends State<TrackingPage>
   @override
   void initState() {
     super.initState();
+    _startCompass();
   }
 
   @override
   void dispose() {
     _positionStream?.cancel();
     _timer?.cancel();
-
+    _compassStream?.cancel(); // 스트림 정리
     super.dispose();
+  }
+
+  void _startCompass() {
+    _compassStream = magnetometerEvents.listen((MagnetometerEvent event) {
+      double x = event.x;
+      double y = event.y;
+
+      setState(() {
+        _currentHeading = (atan2(y, x) * (180 / pi)) % 360;
+      });
+
+      // 현재 위치 오버레이 방향 업데이트
+      if (_naverMapController != null) {
+        _updateLocationOverlayBearing();
+      }
+    });
+  }
+
+  void _updateLocationOverlayBearing() async {
+    if (_naverMapController != null) {
+      final locationOverlay = await _naverMapController!.getLocationOverlay();
+      locationOverlay.setBearing(_currentHeading); // 휴대폰 방향에 따라 아이콘 회전
+    }
   }
 
   void _showBottomSheet(BuildContext context) {
@@ -159,6 +187,7 @@ class _TrackingPageState extends State<TrackingPage>
 
   Future<void> _customizeLocationOverlay() async {
     _naverMapController?.setLocationTrackingMode(NLocationTrackingMode.follow);
+    MyLocationTrackingMode;
     // 현재 위치 오버레이 가져오기
     final locationOverlay = await _naverMapController!.getLocationOverlay();
     locationOverlay.setIsVisible(true);
@@ -277,10 +306,8 @@ class _TrackingPageState extends State<TrackingPage>
         // 이전 위치 업데이트
         _previousLocation = _currentLocation;
 
-        final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
-          target: currentPoint,
-          zoom: 15.0,
-        );
+        final cameraUpdate = NCameraUpdate.withParams(
+            target: currentPoint, zoom: 15.0, bearing: _currentHeading);
 
         cameraUpdate.setAnimation(
             animation: NCameraAnimation.fly, duration: Duration(seconds: 2));
