@@ -587,6 +587,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
             Stack(
               children: [
                 InkWell(
@@ -596,11 +597,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       MaterialPageRoute(builder: (context) => MyCourse()),
                     );
                   },
-                  child: SvgPicture.asset(
-                    'assets/banners.svg',
-                    width: double.infinity,
-                    height: 200,
-                  ),
+                  child: Image.asset('assets/banners.png',
+                      width: double.infinity, fit: BoxFit.fitWidth),
                 ),
                 // Positioned(
                 //   right: 00,
@@ -610,6 +608,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 // )
               ],
             ),
+            const SizedBox(height: 16),
             InkWell(
               onTap: () {
                 _onItemTapped(3);
