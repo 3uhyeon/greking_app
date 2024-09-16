@@ -15,6 +15,7 @@ import 'question.dart';
 import 'package:lottie/lottie.dart';
 import 'review_detail.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'article.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -114,7 +115,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
-            const curve = Curves.easeInOut;
+            const curve = Curves.fastEaseInToSlowEaseOut;
             var tween =
                 Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
             var offsetAnimation = animation.drive(tween);
@@ -142,7 +143,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(0.0, 1.0);
             const end = Offset.zero;
-            const curve = Curves.easeInOut;
+            const curve = Curves.fastEaseInToSlowEaseOut;
             var tween =
                 Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
             var offsetAnimation = animation.drive(tween);
@@ -351,13 +352,122 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                   builder: (BuildContext context) {
                     return Stack(
                       children: [
-                        Container(
-                          width: MediaQuery.of(context).size.width * 1,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            image: DecorationImage(
-                              image: AssetImage('assets/title$i.png'),
-                              fit: BoxFit.fitWidth,
+                        GestureDetector(
+                          onTap: () {
+                            switch (i) {
+                              case 1:
+                                Navigator.push(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        ArticleMainPage1(),
+                                    transitionsBuilder: (context, animation,
+                                        secondaryAnimation, child) {
+                                      const begin = Offset(0.0, -1.0);
+                                      const end = Offset.zero;
+                                      const curve =
+                                          Curves.fastEaseInToSlowEaseOut;
+                                      var tween = Tween(begin: begin, end: end)
+                                          .chain(CurveTween(curve: curve));
+                                      var offsetAnimation =
+                                          animation.drive(tween);
+
+                                      return SlideTransition(
+                                          position: offsetAnimation,
+                                          child: child);
+                                    },
+                                  ),
+                                );
+                                break;
+                              case 2:
+                                Navigator.push(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        ArticleMainPage2(),
+                                    transitionsBuilder: (context, animation,
+                                        secondaryAnimation, child) {
+                                      const begin = Offset(0.0, -1.0);
+                                      const end = Offset.zero;
+                                      const curve =
+                                          Curves.fastEaseInToSlowEaseOut;
+                                      var tween = Tween(begin: begin, end: end)
+                                          .chain(CurveTween(curve: curve));
+                                      var offsetAnimation =
+                                          animation.drive(tween);
+
+                                      return SlideTransition(
+                                          position: offsetAnimation,
+                                          child: child);
+                                    },
+                                  ),
+                                );
+                                break;
+                              case 3:
+                                Navigator.push(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        ArticleMainPage3(),
+                                    transitionsBuilder: (context, animation,
+                                        secondaryAnimation, child) {
+                                      const begin = Offset(0.0, -1.0);
+                                      const end = Offset.zero;
+                                      const curve =
+                                          Curves.fastEaseInToSlowEaseOut;
+                                      var tween = Tween(begin: begin, end: end)
+                                          .chain(CurveTween(curve: curve));
+                                      var offsetAnimation =
+                                          animation.drive(tween);
+
+                                      return SlideTransition(
+                                          position: offsetAnimation,
+                                          child: child);
+                                    },
+                                  ),
+                                );
+                                break;
+                              case 4:
+                                Navigator.push(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        ArticleMainPage4(),
+                                    transitionsBuilder: (context, animation,
+                                        secondaryAnimation, child) {
+                                      const begin = Offset(0.0, -1.0);
+                                      const end = Offset.zero;
+                                      const curve =
+                                          Curves.fastEaseInToSlowEaseOut;
+                                      var tween = Tween(begin: begin, end: end)
+                                          .chain(CurveTween(curve: curve));
+                                      var offsetAnimation =
+                                          animation.drive(tween);
+
+                                      return SlideTransition(
+                                          position: offsetAnimation,
+                                          child: child);
+                                    },
+                                  ),
+                                );
+                                break;
+                              // Add more cases for other title numbers and corresponding pages
+                              default:
+                                break;
+                            }
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 1,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              image: DecorationImage(
+                                image: AssetImage('assets/title$i.png'),
+                                fit: BoxFit.fitWidth,
+                              ),
                             ),
                           ),
                         ),
@@ -492,12 +602,12 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                     height: 200,
                   ),
                 ),
-                Positioned(
-                  right: 00,
-                  bottom: 40,
-                  child: Lottie.asset('assets/insurance2.json',
-                      width: 110, height: 110),
-                )
+                // Positioned(
+                //   right: 00,
+                //   bottom: 40,
+                //   child: Lottie.asset('assets/insurance2.json',
+                //       width: 110, height: 110),
+                // )
               ],
             ),
             InkWell(
@@ -623,13 +733,13 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   String _getTitleForIndex(int index) {
     switch (index) {
       case 1:
-        return 'KTX easy Guide';
+        return 'Train Travel Guide';
       case 2:
-        return 'Incheon Airport pro tips';
+        return 'Incheon Airport Guide';
       case 3:
-        return 'Can rental in Gangwon-do';
+        return 'Rental Guide';
       case 4:
-        return 'Beginner climbing 101';
+        return 'Beginner Hiking Tips';
       default:
         return 'Guide';
     }
@@ -639,13 +749,13 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   String _getSubtitleForIndex(int index) {
     switch (index) {
       case 1:
-        return '5min quick guide';
+        return 'How to travel to Gangwon by train!';
       case 2:
-        return '5min quick guide';
+        return 'To Gangwon :The complete guide!';
       case 3:
-        return 'How to rent a car';
+        return 'Make your Gangwon trip easier with rentals!';
       case 4:
-        return 'Travel safely with us';
+        return 'Essential tips for first-time hikers in Gangwon!';
       default:
         return 'Subtitle';
     }
