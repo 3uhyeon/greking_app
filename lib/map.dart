@@ -1,10 +1,11 @@
 import 'dart:convert'; // JSON 인코딩을 위해 필요
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
+import 'search.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'loading.dart';
 import 'course_detail.dart';
@@ -118,24 +119,40 @@ class _Treking extends State<Treking> {
     );
     cameraUpdate.setAnimation(
         animation: NCameraAnimation.easing, duration: Duration(seconds: 2));
+    _naverMapController?.updateCamera(cameraUpdate);
   }
 
-  void _onSearch() {
-    String searchTerm = _searchController.text;
-    final mountain = mountainData.firstWhere(
-      (mountain) => mountain['name'].contains(searchTerm),
-      orElse: () => {},
+  // Search 버튼을 눌렀을 때 SearchPage 호출
+  Future<void> _onSearchButtonPressed() async {
+    final selectedMountain = await Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => SearchPage(
+          mountainData: mountainData,
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0); // 아래에서 위로 올라오게
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(position: offsetAnimation, child: child);
+        },
+      ),
     );
 
-    if (mountain.isNotEmpty) {
-      NCameraUpdate.scrollAndZoomTo(
-        target: mountain['location'],
-        zoom: 10,
+    if (selectedMountain != null) {
+      // 선택된 산의 위치로 이동
+      final mountainLocation = selectedMountain['location'];
+      final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
+        target: mountainLocation,
+        zoom: 12,
       );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Mountain not found")),
-      );
+      cameraUpdate.setAnimation(
+          animation: NCameraAnimation.easing, duration: Duration(seconds: 2));
+      _naverMapController?.updateCamera(cameraUpdate);
     }
   }
 
@@ -156,21 +173,34 @@ class _Treking extends State<Treking> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.search),
-                          hintText: 'Search',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(10.0),
+                    child: GestureDetector(
+                      onTap: () =>
+                          _onSearchButtonPressed(), // 버튼 클릭 시 SearchPage 호출
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12.0, vertical: 10.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 6.0,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
                         ),
-                        onSubmitted: (_) => _onSearch(),
+                        child: Row(
+                          children: [
+                            Icon(Icons.search, color: Colors.black),
+                            SizedBox(width: 10.0),
+                            Text(
+                              'Search',
+                              style: TextStyle(
+                                  color: Colors.black, fontSize: 16.0),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

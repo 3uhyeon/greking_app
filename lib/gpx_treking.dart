@@ -28,6 +28,8 @@ class _TrackingPageState extends State<TrackingPage>
   late final AnimatedMapController _animatedMapController;
   StreamSubscription<Position>? _positionStream;
   StreamSubscription? _compassStream;
+  StreamSubscription? _accelerometerStreamSubscription;
+  StreamSubscription? _magnetometerStreamSubscription;
   final List<NLatLng> _routePoints = []; // 기존 경로 포인트
   final List<NMarker> _markers = [];
   NLatLng? _currentLocation;
@@ -55,7 +57,9 @@ class _TrackingPageState extends State<TrackingPage>
   void dispose() {
     _positionStream?.cancel();
     _timer?.cancel();
-    _compassStream?.cancel(); // 스트림 정리
+
+    _accelerometerStreamSubscription?.cancel(); // 가속도계 스트림 해제
+    _magnetometerStreamSubscription?.cancel(); // 자기장 스트림 해제
     super.dispose();
   }
 
@@ -63,12 +67,14 @@ class _TrackingPageState extends State<TrackingPage>
     List<double>? accelerometerValues;
     List<double>? magnetometerValues;
 
-    _compassStream = accelerometerEvents.listen((AccelerometerEvent event) {
+    _accelerometerStreamSubscription =
+        accelerometerEvents.listen((AccelerometerEvent event) {
       accelerometerValues = [event.x, event.y, event.z];
       _calculateHeading(accelerometerValues, magnetometerValues);
     });
 
-    _compassStream = magnetometerEvents.listen((MagnetometerEvent event) {
+    _magnetometerStreamSubscription =
+        magnetometerEvents.listen((MagnetometerEvent event) {
       magnetometerValues = [event.x, event.y, event.z];
       _calculateHeading(accelerometerValues, magnetometerValues);
     });
