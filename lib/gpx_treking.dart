@@ -13,6 +13,7 @@ import 'package:my_app/loading.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'dart:math'; // 삼각함수 계산을 위해 필요
+import 'done.dart';
 
 class TrackingPage extends StatefulWidget {
   @override
@@ -213,8 +214,8 @@ class _TrackingPageState extends State<TrackingPage>
               ElevatedButton(
                 onPressed: () async {
                   // API 호출
-                  await _sendDoneAPI();
                   Navigator.pop(context); // Done 누르면 bottom sheet 닫기
+                  _onDoneButtonPressed();
                 },
                 child: Text('Done', style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
@@ -228,23 +229,35 @@ class _TrackingPageState extends State<TrackingPage>
     );
   }
 
-  Future<void> _sendDoneAPI() async {
-    // 서버로 Done API 요청
-    try {
-      final response = await http.post(
-        Uri.parse('https://your-server-endpoint.com/api/done'), // 여기에 서버 주소 입력
-        headers: {'Content-Type': 'application/json'},
-        body: '{"totalDistance": $_totalDistance, "calories": $_totalCalories}',
-      );
+// 기존 코드 중 Done 버튼 클릭 시 페이지 전환 부분 수정
+  void _onDoneButtonPressed() {
+    // Done 버튼 눌렀을 때 데이터를 받아서 SummaryPage로 전송
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            TrackingSummaryPage(
+          totalDistance: _totalDistance,
+          totalCalories: _totalCalories,
+          maxAltitude: _currentAltitude,
+          totalTime: _totalTime,
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 애니메이션 시작 위치
+          const end = Offset.zero; // 종료 위치
+          const curve = Curves.fastLinearToSlowEaseIn;
 
-      if (response.statusCode == 200) {
-        print('API 호출 성공!');
-      } else {
-        print('API 호출 실패!');
-      }
-    } catch (e) {
-      print('API 호출 중 오류 발생: $e');
-    }
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+      ),
+    );
   }
 
   Future<void> _checkLocationPermission() async {
@@ -451,7 +464,7 @@ class _TrackingPageState extends State<TrackingPage>
                         zoom: 15,
                         bearing: 0,
                         tilt: 0),
-                    mapType: NMapType.basic,
+                    mapType: NMapType.terrain,
                     activeLayerGroups: [NLayerGroup.mountain],
                     scrollGesturesFriction: 0.0,
                     zoomGesturesFriction: 0.0,
