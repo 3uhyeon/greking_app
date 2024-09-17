@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert'; // For JSON encoding/decoding
+import 'package:http/http.dart' as http;
 import 'review_write.dart';
 import 'gpx_treking.dart';
 
@@ -32,11 +34,59 @@ class MyCourse extends StatefulWidget {
 class _MyCourseState extends State<MyCourse>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  List<dynamic> expectedCourses = [];
+  List<dynamic> completedCourses = [];
+  bool isLoading = true;
+  final String userId = "yourUserId"; // Replace with the actual user ID
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    fetchCourses();
+  }
+
+  Future<void> fetchCourses() async {
+    try {
+      // Fetch expected courses
+      final expectedResponse = await http.get(
+        Uri.parse(
+            'http://localhost:8080/api/users/$userId/my-courses/expected'),
+      );
+
+      // Fetch completed courses
+      final completedResponse = await http.get(
+        Uri.parse(
+            'http://localhost:8080/api/users/$userId/my-courses/complete'),
+      );
+
+      if (expectedResponse.statusCode == 200 &&
+          completedResponse.statusCode == 200) {
+        setState(() {
+          expectedCourses = json.decode(expectedResponse.body);
+          completedCourses = json.decode(completedResponse.body);
+          isLoading = false;
+        });
+      } else {
+        print('Failed to fetch courses');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> deleteCourse(int userCourseId) async {
+    final deleteResponse = await http.delete(
+      Uri.parse(
+          'http://localhost:8080/api/users/$userId/my-courses/$userCourseId'),
+    );
+
+    if (deleteResponse.statusCode == 200) {
+      print('Course deleted');
+      fetchCourses(); // Refresh the course list after deletion
+    } else {
+      print('Failed to delete course');
+    }
   }
 
   @override
@@ -54,18 +104,17 @@ class _MyCourseState extends State<MyCourse>
         title: TabBar(
           controller: _tabController,
           labelColor: Colors.black,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             fontFamily: 'Pretendard',
           ),
           unselectedLabelColor: Colors.grey,
-          unselectedLabelStyle: TextStyle(
+          unselectedLabelStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.normal,
             fontFamily: 'Pretendard',
           ),
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
           indicatorColor: Colors.black,
           indicatorSize: TabBarIndicatorSize.tab,
           tabs: const [
@@ -74,34 +123,56 @@ class _MyCourseState extends State<MyCourse>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          buildHikingList(),
-          buildHikingList(isCompleted: true),
-        ],
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : TabBarView(
+              controller: _tabController,
+              children: [
+                buildHikingList(courses: expectedCourses),
+                buildHikingList(courses: completedCourses, isCompleted: true),
+              ],
+            ),
     );
   }
 
-  Widget buildHikingList({bool isCompleted = false}) {
+  Widget buildHikingList(
+      {required List<dynamic> courses, bool isCompleted = false}) {
+    if (courses.isEmpty) {
+      return Center(
+        child: Text(
+          'No courses available',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
-      itemCount: 5,
+      itemCount: courses.length,
       itemBuilder: (context, index) {
-        return buildHikingCard(context, isCompleted: isCompleted);
+        return buildHikingCard(context,
+            course: courses[index], isCompleted: isCompleted);
       },
     );
   }
 
-  Widget buildHikingCard(BuildContext context, {bool isCompleted = false}) {
+  Widget buildHikingCard(BuildContext context,
+      {required dynamic course, bool isCompleted = false}) {
+    var courseInfo = course['course'];
+    var courseName = courseInfo['courseName'];
+    var mountainName = courseInfo['mountainName'];
+    var duration = courseInfo['duration'];
+    var difficulty = courseInfo['difficulty'];
+    var addedAt = course['addedAt'];
+    var userCourseId = course['userCourseId'];
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Color(0XFFEBEFF2),
+        color: const Color(0XFFEBEFF2),
         borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             offset: Offset(0.0, 4.0),
@@ -115,8 +186,8 @@ class _MyCourseState extends State<MyCourse>
           Row(
             children: [
               Text(
-                '  Reserved 24.07.06 (Th) ',
-                style: TextStyle(
+                '  Reserved $addedAt ',
+                style: const TextStyle(
                     color: Colors.grey,
                     fontSize: 14,
                     fontFamily: 'Pretendard',
@@ -130,22 +201,20 @@ class _MyCourseState extends State<MyCourse>
                         minWidth: 50,
                         maxWidth: 100,
                       ),
-
-                      color: Color(0xffEBEFF2),
-                      icon: Icon(Icons.more_vert),
+                      color: const Color(0xffEBEFF2),
+                      icon: const Icon(Icons.more_vert),
                       onSelected: (value) {
                         if (value == 'delete') {
-                          // Delete action
-                          print('Delete action triggered');
+                          deleteCourse(userCourseId);
                         }
                       },
                       itemBuilder: (BuildContext context) => [
                         PopupMenuItem(
                           value: 'delete',
                           child: Container(
-                            color: Color(0xffEBEFF2),
+                            color: const Color(0xffEBEFF2),
                             child: Row(
-                              children: [
+                              children: const [
                                 Icon(Icons.delete, color: Colors.red, size: 20),
                                 SizedBox(width: 10),
                                 Text(
@@ -161,9 +230,9 @@ class _MyCourseState extends State<MyCourse>
                           ),
                         ),
                       ],
-                      offset: Offset(0, 45), // 팝업 메뉴의 위치를 아이콘 아래로 조정
+                      offset: const Offset(0, 45),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10), // 모서리 둥글게
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     )
             ],
@@ -183,8 +252,8 @@ class _MyCourseState extends State<MyCourse>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'MT. MinJune',
-                      style: TextStyle(
+                      '$mountainName - $courseName',
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -192,12 +261,12 @@ class _MyCourseState extends State<MyCourse>
                     const SizedBox(height: 10.0),
                     Row(
                       children: [
-                        Icon(Icons.directions_walk,
+                        const Icon(Icons.directions_walk,
                             size: 16, color: Colors.grey),
                         const SizedBox(width: 4.0),
                         Text(
-                          '3h 40m ',
-                          style: TextStyle(
+                          duration ?? '',
+                          style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 12,
                           ),
@@ -207,11 +276,11 @@ class _MyCourseState extends State<MyCourse>
                     const SizedBox(height: 4.0),
                     Row(
                       children: [
-                        Icon(Icons.wb_sunny, size: 16, color: Colors.grey),
+                        const Icon(Icons.terrain, size: 16, color: Colors.grey),
                         const SizedBox(width: 4.0),
                         Text(
-                          'Sunny',
-                          style: TextStyle(
+                          difficulty ?? '',
+                          style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 12,
                           ),
@@ -224,9 +293,7 @@ class _MyCourseState extends State<MyCourse>
               ),
             ],
           ),
-          SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
           isCompleted
               ? Center(
                   child: SizedBox(
@@ -257,7 +324,7 @@ class _MyCourseState extends State<MyCourse>
                         ),
                       );
                     },
-                    child: Text(
+                    child: const Text(
                       'Write a Review',
                       style: TextStyle(
                         color: Color(0XFF1DBE92),
@@ -297,7 +364,7 @@ class _MyCourseState extends State<MyCourse>
                           ),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'Go to the Course',
                         style: TextStyle(
                           color: Color(0xff1dbe92),

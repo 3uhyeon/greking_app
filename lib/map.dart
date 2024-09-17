@@ -81,7 +81,7 @@ class _Treking extends State<Treking> {
     try {
       final response = await http.get(
         Uri.parse(
-            'http://yourserver.com/api/courses?mountain=$mountainName'), // 서버 API URL
+            'http://yourserver:8080/api/courses/getCourse/$mountainName'), // 서버 API URL
       );
 
       if (response.statusCode == 200) {
@@ -293,6 +293,7 @@ class _Treking extends State<Treking> {
                                 pageBuilder:
                                     (context, animation, secondaryAnimation) =>
                                         MountainDetailPage(
+                                  courseId: course['courseId'],
                                   courseName: course['courseName'],
                                   mountainName: _selectedMountainName,
                                   distance: course['distance'],

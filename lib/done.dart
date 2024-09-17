@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // For JSON encoding
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TrackingSummaryPage extends StatefulWidget {
   final double totalDistance;
@@ -23,6 +24,7 @@ class TrackingSummaryPage extends StatefulWidget {
 
 class _TrackingSummaryPageState extends State<TrackingSummaryPage> {
   bool _isAnimationCompleted = false;
+
   Duration _animationDuration = Duration(seconds: 1);
 
   @override
@@ -43,15 +45,19 @@ class _TrackingSummaryPageState extends State<TrackingSummaryPage> {
 
   // 서버로 데이터 전송
   Future<void> _sendSummaryToServer() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+    final userCourseId = "1"; // 여기 수정 해야함 .
     try {
       final response = await http.post(
-        Uri.parse('https://your-server-endpoint.com/api/done'), // 서버 URL 입력
+        Uri.parse(
+            'localhost:8080/api/users/${userId}/my-courses/${userCourseId}/complete'), // 서버 URL 입력
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          "totalDistance": widget.totalDistance,
+          "distance": widget.totalDistance,
           "calories": widget.totalCalories,
           "altitude": widget.maxAltitude,
-          "time": widget.totalTime.toString(),
+          "duration": widget.totalTime.toString(),
         }),
       );
 

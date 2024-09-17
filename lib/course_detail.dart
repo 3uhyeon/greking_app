@@ -6,8 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'mycourse.dart';
 import 'login.dart'; // 로그인 화면
 import 'review.dart'; // 리뷰 페이지
+import 'package:http/http.dart' as http;
+import 'booking_done.dart';
 
 class MountainDetailPage extends StatefulWidget {
+  final String courseId;
   final String mountainName;
   final String courseName;
   final String distance;
@@ -16,6 +19,7 @@ class MountainDetailPage extends StatefulWidget {
   final String altitude;
 
   MountainDetailPage({
+    required this.courseId,
     required this.mountainName,
     required this.courseName,
     required this.distance,
@@ -89,6 +93,8 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
         ),
       );
     } else {
+      // 서버에 예약 정보를 전송하는 함수 호출 (예시 코드)
+      _sendBookingInfoToServer();
       // 로그인 상태면 예약 페이지로 이동하고 서버로 예약 정보 전달
       Navigator.push(
         context,
@@ -96,26 +102,58 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
           builder: (context) => MyCourse(), // 예약 페이지로 이동
         ),
       );
-
-      // 서버에 예약 정보를 전송하는 함수 호출 (예시 코드)
-      _sendBookingInfoToServer();
     }
   }
 
-  // 서버로 예약 정보 전송
   Future<void> _sendBookingInfoToServer() async {
-    // 예약 정보를 서버에 POST로 전송하는 코드 추가
-    final courseData = {
-      'mountainName': widget.mountainName,
-      'courseName': widget.courseName,
-      'distance': widget.distance,
-      'duration': widget.duration,
-      'difficulty': widget.difficulty,
-      'altitude': widget.altitude,
-    };
+    setState(() {
+      isLoading = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
 
-    // 서버에 예약 정보를 전송하는 로직을 여기에 추가
-    print("Booking course data: $courseData");
+    final courseName = widget.courseName;
+    final url =
+        'http://localhost:8080/api/users/$userId/my-courses/$courseName';
+
+    try {
+      final response = await http.post(Uri.parse(url));
+      if (response.statusCode == 200) {
+        setState(() {
+          isLoading = false;
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  BookingDoneScreen(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.fastEaseInToSlowEaseOut;
+                var tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
+                var offsetAnimation = animation.drive(tween);
+
+                return SlideTransition(position: offsetAnimation, child: child);
+              },
+            ),
+          );
+        });
+        print('Booking information sent successfully');
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        print(
+            'Failed to send booking information. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error sending booking information: $e');
+    }
   }
 
   @override
