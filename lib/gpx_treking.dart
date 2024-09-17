@@ -33,7 +33,9 @@ class _TrackingPageState extends State<TrackingPage>
   NLatLng? _currentLocation;
   NLatLng? _previousLocation; // 이전 위치 저장
   double _currentHeading = 0.0; // 바라보는 방향
+
   double _totalDistance = 0.0;
+
   double _totalCalories = 0.0;
   double _currentAltitude = 0.0; // 고도값
   Duration _totalTime = Duration.zero;
@@ -58,19 +60,98 @@ class _TrackingPageState extends State<TrackingPage>
   }
 
   void _startCompass() {
-    _compassStream = magnetometerEvents.listen((MagnetometerEvent event) {
-      double x = event.x;
-      double y = event.y;
+    List<double>? accelerometerValues;
+    List<double>? magnetometerValues;
 
-      setState(() {
-        _currentHeading = (atan2(y, x) * (180 / pi)) % 360;
-      });
-
-      // 현재 위치 오버레이 방향 업데이트
-      if (_naverMapController != null) {
-        _updateLocationOverlayBearing();
-      }
+    _compassStream = accelerometerEvents.listen((AccelerometerEvent event) {
+      accelerometerValues = [event.x, event.y, event.z];
+      _calculateHeading(accelerometerValues, magnetometerValues);
     });
+
+    _compassStream = magnetometerEvents.listen((MagnetometerEvent event) {
+      magnetometerValues = [event.x, event.y, event.z];
+      _calculateHeading(accelerometerValues, magnetometerValues);
+    });
+  }
+
+  void _calculateHeading(
+      List<double>? accelerometerValues, List<double>? magnetometerValues) {
+    if (accelerometerValues != null && magnetometerValues != null) {
+      // 가속도계와 자기장 센서 데이터를 사용하여 방향 계산
+      List<double> R = List.filled(9, 0.0);
+      List<double> I = List.filled(9, 0.0);
+      List<double> orientation = List.filled(3, 0.0);
+
+      if (_getRotationMatrix(R, I, accelerometerValues, magnetometerValues)) {
+        _getOrientation(R, orientation);
+
+        double azimuth = (orientation[0] * (180 / pi) + 360) % 360;
+
+        setState(() {
+          _currentHeading = azimuth;
+        });
+
+        // 현재 위치 오버레이 방향 업데이트
+        if (_naverMapController != null) {
+          _updateLocationOverlayBearing();
+        }
+      }
+    }
+  }
+
+  /// 회전 행렬을 계산하는 함수
+  bool _getRotationMatrix(List<double> R, List<double> I, List<double> gravity,
+      List<double> geomagnetic) {
+    double Ax = gravity[0];
+    double Ay = gravity[1];
+    double Az = gravity[2];
+
+    double Ex = geomagnetic[0];
+    double Ey = geomagnetic[1];
+    double Ez = geomagnetic[2];
+
+    double Hx = Ey * Az - Ez * Ay;
+    double Hy = Ez * Ax - Ex * Az;
+    double Hz = Ex * Ay - Ey * Ax;
+
+    double normH = sqrt(Hx * Hx + Hy * Hy + Hz * Hz);
+    if (normH < 0.1) {
+      // 장치가 거의 평행일 때
+      return false;
+    }
+
+    double invH = 1.0 / normH;
+    Hx *= invH;
+    Hy *= invH;
+    Hz *= invH;
+
+    double invA = 1.0 / sqrt(Ax * Ax + Ay * Ay + Az * Az);
+    Ax *= invA;
+    Ay *= invA;
+    Az *= invA;
+
+    double Mx = Ay * Hz - Az * Hy;
+    double My = Az * Hx - Ax * Hz;
+    double Mz = Ax * Hy - Ay * Hx;
+
+    R[0] = Hx;
+    R[1] = Hy;
+    R[2] = Hz;
+    R[3] = Mx;
+    R[4] = My;
+    R[5] = Mz;
+    R[6] = Ax;
+    R[7] = Ay;
+    R[8] = Az;
+
+    return true;
+  }
+
+  /// 방향을 계산하는 함수
+  void _getOrientation(List<double> R, List<double> orientation) {
+    orientation[0] = atan2(R[1], R[4]); // Azimuth
+    orientation[1] = asin(-R[7]); // Pitch
+    orientation[2] = atan2(-R[6], R[8]); // Roll
   }
 
   void _updateLocationOverlayBearing() async {
@@ -186,21 +267,22 @@ class _TrackingPageState extends State<TrackingPage>
   }
 
   Future<void> _customizeLocationOverlay() async {
-    _naverMapController?.setLocationTrackingMode(NLocationTrackingMode.follow);
+    _naverMapController?.setLocationTrackingMode(NLocationTrackingMode.face);
     MyLocationTrackingMode;
     // 현재 위치 오버레이 가져오기
     final locationOverlay = await _naverMapController!.getLocationOverlay();
     locationOverlay.setIsVisible(true);
-
+    locationOverlay.setBearing(0);
     locationOverlay.setIcon(
       // 아이콘 설정
+
       NOverlayImage.fromAssetImage('assets/mygps.png'),
     );
     locationOverlay.setIconSize(Size(40, 40));
     locationOverlay
         .setSubIcon(NOverlayImage.fromAssetImage('assets/mark_sub.png'));
     locationOverlay.setSubIconSize(Size(20, 20));
-    locationOverlay.setSubAnchor(NPoint(0.5, 1.0));
+
     locationOverlay.setCircleRadius(15);
     locationOverlay.setCircleOutlineWidth(0);
     locationOverlay.setCircleOutlineColor(Colors.transparent);
@@ -256,8 +338,8 @@ class _TrackingPageState extends State<TrackingPage>
           (_routePoints.first.longitude + _routePoints.last.longitude) / 2,
         );
 
-        final cameraUpdate =
-            NCameraUpdate.scrollAndZoomTo(target: middlePoint, zoom: 11.5);
+        final cameraUpdate = NCameraUpdate.withParams(
+            target: middlePoint, zoom: 11.5, bearing: 0);
 
         cameraUpdate.setAnimation(
             animation: NCameraAnimation.fly, duration: Duration(seconds: 2));
@@ -287,7 +369,6 @@ class _TrackingPageState extends State<TrackingPage>
 
       setState(() {
         _currentLocation = currentPoint;
-        _currentHeading = position.heading; // 바라보는 방향
 
         // 거리 계산
         if (_previousLocation != null) {
@@ -307,7 +388,7 @@ class _TrackingPageState extends State<TrackingPage>
         _previousLocation = _currentLocation;
 
         final cameraUpdate = NCameraUpdate.withParams(
-            target: currentPoint, zoom: 15.0, bearing: _currentHeading);
+            target: currentPoint, zoom: 15.0, bearing: 0);
 
         cameraUpdate.setAnimation(
             animation: NCameraAnimation.fly, duration: Duration(seconds: 2));
@@ -365,18 +446,14 @@ class _TrackingPageState extends State<TrackingPage>
                         bearing: 0,
                         tilt: 0),
                     mapType: NMapType.basic,
-                    activeLayerGroups: [
-                      NLayerGroup.building,
-                      NLayerGroup.transit,
-                      NLayerGroup.mountain
-                    ],
+                    activeLayerGroups: [NLayerGroup.mountain],
                     scrollGesturesFriction: 0.0,
                     zoomGesturesFriction: 0.0,
                     rotationGesturesFriction: 0.0,
                     minZoom: 8, // default is 0
 
                     extent: NLatLngBounds(
-                      southWest: NLatLng(33.0, 124.0),
+                      southWest: NLatLng(34.0, 124.0),
                       northEast: NLatLng(43.0, 132.0),
                     ),
                     locale: Locale('en', 'US')), // 지도 옵션을 설정할 수 있습니다.
