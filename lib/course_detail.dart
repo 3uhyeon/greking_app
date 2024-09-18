@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -35,11 +37,51 @@ class MountainDetailPage extends StatefulWidget {
 class _MountainDetailPageState extends State<MountainDetailPage> {
   bool isLoading = false;
   bool isLoggedIn = false;
+  Map<String, dynamic>? weatherData;
+  List<dynamic> restaurantData = [];
 
   @override
   void initState() {
     super.initState();
     _checkLoginStatus(); // 처음 페이지가 로드되면 로그인 상태를 확인
+    _fetchWeatherData();
+    _fetchRestaurantData();
+  }
+
+  //날씨 api
+  Future<void> _fetchWeatherData() async {
+    final url =
+        'http://localhost:8080/api/weather/getInfo/${widget.mountainName}';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        setState(() {
+          weatherData = json.decode(response.body);
+        });
+      } else {
+        print('Failed to fetch weather data');
+      }
+    } catch (e) {
+      print('Error fetching weather data: $e');
+    }
+  }
+
+  // 식당 api
+  Future<void> _fetchRestaurantData() async {
+    final url =
+        'http://localhost:8080/api/restaurant/getInfo/${widget.courseName}';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        setState(() {
+          restaurantData = json.decode(response.body);
+        });
+      } else {
+        print('Failed to fetch restaurant data');
+      }
+    } catch (e) {
+      print('Error fetching restaurant data: $e');
+    }
   }
 
   // 로그인 상태를 확인하는 함수
@@ -324,15 +366,80 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildWeatherItem(
-                      'assets/cloud.svg', '7.27', 'Saturday', '27°', '10%'),
+                      weatherData?['condition'] == '흐림'
+                          ? 'assets/cloud.svg'
+                          : weatherData?['condition'] == '맑음'
+                              ? 'assets/sun.svg'
+                              : weatherData?['condition'] == '비'
+                                  ? 'assets/rain.svg'
+                                  : weatherData?['condition'] == '눈'
+                                      ? 'assets/snow.svg'
+                                      : weatherData?['condition'] == '번개'
+                                          ? 'assets/thunder.svg'
+                                          : 'assets/cloud.svg',
+                      weatherData?['forecastDate'] ?? '',
+                      '${weatherData?['temperature'] ?? ''}°',
+                      '${weatherData?['predictRain'] ?? ''}%'),
                   _buildWeatherItem(
-                      'assets/sun.svg', '7.28', 'Sunday', '25°', '00%'),
+                      weatherData?['condition'] == '흐림'
+                          ? 'assets/cloud.svg'
+                          : weatherData?['condition'] == '맑음'
+                              ? 'assets/sun.svg'
+                              : weatherData?['condition'] == '비'
+                                  ? 'assets/rain.svg'
+                                  : weatherData?['condition'] == '눈'
+                                      ? 'assets/snow.svg'
+                                      : weatherData?['condition'] == '번개'
+                                          ? 'assets/thunder.svg'
+                                          : 'assets/cloud.svg',
+                      weatherData?['forecastDate1'] ?? '',
+                      '${weatherData?['temperature1'] ?? ''}°',
+                      '${weatherData?['predictRain1'] ?? ''}%'),
                   _buildWeatherItem(
-                      'assets/rain.svg', '7.29', 'Monday', '26°', '50%'),
+                      weatherData?['condition'] == '흐림'
+                          ? 'assets/cloud.svg'
+                          : weatherData?['condition'] == '맑음'
+                              ? 'assets/sun.svg'
+                              : weatherData?['condition'] == '비'
+                                  ? 'assets/rain.svg'
+                                  : weatherData?['condition'] == '눈'
+                                      ? 'assets/snow.svg'
+                                      : weatherData?['condition'] == '번개'
+                                          ? 'assets/thunder.svg'
+                                          : 'assets/cloud.svg',
+                      weatherData?['forecastDate2'] ?? '',
+                      '${weatherData?['temperature2'] ?? ''}°',
+                      '${weatherData?['predictRain2'] ?? ''}%'),
                   _buildWeatherItem(
-                      'assets/snow.svg', '7.30', 'Thuesday', '27°', '10%'),
+                      weatherData?['condition'] == '흐림'
+                          ? 'assets/cloud.svg'
+                          : weatherData?['condition'] == '맑음'
+                              ? 'assets/sun.svg'
+                              : weatherData?['condition'] == '비'
+                                  ? 'assets/rain.svg'
+                                  : weatherData?['condition'] == '눈'
+                                      ? 'assets/snow.svg'
+                                      : weatherData?['condition'] == '번개'
+                                          ? 'assets/thunder.svg'
+                                          : 'assets/cloud.svg',
+                      weatherData?['forecastDate3'] ?? '',
+                      '${weatherData?['temperature3'] ?? ''}°',
+                      '${weatherData?['predictRain3'] ?? ''}%'),
                   _buildWeatherItem(
-                      'assets/thunder.svg', '7.31', 'Wendsday', '26°', '60%'),
+                      weatherData?['condition'] == '흐림'
+                          ? 'assets/cloud.svg'
+                          : weatherData?['condition'] == '맑음'
+                              ? 'assets/sun.svg'
+                              : weatherData?['condition'] == '비'
+                                  ? 'assets/rain.svg'
+                                  : weatherData?['condition'] == '눈'
+                                      ? 'assets/snow.svg'
+                                      : weatherData?['condition'] == '번개'
+                                          ? 'assets/thunder.svg'
+                                          : 'assets/cloud.svg',
+                      weatherData?['forecastDate4'] ?? '',
+                      '${weatherData?['temperature4'] ?? ''}°',
+                      '${weatherData?['predictRain4'] ?? ''}%'),
                 ],
               ),
             ),
@@ -391,11 +498,11 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildEquipmentIcon('Equipment1'),
-                _buildEquipmentIcon('Equipment2'),
-                _buildEquipmentIcon('Equipment3'),
-                _buildEquipmentIcon('Equipment4'),
-                _buildEquipmentIcon('Equipment5'),
+                _buildEquipmentIcon('Outer'),
+                _buildEquipmentIcon('Stick'),
+                _buildEquipmentIcon('Shoes'),
+                _buildEquipmentIcon('Water'),
+                _buildEquipmentIcon('Energy'),
               ],
             ),
             SizedBox(height: 30),
@@ -521,8 +628,8 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
     );
   }
 
-  Widget _buildWeatherItem(String iconPath, String date, String day,
-      String temperature, String precipitation) {
+  Widget _buildWeatherItem(
+      String iconPath, String date, String temperature, String precipitation) {
     return Column(
       children: [
         Text(
@@ -533,13 +640,6 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
             fontFamily: 'Pretendard',
           ),
         ),
-        SizedBox(height: 3.0),
-        Text(day,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-              fontFamily: 'Pretendard',
-            )),
         SizedBox(height: 8.0),
         SvgPicture.asset(
           iconPath,
@@ -583,14 +683,16 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
               height: 150,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
-                child: Image.asset(
-                  'assets/mo.png',
-                  fit: BoxFit.cover,
-                ),
+                child: restaurantData[index]['image'] != null
+                    ? Image.network(
+                        restaurantData[index]['image'],
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset('assets/mo.png'),
               ),
             ),
             minVerticalPadding: 16,
-            title: Text('Suhyeon sikdang',
+            title: Text(restaurantData[index]['name'],
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -604,7 +706,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                   children: [
                     Icon(Icons.location_on, color: Colors.grey, size: 10),
                     Text(
-                      '  서울시 성북구 솔샘로16길 31-5',
+                      restaurantData[index]['address'],
                       style: TextStyle(
                         fontSize: 12,
                         fontFamily: 'Pretendard',
@@ -620,7 +722,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                     size: 10,
                   ),
                   Text(
-                    '  02-1234-5678',
+                    restaurantData[index]['tel'],
                     style: TextStyle(
                       fontSize: 12,
                       fontFamily: 'Pretendard',
@@ -680,7 +782,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
   Widget _buildEquipmentIcon(String label) {
     return Column(
       children: [
-        SvgPicture.asset('assets/equipment.svg'),
+        SvgPicture.asset('assets/$label.svg'),
         SizedBox(height: 10),
         Text(
           label,
