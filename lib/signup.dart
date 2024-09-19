@@ -229,7 +229,6 @@ class _SignupState extends State<Signup> {
                     if (_nicknameMessageColor == Colors.red)
                       SvgPicture.asset('assets/check_circle2.svg',
                           width: 16, height: 16),
-                    SizedBox(width: 8.0),
                     Text(
                       _nicknameMessage,
                       style:
@@ -241,7 +240,15 @@ class _SignupState extends State<Signup> {
                 _buildAgreements(),
                 SizedBox(height: 100.0),
                 ElevatedButton(
-                  onPressed: (_isFormValid && _ischeckValid) ? _signUp : null,
+                  onPressed: (_isFormValid &&
+                          _ischeckValid &&
+                          (_emailMessage == '    Email is valid') &&
+                          (_passwordMessage == '    Password is valid') &&
+                          (_passwordConfirmMessage ==
+                              '    Successfully confirmed') &&
+                          (_nicknameMessage == '    Nickname is available'))
+                      ? _signUp
+                      : null,
                   child: Text('Sign up',
                       style: TextStyle(color: Colors.white, fontSize: 16.0)),
                   style: ElevatedButton.styleFrom(
@@ -420,14 +427,14 @@ class _SignupState extends State<Signup> {
       setState(() {
         _isNicknameValid = true;
         isLoading = false;
-        _nicknameMessage = "Nickname is available";
+        _nicknameMessage = "    Nickname is available";
         _nicknameMessageColor = Colors.green;
       });
     } else {
       setState(() {
         _isNicknameValid = false;
         isLoading = false;
-        _nicknameMessage = "This nickname is already taken";
+        _nicknameMessage = "    This nickname is already taken";
         _nicknameMessageColor = Colors.red;
       });
     }
