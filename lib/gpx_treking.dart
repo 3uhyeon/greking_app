@@ -529,12 +529,12 @@ class _TrackingPageState extends State<TrackingPage>
                           onPressed: () => {},
                           child: Text(widget.courseName + " >",
                               style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xff1dbe92),
-                            minimumSize: Size(100, 44),
+                            minimumSize: Size(90, 40),
                           ),
                         ),
                         SizedBox(width: 70.0),

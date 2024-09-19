@@ -544,7 +544,7 @@ class _SignupState extends State<Signup> {
 
           SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setString('uid', userId); // UID를 SharedPreferences에 저장
-
+          prefs.setString('loginMethod', user.email!);
           // 서버로 UID 전송
           var response = await http.post(
             Uri.parse(
