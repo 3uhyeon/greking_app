@@ -7,6 +7,7 @@ import 'loading.dart';
 import 'mycourse.dart';
 import 'login.dart';
 import 'write_done.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ReviewWritingPage extends StatefulWidget {
   final int userCourseId;
@@ -69,12 +70,12 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
       "review_text": _reviewController.text
     };
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userId = prefs.getString('userId');
+    String? userId = prefs.getString('uid');
 
     try {
       final response = await http.post(
         Uri.parse(
-            'http://43.203.197.86:8080/api/review/${userId}/${widget.userCourseId}'),
+            'https://cb59-61-72-65-131.ngrok-free.app/api/review/${userId}/${widget.userCourseId}'),
         headers: {
           "Content-Type": "application/json",
         },
@@ -228,51 +229,62 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      showDialog(
+                      showDialog<void>(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: Container(),
                             content: Container(
                               width: 500,
-                              height: 20,
+                              height: 120,
                               child: Center(
-                                child: Text('Are you sure to submit?',
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                            actions: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      'Cancel',
+                                child: Column(
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/alert_check.svg',
+                                      width: 70,
+                                      height: 70,
+                                    ),
+                                    SizedBox(height: 20),
+                                    Text(
+                                      'Are you sure to submit?',
                                       style: TextStyle(
-                                        color: Colors.red,
+                                        color: Color(0xff555a5c),
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      _reviewRegister();
-                                    },
-                                    child: Text(
-                                      'Sure',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
+                                  ],
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    child: TextButton(
+                                      child: Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                            color: Colors.red, fontSize: 16),
                                       ),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(width: 50),
+                                  Container(
+                                    child: TextButton(
+                                      child: Text(
+                                        'Sure',
+                                        style: TextStyle(
+                                            color: Colors.black, fontSize: 16),
+                                      ),
+                                      onPressed: () async {
+                                        Navigator.of(context).pop();
+                                        await _reviewRegister(); // 로그아웃
+                                      },
                                     ),
                                   ),
                                 ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Shop extends StatefulWidget {
   const Shop({super.key});
@@ -20,7 +21,6 @@ class _ShopState extends State<Shop> {
     return (loginMethod != null && token != null);
   }
 
-  final TextEditingController _searchController = TextEditingController();
   final MapController _mapController = MapController();
 
   List<Map<String, dynamic>> _selectedMountainCourses = [];
@@ -159,29 +159,6 @@ class _ShopState extends State<Shop> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    offset: Offset(0.0, 10.0),
-                    blurRadius: 10.0,
-                  ),
-                ],
-              ),
-              child: TextField(
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search),
-                  hintText: 'Search',
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.all(10.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -598,37 +575,51 @@ class ProductDetailPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton(
           onPressed: () {
-            showDialog(
+            showDialog<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Container(),
                   content: Container(
                     width: 500,
-                    height: 20,
+                    height: 120,
                     child: Center(
-                      child: Text('Currently out of stock',
-                          style: TextStyle(
-                              color: Colors.black,
+                      child: Column(
+                        children: [
+                          SvgPicture.asset(
+                            'assets/alert_red.svg',
+                            width: 70,
+                            height: 70,
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            'Currently, out of stock',
+                            style: TextStyle(
+                              color: Color(0xff555a5c),
                               fontSize: 16,
-                              fontWeight: FontWeight.bold)),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   actions: [
-                    Center(
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text(
-                          'OK',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          child: TextButton(
+                            child: Text(
+                              'OK',
+                              style:
+                                  TextStyle(color: Colors.black, fontSize: 16),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 );

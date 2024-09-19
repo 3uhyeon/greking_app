@@ -50,12 +50,16 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
 
   //날씨 api
   Future<void> _fetchWeatherData() async {
+    setState(() {
+      isLoading = true;
+    });
     final url =
         'https://cb59-61-72-65-131.ngrok-free.app/api/weather/getInfo/설악산';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         setState(() {
+          isLoading = false;
           weatherData = json.decode(response.body);
         });
       } else {
@@ -68,14 +72,17 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
 
   // 식당 api
   Future<void> _fetchRestaurantData() async {
+    setState(() {
+      isLoading = true;
+    });
     final url =
         'https://cb59-61-72-65-131.ngrok-free.app/api/restaurant/getInfo/${widget.courseName}';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         setState(() {
+          isLoading = false;
           restaurantData = json.decode(response.body);
-          print(restaurantData[0]['imageUrl1']);
         });
       } else {
         print('Failed to fetch restaurant data');
@@ -179,6 +186,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
       if (response.statusCode == 200) {
         setState(() {
           isLoading = false;
+
           navigateToBookingDoneScreen();
         });
 
@@ -261,7 +269,71 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
         bottomNavigationBar: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
-            onPressed: _bookCourse, // 예약 버튼 클릭 시 호출
+            onPressed: () => {
+              showDialog<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    content: Container(
+                      width: 500,
+                      height: 120,
+                      child: Center(
+                        child: Column(
+                          children: [
+                            SvgPicture.asset(
+                              'assets/alert_check.svg',
+                              width: 70,
+                              height: 70,
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              'Do you want to book this course?',
+                              style: TextStyle(
+                                color: Color(0xff555a5c),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    actions: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            child: TextButton(
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 16),
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ),
+                          SizedBox(width: 50),
+                          Container(
+                            child: TextButton(
+                              child: Text(
+                                'Booking',
+                                style: TextStyle(
+                                    color: Color(0xff1dbe9c), fontSize: 16),
+                              ),
+                              onPressed: () async {
+                                await _bookCourse();
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              )
+            },
             child: Text('Booking',
                 style: TextStyle(
                     color: Colors.white,
@@ -300,7 +372,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                 SizedBox(width: 16),
                 Icon(Icons.location_on, color: Colors.grey),
                 SizedBox(width: 8),
-                Text('Gangwon-do, South Korea',
+                Text(widget.mountainName,
                     style: TextStyle(
                         color: Colors.grey,
                         fontSize: 12,
@@ -311,21 +383,12 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
             Row(
               children: [
                 Text(
-                  widget.mountainName,
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Pretendard',
-                      color: Color(0xff1dbe92)),
-                ),
-                SizedBox(width: 8),
-                Text(
                   widget.courseName,
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: widget.courseName.length > 28 ? 20 : 22,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Pretendard',
-                    color: Colors.black,
+                    color: Color(0xff1dbe92),
                   ),
                 ),
               ],
@@ -345,8 +408,8 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
               children: [
                 _buildInfoChip('Level', widget.difficulty),
                 _buildInfoChip('Time', widget.duration),
-                _buildInfoChip('Distance', widget.distance),
-                _buildInfoChip('Altitude', widget.altitude),
+                _buildInfoChip('Distance', widget.distance + " km"),
+                _buildInfoChip('Altitude', widget.altitude + " m"),
               ],
             ),
             SizedBox(height: 30),

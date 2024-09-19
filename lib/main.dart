@@ -283,58 +283,61 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     if (isLoading) {
       return LoadingScreen();
     } else {
-      return Scaffold(
-        appBar: _buildAppBar(),
-        body: PageView(
-          controller: _pageController,
-          physics: NeverScrollableScrollPhysics(), // Disable scrolling
-          onPageChanged: _onPageChanged,
-          children: [
-            _buildHomePage(),
-            Treking(),
-            MyCourse(),
-            Shop(),
-            My(),
-          ],
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _currentIndex,
-          onTap: _onItemTapped,
-          items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: SvgPicture.asset(_currentIndex == 0
-                  ? 'assets/navi_home_on.svg'
-                  : 'assets/navi_home_off.svg'),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: SvgPicture.asset(_currentIndex == 1
-                  ? 'assets/navi_second_on.svg'
-                  : 'assets/navi_second_off.svg'),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: SvgPicture.asset(_currentIndex == 2
-                  ? 'assets/navi_third_on.svg'
-                  : 'assets/navi_third_off.svg'),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: SvgPicture.asset(_currentIndex == 3
-                  ? 'assets/navi_four_on.svg'
-                  : 'assets/navi_four_off.svg'),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: SvgPicture.asset(_currentIndex == 4
-                  ? 'assets/navi_five_on.svg'
-                  : 'assets/navi_five_off.svg'),
-              label: '',
-            ),
-          ],
-          selectedItemColor: Colors.black,
-          unselectedItemColor: Colors.grey,
+      return WillPopScope(
+        onWillPop: () async => false, // Disable back button
+        child: Scaffold(
+          appBar: _buildAppBar(),
+          body: PageView(
+            controller: _pageController,
+            physics: NeverScrollableScrollPhysics(), // Disable scrolling
+            onPageChanged: _onPageChanged,
+            children: [
+              _buildHomePage(),
+              Treking(),
+              MyCourse(),
+              Shop(),
+              My(),
+            ],
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _currentIndex,
+            onTap: _onItemTapped,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: SvgPicture.asset(_currentIndex == 0
+                    ? 'assets/navi_home_on.svg'
+                    : 'assets/navi_home_off.svg'),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: SvgPicture.asset(_currentIndex == 1
+                    ? 'assets/navi_second_on.svg'
+                    : 'assets/navi_second_off.svg'),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: SvgPicture.asset(_currentIndex == 2
+                    ? 'assets/navi_third_on.svg'
+                    : 'assets/navi_third_off.svg'),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: SvgPicture.asset(_currentIndex == 3
+                    ? 'assets/navi_four_on.svg'
+                    : 'assets/navi_four_off.svg'),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: SvgPicture.asset(_currentIndex == 4
+                    ? 'assets/navi_five_on.svg'
+                    : 'assets/navi_five_off.svg'),
+                label: '',
+              ),
+            ],
+            selectedItemColor: Colors.black,
+            unselectedItemColor: Colors.grey,
+          ),
         ),
       );
     }
@@ -579,9 +582,11 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
             const SizedBox(height: 8),
             Center(
               child: Container(
+                alignment: Alignment.center,
                 height: 300,
-                width: 420,
+                width: 450,
                 child: ListView(
+                  physics: NeverScrollableScrollPhysics(),
                   scrollDirection: Axis.vertical,
                   children: [
                     PopularCourseItem(index: 1),

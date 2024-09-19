@@ -364,10 +364,15 @@ class _Treking extends State<Treking> {
                                     Text(
                                       course['courseName'],
                                       style: TextStyle(
-                                        fontSize: 16.0,
+                                        fontSize:
+                                            course['courseName'].length > 28
+                                                ? 14.0
+                                                : 16.0,
                                         fontFamily: 'Pretendard',
                                         fontWeight: FontWeight.bold,
                                       ),
+                                      overflow: TextOverflow
+                                          .ellipsis, // Optionally truncate long text
                                     ),
                                   ],
                                 ),

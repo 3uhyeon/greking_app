@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/main.dart';
 import 'package:my_app/mycourse.dart';
 import 'package:lottie/lottie.dart';
 
@@ -8,13 +9,14 @@ class WritingDoneScreen extends StatelessWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          leading: Container(),
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Lottie.asset('assets/done.json'),
-              SizedBox(height: 16),
               Text(
                 'Thank you for your Review!',
                 style: TextStyle(
@@ -22,13 +24,14 @@ class WritingDoneScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MyCourse()));
+                      MaterialPageRoute(builder: (context) => MainPage()));
                 },
-                child: Text('Go Greking'),
+                child: Text('Go Greking',
+                    style: TextStyle(color: Color(0xff0d615c))),
               ),
             ],
           ),

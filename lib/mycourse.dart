@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert'; // For JSON encoding/decoding
 import 'package:http/http.dart' as http;
+import 'package:my_app/loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'review_write.dart';
 import 'gpx_treking.dart';
@@ -40,7 +41,7 @@ class _MyCourseState extends State<MyCourse>
   bool isLoading = true;
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     fetchCourses();
@@ -49,8 +50,8 @@ class _MyCourseState extends State<MyCourse>
   Future<void> fetchCourses() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userId');
-
+      final userId = prefs.getString('uid');
+      print(userId);
       final expectedResponse = await http.get(
         Uri.parse(
             'https://cb59-61-72-65-131.ngrok-free.app/api/users/$userId/my-courses/expected'),
@@ -79,14 +80,20 @@ class _MyCourseState extends State<MyCourse>
 
   Future<void> deleteCourse(int userCourseId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('userId');
+    final userId = prefs.getString('uid');
+
     final deleteResponse = await http.delete(
       Uri.parse(
           'https://cb59-61-72-65-131.ngrok-free.app/api/users/$userId/my-courses/$userCourseId'),
     );
 
     if (deleteResponse.statusCode == 200) {
-      print('Course deleted');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          content: Text('Course deleted'),
+        ),
+      );
       fetchCourses(); // Refresh the course list after deletion
     } else {
       print('Failed to delete course');
@@ -128,7 +135,7 @@ class _MyCourseState extends State<MyCourse>
         ),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? LoadingScreen()
           : TabBarView(
               controller: _tabController,
               children: [
@@ -256,9 +263,10 @@ class _MyCourseState extends State<MyCourse>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$mountainName - $courseName',
+                      '$courseName',
                       style: const TextStyle(
                         fontSize: 16,
+                        color: Color(0xff0d615c),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -355,7 +363,9 @@ class _MyCourseState extends State<MyCourse>
                         Navigator.push(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (_, __, ___) => TrackingPage(),
+                            pageBuilder: (_, __, ___) => TrackingPage(
+                                courseName: course['courseName'],
+                                userCourseId: course['userCourseId']),
                             transitionDuration: Duration(milliseconds: 100),
                             transitionsBuilder:
                                 (_, Animation<double> animation, __, child) {

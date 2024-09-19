@@ -39,13 +39,13 @@ class _MyState extends State<My> {
     String? loginMethod = prefs.getString('loginMethod');
     String? token = prefs.getString('token');
     String? savedEmail = prefs.getString('email'); // 저장된 이메일
-    String? savedName = prefs.getString('name'); // 저장된 사용자 이름
+    String? savedName = prefs.getString('nickname'); // 저장된 사용자 이름
 
     if (loginMethod != null && token != null) {
       setState(() {
         isLoggedIn = true;
-        email = savedEmail ?? '1234545@example.com'; // 이메일이 없으면 기본값
-        name = savedName ?? 'Kim MinJune'; // 이름이 없으면 기본값
+        email = savedEmail ?? 'none'; // 이메일이 없으면 기본값
+        name = savedName ?? 'none'; // 이름이 없으면 기본값
       });
     } else {
       setState(() {
@@ -181,13 +181,26 @@ class _MyState extends State<My> {
         return AlertDialog(
           content: Container(
             width: 500,
-            height: 30,
+            height: 120,
             child: Center(
-              child: Text('Are you sure to delete account? ',
-                  style: TextStyle(
-                      color: Colors.black,
+              child: Column(
+                children: [
+                  SvgPicture.asset(
+                    'assets/alert_red.svg',
+                    width: 70,
+                    height: 70,
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Are you sure to delete account?',
+                    style: TextStyle(
+                      color: Color(0xff555a5c),
                       fontSize: 16,
-                      fontWeight: FontWeight.normal)),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
@@ -242,13 +255,26 @@ class _MyState extends State<My> {
         return AlertDialog(
           content: Container(
             width: 500,
-            height: 30,
+            height: 120,
             child: Center(
-              child: Text('Are you sure to Sign out ? ',
-                  style: TextStyle(
-                      color: Colors.black,
+              child: Column(
+                children: [
+                  SvgPicture.asset(
+                    'assets/alert_red.svg',
+                    width: 70,
+                    height: 70,
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Are you sure to sign out?',
+                    style: TextStyle(
+                      color: Color(0xff555a5c),
                       fontSize: 16,
-                      fontWeight: FontWeight.normal)),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
@@ -411,7 +437,7 @@ class _MyState extends State<My> {
                   ),
                   Spacer(),
                   SvgPicture.asset(
-                    'assets/level_icon.svg',
+                    'assets/level1.svg',
                     width: 100,
                     height: 100,
                   ),
@@ -432,37 +458,51 @@ class _MyState extends State<My> {
                 buildMenuItem(
                   text: 'Rent reservation',
                   onTap: () {
-                    showDialog(
+                    showDialog<void>(
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Container(),
                           content: Container(
                             width: 500,
-                            height: 20,
+                            height: 120,
                             child: Center(
-                              child: Text('Contact us at exaple@com',
-                                  style: TextStyle(
-                                      color: Colors.black,
+                              child: Column(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/alert_check.svg',
+                                    width: 70,
+                                    height: 70,
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    'Contact us at devpt@naver.com',
+                                    style: TextStyle(
+                                      color: Color(0xff555a5c),
                                       fontSize: 16,
-                                      fontWeight: FontWeight.bold)),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           actions: [
-                            Center(
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(
-                                  'OK',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  child: TextButton(
+                                    child: Text(
+                                      'OK',
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 16),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
                           ],
                         );
@@ -474,37 +514,51 @@ class _MyState extends State<My> {
                 buildMenuItem(
                   text: 'App version',
                   onTap: () {
-                    showDialog(
+                    showDialog<void>(
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Container(),
                           content: Container(
                             width: 500,
-                            height: 20,
+                            height: 120,
                             child: Center(
-                              child: Text('App version 2.0.0',
-                                  style: TextStyle(
-                                      color: Colors.black,
+                              child: Column(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/alert_check.svg',
+                                    width: 70,
+                                    height: 70,
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    'APP version 1.0.0',
+                                    style: TextStyle(
+                                      color: Color(0xff555a5c),
                                       fontSize: 16,
-                                      fontWeight: FontWeight.bold)),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           actions: [
-                            Center(
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(
-                                  'OK',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  child: TextButton(
+                                    child: Text(
+                                      'OK',
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 16),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
                           ],
                         );

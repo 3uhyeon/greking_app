@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/main.dart';
 import 'package:my_app/mycourse.dart';
 import 'package:lottie/lottie.dart';
 
@@ -14,7 +15,6 @@ class BookingDoneScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Lottie.asset('assets/done.json'),
-              SizedBox(height: 16),
               Text(
                 'Booking Completed!',
                 style: TextStyle(
@@ -22,11 +22,11 @@ class BookingDoneScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MyCourse()));
+                      MaterialPageRoute(builder: (context) => MainPage()));
                 },
                 child: Text('Go Greking',
                     style: TextStyle(color: Color(0xff0d615c))),

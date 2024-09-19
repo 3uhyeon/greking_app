@@ -16,6 +16,9 @@ import 'dart:math'; // 삼각함수 계산을 위해 필요
 import 'done.dart';
 
 class TrackingPage extends StatefulWidget {
+  final String courseName;
+  final int userCourseId;
+  TrackingPage({required this.courseName, required this.userCourseId});
   @override
   _TrackingPageState createState() => _TrackingPageState();
 }
@@ -241,6 +244,7 @@ class _TrackingPageState extends State<TrackingPage>
           totalCalories: _totalCalories,
           maxAltitude: _currentAltitude,
           totalTime: _totalTime,
+          userCourseId: widget.userCourseId,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 애니메이션 시작 위치
@@ -513,7 +517,7 @@ class _TrackingPageState extends State<TrackingPage>
                         SizedBox(width: 25.0),
                         ElevatedButton(
                           onPressed: () => {},
-                          child: Text('Course Name >',
+                          child: Text(widget.courseName + " >",
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -523,7 +527,7 @@ class _TrackingPageState extends State<TrackingPage>
                             minimumSize: Size(100, 44),
                           ),
                         ),
-                        SizedBox(width: 100.0),
+                        SizedBox(width: 70.0),
                         SvgPicture.asset('assets/sos.svg'),
                       ],
                     ),

@@ -16,7 +16,7 @@ class ReviewDetailPage extends StatefulWidget {
 
 class _ReviewDetailPageState extends State<ReviewDetailPage> {
   List<dynamic> reviews = [];
-  bool isLoading = true;
+  bool isLoading = false;
   bool isLoggedIn = false;
 
   @override
@@ -27,9 +27,12 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
   }
 
   Future<void> _fetchReviews() async {
+    setState(() {
+      isLoading = true;
+    });
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/review/all'),
+        Uri.parse('https://cb59-61-72-65-131.ngrok-free.app/api/review/all'),
         headers: {
           "Content-Type": "application/json",
         },
@@ -102,13 +105,25 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            review['nickName'] ?? 'Anonymous',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Pretendard',
-            ),
+          Row(
+            children: [
+              Icon(
+                review['review_difficulty'] == 'easy'
+                    ? Icons.sentiment_very_satisfied
+                    : review['review_difficulty'] == 'manageable'
+                        ? Icons.sentiment_satisfied
+                        : Icons.sentiment_dissatisfied,
+              ),
+              SizedBox(width: 8),
+              Text(
+                review['nickName'] ?? 'Anonymous',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Pretendard',
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 8),
           Row(
@@ -136,6 +151,7 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
           Text(
             review['review_text'] ?? 'No review provided',
             style: TextStyle(color: Colors.black87),
+            overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: 12),
           Text(

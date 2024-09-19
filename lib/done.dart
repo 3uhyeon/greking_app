@@ -3,34 +3,50 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // For JSON encoding
 import 'package:lottie/lottie.dart';
+import 'package:my_app/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class TrackingSummaryPage extends StatefulWidget {
   final double totalDistance;
   final double totalCalories;
   final double maxAltitude;
   final Duration totalTime;
+  final int userCourseId;
 
   TrackingSummaryPage({
     required this.totalDistance,
     required this.totalCalories,
     required this.maxAltitude,
     required this.totalTime,
+    required this.userCourseId,
   });
 
   @override
   _TrackingSummaryPageState createState() => _TrackingSummaryPageState();
 }
 
-class _TrackingSummaryPageState extends State<TrackingSummaryPage> {
+class _TrackingSummaryPageState extends State<TrackingSummaryPage>
+    with SingleTickerProviderStateMixin {
   bool _isAnimationCompleted = false;
-
+  bool levelup = false;
   Duration _animationDuration = Duration(seconds: 1);
+  late AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
     _startSummaryAnimation();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 2),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   // 애니메이션 완료 시 서버로 데이터를 전송하는 함수
@@ -39,19 +55,18 @@ class _TrackingSummaryPageState extends State<TrackingSummaryPage> {
       setState(() {
         _isAnimationCompleted = true;
       });
-      _sendSummaryToServer();
     });
   }
 
   // 서버로 데이터 전송
   Future<void> _sendSummaryToServer() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('userId');
-    final userCourseId = "1"; // 여기 수정 해야함 .
+    final userId = prefs.getString('uid');
+
     try {
       final response = await http.post(
         Uri.parse(
-            'localhost:8080/api/users/${userId}/my-courses/${userCourseId}/complete'), // 서버 URL 입력
+            'https://cb59-61-72-65-131.ngrok-free.app/api/users/${userId}/my-courses/${widget.userCourseId}/complete'), // 서버 URL 입력
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "distance": widget.totalDistance,
@@ -62,6 +77,47 @@ class _TrackingSummaryPageState extends State<TrackingSummaryPage> {
       );
 
       if (response.statusCode == 200) {
+        print(response.body);
+        if (jsonDecode(response.body)['levelUp'] == true) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                content: Stack(
+                  children: [
+                    RotationTransition(
+                      turns: _animationController,
+                      child: SvgPicture.asset(
+                        'assets/level_round.svg',
+                        width: 100,
+                        height: 100,
+                      ),
+                    ),
+                    SvgPicture.asset(
+                      'assets/level${jsonDecode(response.body)['now_level']}.svg',
+                      width: 100,
+                      height: 100,
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Thank you'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainPage(),
+          ),
+        );
         print('Data sent to server successfully!');
       } else {
         print('Failed to send data to server!');
@@ -124,7 +180,7 @@ class _TrackingSummaryPageState extends State<TrackingSummaryPage> {
                     minimumSize: Size(double.infinity, 40),
                   ),
                   onPressed: () {
-                    //
+                    _sendSummaryToServer();
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
