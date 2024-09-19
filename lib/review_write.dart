@@ -279,7 +279,8 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                                       child: Text(
                                         'Sure',
                                         style: TextStyle(
-                                            color: Colors.black, fontSize: 16),
+                                            color: Color(0xff1dbe9c),
+                                            fontSize: 16),
                                       ),
                                       onPressed: () async {
                                         Navigator.of(context).pop();

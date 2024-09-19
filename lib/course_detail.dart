@@ -306,8 +306,8 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                             child: TextButton(
                               child: Text(
                                 'Cancel',
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 16),
+                                style:
+                                    TextStyle(color: Colors.red, fontSize: 16),
                               ),
                               onPressed: () {
                                 Navigator.of(context).pop();
