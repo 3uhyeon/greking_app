@@ -616,7 +616,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               child: Container(
                 alignment: Alignment.center,
                 height: 300,
-                width: 450,
+                width: double.infinity,
                 child: ListView(
                   physics: NeverScrollableScrollPhysics(),
                   scrollDirection: Axis.vertical,
