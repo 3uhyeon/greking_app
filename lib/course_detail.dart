@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 import 'booking_done.dart';
 
 class MountainDetailPage extends StatefulWidget {
-  final String courseId;
+  final int courseId;
   final String mountainName;
   final String courseName;
   final String distance;
@@ -51,7 +51,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
   //날씨 api
   Future<void> _fetchWeatherData() async {
     final url =
-        'http://localhost:8080/api/weather/getInfo/${widget.mountainName}';
+        'https://cb59-61-72-65-131.ngrok-free.app/api/weather/getInfo/설악산';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -69,12 +69,13 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
   // 식당 api
   Future<void> _fetchRestaurantData() async {
     final url =
-        'http://localhost:8080/api/restaurant/getInfo/${widget.courseName}';
+        'https://cb59-61-72-65-131.ngrok-free.app/api/restaurant/getInfo/${widget.courseName}';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         setState(() {
           restaurantData = json.decode(response.body);
+          print(restaurantData[0]['imageUrl1']);
         });
       } else {
         print('Failed to fetch restaurant data');
@@ -137,14 +138,27 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
     } else {
       // 서버에 예약 정보를 전송하는 함수 호출 (예시 코드)
       _sendBookingInfoToServer();
-      // 로그인 상태면 예약 페이지로 이동하고 서버로 예약 정보 전달
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MyCourse(), // 예약 페이지로 이동
-        ),
-      );
     }
+  }
+
+  void navigateToBookingDoneScreen() async {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            BookingDoneScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.fastEaseInToSlowEaseOut;
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(position: offsetAnimation, child: child);
+        },
+      ),
+    );
   }
 
   Future<void> _sendBookingInfoToServer() async {
@@ -152,36 +166,22 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
       isLoading = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('userId');
-
+    final userId = prefs.getString('uid');
+    print(userId);
     final courseName = widget.courseName;
+    print(courseName);
     final url =
-        'http://localhost:8080/api/users/$userId/my-courses/$courseName';
+        'https://cb59-61-72-65-131.ngrok-free.app/api/users/$userId/my-courses/$courseName';
+    print(url);
 
     try {
       final response = await http.post(Uri.parse(url));
       if (response.statusCode == 200) {
         setState(() {
           isLoading = false;
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  BookingDoneScreen(),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.fastEaseInToSlowEaseOut;
-                var tween = Tween(begin: begin, end: end)
-                    .chain(CurveTween(curve: curve));
-                var offsetAnimation = animation.drive(tween);
-
-                return SlideTransition(position: offsetAnimation, child: child);
-              },
-            ),
-          );
+          navigateToBookingDoneScreen();
         });
+
         print('Booking information sent successfully');
       } else {
         setState(() {
@@ -313,7 +313,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                 Text(
                   widget.mountainName,
                   style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Pretendard',
                       color: Color(0xff1dbe92)),
@@ -322,7 +322,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                 Text(
                   widget.courseName,
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Pretendard',
                     color: Colors.black,
@@ -589,7 +589,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                     context,
                     PageRouteBuilder(
                       pageBuilder: (context, animation, secondaryAnimation) =>
-                          ReviewPage(),
+                          ReviewPage(courseName: widget.courseName),
                       transitionsBuilder:
                           (context, animation, secondaryAnimation, child) {
                         const begin = Offset(1.0, 0.0);
@@ -683,16 +683,16 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
               height: 150,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
-                child: restaurantData[index]['image'] != null
+                child: restaurantData[index]['imageUrl1'] != ''
                     ? Image.network(
-                        restaurantData[index]['image'],
+                        restaurantData[index]['imageUrl1'],
                         fit: BoxFit.cover,
                       )
                     : Image.asset('assets/mo.png'),
               ),
             ),
             minVerticalPadding: 16,
-            title: Text(restaurantData[index]['name'],
+            title: Text(restaurantData[index]['restaurant_name'],
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -705,6 +705,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                 Row(
                   children: [
                     Icon(Icons.location_on, color: Colors.grey, size: 10),
+                    SizedBox(width: 5),
                     Text(
                       restaurantData[index]['address'],
                       style: TextStyle(
@@ -721,8 +722,11 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                     color: Colors.grey,
                     size: 10,
                   ),
+                  SizedBox(width: 5),
                   Text(
-                    restaurantData[index]['tel'],
+                    restaurantData[index]['tel'] != ''
+                        ? restaurantData[index]['tel']
+                        : 'none',
                     style: TextStyle(
                       fontSize: 12,
                       fontFamily: 'Pretendard',

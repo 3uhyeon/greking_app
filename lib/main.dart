@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/question.dart';
 import 'package:my_app/review_detail.dart';
+import 'package:my_app/review_write.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'loading.dart';
@@ -16,6 +17,7 @@ import 'package:lottie/lottie.dart';
 import 'review_detail.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'article.dart';
+import 'review_write.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -85,6 +87,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
     String? token = prefs.getString('token');
+    String? uid = prefs.getString('uid');
 
     if (loginMethod != null && token != null) {
       bool isValid = await _validateToken(token, loginMethod);
@@ -161,7 +164,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
     String? token = prefs.getString('token');
-    return (loginMethod != null && token != null);
+
+    String? uid = prefs.getString('uid');
+
+    return (uid != null);
   }
 
   PreferredSizeWidget _buildAppBar() {
@@ -594,7 +600,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => MyCourse()),
+                      MaterialPageRoute(
+                          builder: (context) => ReviewWritingPage(
+                                userCourseId: 1,
+                              )),
                     );
                   },
                   child: Image.asset('assets/banners.png',

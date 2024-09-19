@@ -40,13 +40,15 @@ class _LoginScreenState extends State<LoginScreen> {
         String nickname = '';
         String email = _emailController.text;
         String password = _passwordController.text;
+
+        print(uid);
         setState(() {
           isLoading = true; // 로딩 상태 변경
         });
         // API 요청 보내기
         var response = await http.post(
           Uri.parse(
-              'https://b945-1-209-175-114.ngrok-free.app/api/users/login'), // 서버 URL
+              'https://cb59-61-72-65-131.ngrok-free.app/api/users/login'), // 서버 URL
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -59,6 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (response.statusCode == 200) {
           var responseData = jsonDecode(response.body);
+
           setState(() {
             isLoading = false; // 로딩 상태 변경
           });

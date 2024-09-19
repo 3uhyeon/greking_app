@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_app/mycourse.dart';
 import 'package:lottie/lottie.dart';
 
-class BookingDoneScreen extends StatelessWidget {
+class WritingDoneScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -16,7 +16,7 @@ class BookingDoneScreen extends StatelessWidget {
               Lottie.asset('assets/done.json'),
               SizedBox(height: 16),
               Text(
-                'Booking Completed!',
+                'Thank you for your Review!',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -28,14 +28,7 @@ class BookingDoneScreen extends StatelessWidget {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => MyCourse()));
                 },
-                child: Text('Go Greking',
-                    style: TextStyle(color: Color(0xff0d615c))),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white, // Set the background color
-
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 32, vertical: 16), // Set the button size
-                ),
+                child: Text('Go Greking'),
               ),
             ],
           ),

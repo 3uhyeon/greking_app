@@ -9,125 +9,43 @@ import 'login.dart';
 
 class ReviewDetailPage extends StatefulWidget {
   const ReviewDetailPage({Key? key}) : super(key: key);
+
   @override
   _ReviewDetailPageState createState() => _ReviewDetailPageState();
 }
 
 class _ReviewDetailPageState extends State<ReviewDetailPage> {
-  int _selectedStar = 0;
-  int _selectedDifficulty = -1;
-  bool isLoading = false;
-  final TextEditingController _reviewController = TextEditingController();
+  List<dynamic> reviews = [];
+  bool isLoading = true;
   bool isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
+
+    _fetchReviews();
   }
 
-  Future<void> _checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? loginMethod = prefs.getString('loginMethod');
-    String? token = prefs.getString('token');
-
-    if (loginMethod != null && token != null) {
-      setState(() {
-        isLoggedIn = true;
-      });
-    } else {
-      setState(() {
-        isLoggedIn = false;
-      });
-    }
-  }
-
-  void _selectStar(int star) {
-    setState(() {
-      _selectedStar = star;
-    });
-  }
-
-  void _selectDifficulty(int difficulty) {
-    setState(() {
-      _selectedDifficulty = difficulty;
-    });
-  }
-
-  Future<void> _reviewRegister() async {
-    if (!isLoggedIn) {
-      _navigateToLogin();
-      return;
-    }
-
-    setState(() {
-      isLoading = true;
-    });
-
-    // Construct the review body
-    final body = {
-      "review_score": _selectedStar.toString(),
-      "review_difficulty": _getDifficultyText(),
-      "review_text": _reviewController.text
-    };
-
+  Future<void> _fetchReviews() async {
     try {
-      final response = await http.post(
-        Uri.parse('http://43.203.197.86:8080/api/review/userid/userCouserId'),
+      final response = await http.get(
+        Uri.parse('http://localhost:8080/api/review/all'),
         headers: {
           "Content-Type": "application/json",
         },
-        body: json.encode(body),
       );
 
       if (response.statusCode == 200) {
-        // If the server returns an OK response, navigate to the MyCourse page
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => MyCourse()),
-        );
+        setState(() {
+          reviews = json.decode(response.body);
+          isLoading = false;
+        });
       } else {
-        throw Exception('Failed to submit review');
+        throw Exception('Failed to load reviews');
       }
     } catch (e) {
-      print('Error submitting review: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
+      print('Error fetching reviews: $e');
     }
-  }
-
-  String _getDifficultyText() {
-    switch (_selectedDifficulty) {
-      case 0:
-        return 'difficult';
-      case 1:
-        return 'manageable';
-      case 2:
-        return 'easy';
-      default:
-        return 'unknown';
-    }
-  }
-
-  void _navigateToLogin() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => LoginScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0); // Slide from bottom to top
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
-          var tween =
-              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-          var offsetAnimation = animation.drive(tween);
-
-          return SlideTransition(position: offsetAnimation, child: child);
-        },
-      ),
-    );
   }
 
   @override
@@ -137,11 +55,14 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
     } else {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Review detail',
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Pretendard')),
+          title: Text(
+            'Review Detail',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Pretendard',
+            ),
+          ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -149,72 +70,13 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
             },
           ),
         ),
-        resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 20),
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Nickname',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.bold)),
-                      SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on, size: 16, color: Colors.grey),
-                          SizedBox(width: 4),
-                          Text('Mt.Seolak',
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 12)),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 32.0),
-                Row(
-                  children: const [
-                    Icon(Icons.sentiment_dissatisfied,
-                        size: 40, color: Color(0XFF1DBE92)),
-                    SizedBox(width: 16),
-                    Icon(Icons.star, size: 16, color: Color(0xFFA9B0B5)),
-                    Icon(Icons.star, size: 16, color: Color(0xFFA9B0B5)),
-                    Icon(Icons.star, size: 16, color: Color(0xFFA9B0B5)),
-                    Icon(Icons.star, size: 16, color: Color(0xFFA9B0B5)),
-                    Icon(Icons.star_border, size: 16, color: Color(0xFFA9B0B5)),
-                  ],
-                ),
-                SizedBox(height: 32.0),
-                TextField(
-                  controller: _reviewController,
-                  maxLines: 7,
-                  maxLength: 400,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Color(0XFFEBEFF2),
-                    hintText: 'Write your review here in 200 characters',
-                    hintStyle: TextStyle(color: Color(0xFFA9B0B5)),
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                ),
-              ],
+              children:
+                  reviews.map((review) => _buildReviewCard(review)).toList(),
             ),
           ),
         ),
@@ -222,37 +84,65 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
     }
   }
 
-  Widget _buildDifficultyButton(int index, String label, IconData icon) {
-    return GestureDetector(
-      onTap: () => _selectDifficulty(index),
-      child: Container(
-        padding: EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          color: _selectedDifficulty == index
-              ? Color(0XFF1DBE92)
-              : Colors.grey[200],
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 80,
-              color: _selectedDifficulty == index
-                  ? Colors.white
-                  : Colors.grey[600],
+  Widget _buildReviewCard(dynamic review) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6.0,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            review['nickName'] ?? 'Anonymous',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Pretendard',
             ),
-            SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: _selectedDifficulty == index
-                    ? Colors.white
-                    : Colors.grey[600],
+          ),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.location_on, size: 16, color: Colors.grey),
+              SizedBox(width: 4),
+              Text(
+                review['courseName'] ?? 'Unknown Course',
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          Row(
+            children: List.generate(
+              5,
+              (index) => Icon(
+                index < review['review_score'] ? Icons.star : Icons.star_border,
+                size: 16,
+                color: Colors.amber,
               ),
             ),
-          ],
-        ),
+          ),
+          SizedBox(height: 12),
+          Text(
+            review['review_text'] ?? 'No review provided',
+            style: TextStyle(color: Colors.black87),
+          ),
+          SizedBox(height: 12),
+          Text(
+            'Difficulty: ${review['review_difficulty'] ?? 'unknown'}',
+            style: TextStyle(color: Colors.black54),
+          ),
+        ],
       ),
     );
   }

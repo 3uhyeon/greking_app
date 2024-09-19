@@ -81,7 +81,7 @@ class _Treking extends State<Treking> {
     try {
       final response = await http.get(
         Uri.parse(
-            'http://yourserver:8080/api/courses/getCourse/$mountainName'), // 서버 API URL
+            'https://cb59-61-72-65-131.ngrok-free.app/api/courses/getCourse/설악산'), // 서버 API URL
       );
 
       if (response.statusCode == 200) {
@@ -89,6 +89,7 @@ class _Treking extends State<Treking> {
         setState(() {
           _selectedMountainCourses =
               List<Map<String, dynamic>>.from(responseData['courses']);
+          print(_selectedMountainCourses);
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -279,7 +280,7 @@ class _Treking extends State<Treking> {
                     height: 200.0,
                     enlargeCenterPage: false,
                     autoPlay: false,
-                    viewportFraction: 0.8,
+                    viewportFraction: 0.82,
                     enableInfiniteScroll: false, // 무한 스크롤 비활성화
                   ),
                   items: _selectedMountainCourses.map((course) {
@@ -397,73 +398,7 @@ class _Treking extends State<Treking> {
                                             course['difficulty'],
                                             style: TextStyle(
                                               color: Color(0xFF858C90),
-                                              fontSize: 12,
-                                              fontFamily: 'Pretendard',
-                                              fontWeight: FontWeight.w400,
-                                              height: 0.10,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(width: 7.0),
-                                    Container(
-                                      width: 50,
-                                      height: 22,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
-                                      decoration: ShapeDecoration(
-                                        color: Color(0xFFF4F6F6),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            course['duration'],
-                                            style: TextStyle(
-                                              color: Color(0xFF858C90),
-                                              fontSize: 12,
-                                              fontFamily: 'Pretendard',
-                                              fontWeight: FontWeight.w400,
-                                              height: 0.10,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(width: 7.0),
-                                    Container(
-                                      width: 50,
-                                      height: 22,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
-                                      decoration: ShapeDecoration(
-                                        color: Color(0xFFF4F6F6),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            course['distance'],
-                                            style: TextStyle(
-                                              color: Color(0xFF858C90),
-                                              fontSize: 12,
+                                              fontSize: 10,
                                               fontFamily: 'Pretendard',
                                               fontWeight: FontWeight.w400,
                                               height: 0.10,
@@ -493,10 +428,76 @@ class _Treking extends State<Treking> {
                                             CrossAxisAlignment.center,
                                         children: [
                                           Text(
-                                            course['altitude'],
+                                            course['duration'],
                                             style: TextStyle(
                                               color: Color(0xFF858C90),
-                                              fontSize: 12,
+                                              fontSize: 10,
+                                              fontFamily: 'Pretendard',
+                                              fontWeight: FontWeight.w400,
+                                              height: 0.10,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(width: 7.0),
+                                    Container(
+                                      width: 55,
+                                      height: 22,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      decoration: ShapeDecoration(
+                                        color: Color(0xFFF4F6F6),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            course['distance'] + "km",
+                                            style: TextStyle(
+                                              color: Color(0xFF858C90),
+                                              fontSize: 10,
+                                              fontFamily: 'Pretendard',
+                                              fontWeight: FontWeight.w400,
+                                              height: 0.10,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(width: 7.0),
+                                    Container(
+                                      width: 60,
+                                      height: 22,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      decoration: ShapeDecoration(
+                                        color: Color(0xFFF4F6F6),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            course['altitude'] + "m",
+                                            style: TextStyle(
+                                              color: Color(0xFF858C90),
+                                              fontSize: 10,
                                               fontFamily: 'Pretendard',
                                               fontWeight: FontWeight.w400,
                                               height: 0.10,

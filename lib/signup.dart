@@ -396,7 +396,7 @@ class _SignupState extends State<Signup> {
 
     var response = await http.get(
       Uri.parse(
-          'https://b945-1-209-175-114.ngrok-free.app/api/users/validate/${_nicknameController.text}'),
+          'https://cb59-61-72-65-131.ngrok-free.app/api/users/validate/${_nicknameController.text}'),
     );
 
     if (response.statusCode == 200) {
@@ -433,15 +433,17 @@ class _SignupState extends State<Signup> {
         );
 
         User? user = userCredential.user;
+        print(user?.uid);
         if (user != null) {
-          String uid = user.uid;
+          String uid = user!.uid;
+
           SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setString('uid', uid); // UID를 SharedPreferences에 저장
 
           // 서버로 UID 전송
           var response = await http.post(
             Uri.parse(
-                'https://b945-1-209-175-114.ngrok-free.app/api/users/register'),
+                'https://cb59-61-72-65-131.ngrok-free.app/api/users/register'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
             },

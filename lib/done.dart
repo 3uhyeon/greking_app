@@ -73,69 +73,73 @@ class _TrackingSummaryPageState extends State<TrackingSummaryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Lottie.asset('assets/done.json'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.place),
-                SizedBox(width: 5),
-                _buildAnimatedCounter("Distance", widget.totalDistance, "km"),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.directions_run_sharp),
-                SizedBox(width: 5),
-                _buildAnimatedCounter("Calories", widget.totalCalories, "kcal"),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.filter_hdr_sharp),
-                SizedBox(width: 5),
-                _buildAnimatedCounter("Altitude", widget.maxAltitude, "m"),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.timer),
-                SizedBox(width: 5),
-                _buildAnimatedTimeCounter("Time", widget.totalTime),
-              ],
-            ),
-            SizedBox(height: 20),
-            if (_isAnimationCompleted)
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xff1dbe92),
-                  minimumSize: Size(double.infinity, 40),
-                ),
-                onPressed: () {
-                  //
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: Text(
-                    'Check my progress',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        appBar: AppBar(),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Lottie.asset('assets/done.json'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.place),
+                  SizedBox(width: 5),
+                  _buildAnimatedCounter("Distance", widget.totalDistance, "km"),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.directions_run_sharp),
+                  SizedBox(width: 5),
+                  _buildAnimatedCounter(
+                      "Calories", widget.totalCalories, "kcal"),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.filter_hdr_sharp),
+                  SizedBox(width: 5),
+                  _buildAnimatedCounter("Altitude", widget.maxAltitude, "m"),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.timer),
+                  SizedBox(width: 5),
+                  _buildAnimatedTimeCounter("Time", widget.totalTime),
+                ],
+              ),
+              SizedBox(height: 20),
+              if (_isAnimationCompleted)
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff1dbe92),
+                    minimumSize: Size(double.infinity, 40),
+                  ),
+                  onPressed: () {
+                    //
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: Text(
+                      'Check my progress',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

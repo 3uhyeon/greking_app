@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert'; // For JSON encoding/decoding
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'review_write.dart';
 import 'gpx_treking.dart';
 
@@ -37,10 +38,9 @@ class _MyCourseState extends State<MyCourse>
   List<dynamic> expectedCourses = [];
   List<dynamic> completedCourses = [];
   bool isLoading = true;
-  final String userId = "yourUserId"; // Replace with the actual user ID
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     fetchCourses();
@@ -48,16 +48,18 @@ class _MyCourseState extends State<MyCourse>
 
   Future<void> fetchCourses() async {
     try {
-      // Fetch expected courses
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('userId');
+
       final expectedResponse = await http.get(
         Uri.parse(
-            'http://localhost:8080/api/users/$userId/my-courses/expected'),
+            'https://cb59-61-72-65-131.ngrok-free.app/api/users/$userId/my-courses/expected'),
       );
 
       // Fetch completed courses
       final completedResponse = await http.get(
         Uri.parse(
-            'http://localhost:8080/api/users/$userId/my-courses/complete'),
+            'https://cb59-61-72-65-131.ngrok-free.app/api/users/$userId/my-courses/complete'),
       );
 
       if (expectedResponse.statusCode == 200 &&
@@ -76,9 +78,11 @@ class _MyCourseState extends State<MyCourse>
   }
 
   Future<void> deleteCourse(int userCourseId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
     final deleteResponse = await http.delete(
       Uri.parse(
-          'http://localhost:8080/api/users/$userId/my-courses/$userCourseId'),
+          'https://cb59-61-72-65-131.ngrok-free.app/api/users/$userId/my-courses/$userCourseId'),
     );
 
     if (deleteResponse.statusCode == 200) {
@@ -310,7 +314,9 @@ class _MyCourseState extends State<MyCourse>
                       Navigator.push(
                         context,
                         PageRouteBuilder(
-                          pageBuilder: (_, __, ___) => ReviewWritingPage(),
+                          pageBuilder: (_, __, ___) => ReviewWritingPage(
+                              userCourseId:
+                                  int.parse(course['userCourseId'].toString())),
                           transitionsBuilder:
                               (_, Animation<double> animation, __, child) {
                             return SlideTransition(

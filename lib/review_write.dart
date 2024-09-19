@@ -6,9 +6,12 @@ import 'dart:convert';
 import 'loading.dart';
 import 'mycourse.dart';
 import 'login.dart';
+import 'write_done.dart';
 
 class ReviewWritingPage extends StatefulWidget {
-  const ReviewWritingPage({Key? key}) : super(key: key);
+  final int userCourseId;
+
+  ReviewWritingPage({required this.userCourseId});
   @override
   _ReviewWritingPageState createState() => _ReviewWritingPageState();
 }
@@ -55,11 +58,6 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
   }
 
   Future<void> _reviewRegister() async {
-    if (!isLoggedIn) {
-      _navigateToLogin();
-      return;
-    }
-
     setState(() {
       isLoading = true;
     });
@@ -70,10 +68,13 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
       "review_difficulty": _getDifficultyText(),
       "review_text": _reviewController.text
     };
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
 
     try {
       final response = await http.post(
-        Uri.parse('http://43.203.197.86:8080/api/review/userid/userCouserId'),
+        Uri.parse(
+            'http://43.203.197.86:8080/api/review/${userId}/${widget.userCourseId}'),
         headers: {
           "Content-Type": "application/json",
         },
@@ -81,10 +82,9 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
       );
 
       if (response.statusCode == 200) {
-        // If the server returns an OK response, navigate to the MyCourse page
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => MyCourse()),
+          MaterialPageRoute(builder: (context) => WritingDoneScreen()),
         );
       } else {
         throw Exception('Failed to submit review');
@@ -109,25 +109,6 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
       default:
         return 'unknown';
     }
-  }
-
-  void _navigateToLogin() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => LoginScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0); // Slide from bottom to top
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
-          var tween =
-              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-          var offsetAnimation = animation.drive(tween);
-
-          return SlideTransition(position: offsetAnimation, child: child);
-        },
-      ),
-    );
   }
 
   @override
@@ -246,7 +227,61 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                 SizedBox(height: 50.0),
                 Center(
                   child: ElevatedButton(
-                    onPressed: _reviewRegister,
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Container(),
+                            content: Container(
+                              width: 500,
+                              height: 20,
+                              child: Center(
+                                child: Text('Are you sure to submit?',
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                            actions: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      _reviewRegister();
+                                    },
+                                    child: Text(
+                                      'Sure',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       minimumSize: Size(350, 45),
                       backgroundColor: Color(0XFF1DBE92),
