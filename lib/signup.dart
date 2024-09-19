@@ -297,10 +297,16 @@ class _SignupState extends State<Signup> {
           borderSide: BorderSide.none,
         ),
         suffixIcon: ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Color(0xff1dbe92)),
-          onPressed: _checkNickname,
-          child: Text('Check',
-              style: TextStyle(color: Colors.white, fontSize: 12)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _nicknameController.text.isEmpty
+                ? Colors.grey
+                : Color(0xff1dbe92),
+          ),
+          onPressed: _nicknameController.text.isEmpty ? null : _checkNickname,
+          child: Text(
+            'Check',
+            style: TextStyle(color: Colors.white, fontSize: 12),
+          ),
         ),
       ),
       onChanged: (value) {
@@ -309,6 +315,9 @@ class _SignupState extends State<Signup> {
             _nicknameMessage = '';
           });
         }
+        setState(() {
+          _isFormValid = _nicknameController.text.isNotEmpty;
+        });
       },
     );
   }
