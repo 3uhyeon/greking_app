@@ -324,51 +324,61 @@ class _TrackingPageState extends State<TrackingPage>
   }
 
   Future<void> _loadGpxFile() async {
-    String gpxData = await DefaultAssetBundle.of(context)
-        .loadString('assets/chiaksan_0000000001.gpx');
-    final gpx = GpxReader().fromString(gpxData);
+    String courseName = widget.courseName.replaceAll(' ', '_');
+    String apiUrl = 'http://localhost:8080/api/gpx/$courseName';
 
-    setState(() {
-      _routePoints.addAll(gpx.trks[0].trksegs[0].trkpts.map((pt) {
-        return NLatLng(pt.lat!, pt.lon!);
-      }));
+    // Make API request to fetch GPX data
+    http.Response response = await http.get(Uri.parse(apiUrl));
 
-      if (_routePoints.isNotEmpty) {
-        final marker_start = NMarker(
-          id: 'start',
-          position: _routePoints.first,
-          icon: NOverlayImage.fromAssetImage('assets/Go.png'),
-        );
-        _naverMapController?.addOverlay(marker_start);
-        final marker_end = NMarker(
-          id: 'end',
-          position: _routePoints.last,
-          icon: NOverlayImage.fromAssetImage('assets/End.png'),
-        );
-        _naverMapController?.addOverlay(marker_end);
-        // 폴리라인 생성
-        final polyline = NPolylineOverlay(
-          id: 'route',
-          coords: _routePoints,
-          color: Color(0xff0d615c),
-          width: 5,
-        );
-        _naverMapController?.addOverlay(polyline);
+    if (response.statusCode == 200) {
+      String gpxData = response.body;
+      final gpx = GpxReader().fromString(gpxData);
 
-        // 페이지 로드 시 초기 줌 레벨을 12.5로 설정
-        final middlePoint = NLatLng(
-          (_routePoints.first.latitude + _routePoints.last.latitude) / 2,
-          (_routePoints.first.longitude + _routePoints.last.longitude) / 2,
-        );
+      setState(() {
+        _routePoints.addAll(gpx.trks[0].trksegs[0].trkpts.map((pt) {
+          return NLatLng(pt.lat!, pt.lon!);
+        }));
 
-        final cameraUpdate = NCameraUpdate.withParams(
-            target: middlePoint, zoom: 11.5, bearing: 0);
+        if (_routePoints.isNotEmpty) {
+          final marker_start = NMarker(
+            id: 'start',
+            position: _routePoints.first,
+            icon: NOverlayImage.fromAssetImage('assets/Go.png'),
+          );
+          _naverMapController?.addOverlay(marker_start);
+          final marker_end = NMarker(
+            id: 'end',
+            position: _routePoints.last,
+            icon: NOverlayImage.fromAssetImage('assets/End.png'),
+          );
+          _naverMapController?.addOverlay(marker_end);
+          // 폴리라인 생성
+          final polyline = NPolylineOverlay(
+            id: 'route',
+            coords: _routePoints,
+            color: Color(0xff0d615c),
+            width: 5,
+          );
+          _naverMapController?.addOverlay(polyline);
 
-        cameraUpdate.setAnimation(
-            animation: NCameraAnimation.fly, duration: Duration(seconds: 2));
-        _naverMapController?.updateCamera(cameraUpdate);
-      }
-    });
+          // 페이지 로드 시 초기 줌 레벨을 12.5로 설정
+          final middlePoint = NLatLng(
+            (_routePoints.first.latitude + _routePoints.last.latitude) / 2,
+            (_routePoints.first.longitude + _routePoints.last.longitude) / 2,
+          );
+
+          final cameraUpdate = NCameraUpdate.withParams(
+              target: middlePoint, zoom: 11.5, bearing: 0);
+
+          cameraUpdate.setAnimation(
+              animation: NCameraAnimation.fly, duration: Duration(seconds: 2));
+          _naverMapController?.updateCamera(cameraUpdate);
+        }
+      });
+    } else {
+      // Handle API error
+      print('Failed to load GPX data. Error: ${response.statusCode}');
+    }
   }
 
   void _startTracking() async {
