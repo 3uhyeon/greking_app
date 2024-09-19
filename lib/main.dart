@@ -86,10 +86,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
-    String? token = prefs.getString('token');
+    String? userId = prefs.getString('uid');
 
-    if (loginMethod != null && token != null) {
-      bool isValid = await _validateToken(token, loginMethod);
+    if (loginMethod != null && userId != null) {
+      bool isValid = await _validateToken(userId, loginMethod);
       setState(() {
         isLoggedIn = isValid;
         isLoading = false;
@@ -102,7 +102,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     }
   }
 
-  Future<bool> _validateToken(String token, String loginMethod) async {
+  Future<bool> _validateToken(String userId, String loginMethod) async {
     return true;
   }
 
@@ -162,8 +162,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   Future<bool> _checkLoginBeforeNavigate() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
-    String? token = prefs.getString('token');
-    return (loginMethod != null && token != null);
+    String? userId = prefs.getString('uid');
+    return (loginMethod != null && userId != null);
   }
 
   PreferredSizeWidget _buildAppBar() {
@@ -546,7 +546,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 autoPlay: true,
               ),
               items: [
-                for (int i = 0; i < 3; i++)
+                for (int i = 1; i < 4; i++)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Stack(
@@ -556,7 +556,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
                               image: DecorationImage(
-                                image: AssetImage('assets/image.png'),
+                                image: AssetImage('assets/recom${i}.png'),
                                 fit: BoxFit.cover,
                               ),
                             ),

@@ -36,12 +36,11 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       try {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        String uid = prefs.getString('uid') ?? '';
+        String userId = prefs.getString('uid') ?? ''; //널값이라 수정해야함.
         String nickname = '';
         String email = _emailController.text;
         String password = _passwordController.text;
 
-        print(uid);
         setState(() {
           isLoading = true; // 로딩 상태 변경
         });
@@ -55,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
           body: jsonEncode(<String, String>{
             'email': email,
             'password': password,
-            'userId': uid, // Firebase UID가 없을 경우 고유 식별자 생성 필요
+            'userId': userId, // 수정해야함
           }),
         );
 
@@ -65,8 +64,8 @@ class _LoginScreenState extends State<LoginScreen> {
           setState(() {
             isLoading = false; // 로딩 상태 변경
           });
-          // 로그인 성공 시 로그인 상태 저장
-          await _saveLoginState('email', uid, email, nickname);
+          // 로그인 성공 하면 서버에서 userid 받아와서 저장해야함.
+          await _saveLoginState('email', userId, email, nickname);
 
           // 메인 페이지로 이동
           Navigator.pushReplacement(
@@ -110,11 +109,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // 로그인 상태를 SharedPreferences에 저장
   Future<void> _saveLoginState(
-      String method, String uid, String email, String name) async {
+      String method, String userId, String email, String name) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('loginMethod', method);
-    await prefs.setString('token', uid);
-    await prefs.setString('email', email);
+    await prefs.setString('uid', userId);
+
     if (name.isNotEmpty) {
       await prefs.setString('name', name);
     }
@@ -128,15 +127,11 @@ class _LoginScreenState extends State<LoginScreen> {
       return Scaffold(
         appBar: AppBar(
           title: Container(),
+
           backgroundColor: Colors.white.withOpacity(0.0), // 투명도 설정된 상단바 배경색
           bottomOpacity: 0.0,
           elevation: 0.0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+          leading: Container(),
         ),
         backgroundColor: const Color(0xFFF4F6F7), // 배경색 설정
         body: SingleChildScrollView(

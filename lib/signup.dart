@@ -49,16 +49,20 @@ class _SignupState extends State<Signup> {
   bool _obscureText = true;
   bool _isNicknameValid = false;
   bool _isFormValid = false;
+  bool _ischeckValid = false;
   bool _isAgreed = false;
   bool _isPrivacyAgreed = false;
   final String _emailPattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
 
   void _validateForm() {
     setState(() {
-      _isFormValid = _formKey.currentState!.validate() &&
-          _isNicknameValid &&
-          _isAgreed &&
-          _isPrivacyAgreed;
+      _isFormValid = _formKey.currentState!.validate() && _isNicknameValid;
+    });
+  }
+
+  void _validatecheck() {
+    setState(() {
+      _ischeckValid = _isAgreed && _isPrivacyAgreed;
     });
   }
 
@@ -237,13 +241,14 @@ class _SignupState extends State<Signup> {
                 _buildAgreements(),
                 SizedBox(height: 100.0),
                 ElevatedButton(
-                  onPressed: _isFormValid ? _signUp : null,
+                  onPressed: (_isFormValid && _ischeckValid) ? _signUp : null,
                   child: Text('Sign up',
                       style: TextStyle(color: Colors.white, fontSize: 16.0)),
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(352, 45),
-                    backgroundColor:
-                        _isFormValid ? const Color(0xFF1dbe92) : Colors.grey,
+                    backgroundColor: (_isFormValid && _ischeckValid)
+                        ? const Color(0xFF1dbe92)
+                        : Colors.grey,
                     padding: EdgeInsets.symmetric(vertical: 15.0),
                     textStyle: TextStyle(
                       fontSize: 20.0,
@@ -332,7 +337,8 @@ class _SignupState extends State<Signup> {
               onChanged: (value) {
                 setState(() {
                   _isAgreed = value!;
-                  _validateForm();
+
+                  _validatecheck();
                 });
               },
               activeColor: Color(0xff1dbe92),
@@ -367,7 +373,8 @@ class _SignupState extends State<Signup> {
               onChanged: (value) {
                 setState(() {
                   _isPrivacyAgreed = value!;
-                  _validateForm();
+
+                  _validatecheck();
                 });
               },
               activeColor: Color(0xff1dbe92),
@@ -432,7 +439,7 @@ class _SignupState extends State<Signup> {
     });
     if (_formKey.currentState!.validate() && _isAgreed && _isPrivacyAgreed) {
       try {
-        // Firebase로부터 UID 가져오기
+        // Firebase로부터 인증 객체 가져오기
         FirebaseAuth auth = FirebaseAuth.instance;
 
         // UserCredential에서 user 객체를 가져와야 함
@@ -443,12 +450,12 @@ class _SignupState extends State<Signup> {
         );
 
         User? user = userCredential.user;
-        print(user?.uid);
+
         if (user != null) {
-          String uid = user!.uid;
+          String userId = user!.uid;
 
           SharedPreferences prefs = await SharedPreferences.getInstance();
-          prefs.setString('uid', uid); // UID를 SharedPreferences에 저장
+          prefs.setString('uid', userId); // UID를 SharedPreferences에 저장
 
           // 서버로 UID 전송
           var response = await http.post(
@@ -459,7 +466,7 @@ class _SignupState extends State<Signup> {
             },
             body: jsonEncode({
               "email": _emailController.text,
-              "userid": uid, // 서버에 UID 전송
+              "userId": userId, // 서버에 UID 전송
               "password": _passwordController.text,
               "nickname": _nicknameController.text,
               "termsOfServiceAccepted": _isAgreed,
@@ -478,7 +485,7 @@ class _SignupState extends State<Signup> {
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => QuestionScreen(uid: uid)));
+                    builder: (context) => QuestionScreen(uid: userId)));
           } else {
             setState(() {
               isLoading = false;

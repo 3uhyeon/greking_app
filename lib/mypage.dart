@@ -37,11 +37,11 @@ class _MyState extends State<My> {
   Future<void> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
-    String? token = prefs.getString('token');
+    String? userId = prefs.getString('uid');
     String? savedEmail = prefs.getString('email'); // 저장된 이메일
     String? savedName = prefs.getString('nickname'); // 저장된 사용자 이름
 
-    if (loginMethod != null && token != null) {
+    if (loginMethod != null && userId != null) {
       setState(() {
         isLoggedIn = true;
         email = savedEmail ?? 'none'; // 이메일이 없으면 기본값
@@ -57,10 +57,9 @@ class _MyState extends State<My> {
   // 이메일/비밀번호 회원 탈퇴
   Future<void> _deleteAccount() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? uid = prefs.getString('uid');
-    String? token = prefs.getString('token');
+    String? userId = prefs.getString('uid');
 
-    if (uid == null || token == null) {
+    if (userId == null) {
       setState(() {
         _errorText = "User not logged in.";
       });
@@ -73,10 +72,9 @@ class _MyState extends State<My> {
       });
 
       var response = await http.delete(
-        Uri.parse('http://43.203.197.86:8080/api/users/$uid'),
+        Uri.parse('http://43.203.197.86:8080/api/users/$userId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token', // 인증 토큰
         },
       );
 
