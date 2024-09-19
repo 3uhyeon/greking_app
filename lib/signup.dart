@@ -27,11 +27,14 @@ class Signup extends StatefulWidget {
 class _SignupState extends State<Signup> {
   String _errorText = "";
   String _emailMessage = "";
+  String _emaildupMessage = "";
   String _passwordMessage = "";
   String _passwordConfirmMessage = "";
   String _nicknameMessage = "";
 
   Color _emailMessageColor = Colors.red;
+  Color _emaildupMessageColor = Colors.red;
+
   Color _passwordMessageColor = Colors.red;
   Color _passwordConfirmMessageColor = Colors.red;
   Color _nicknameMessageColor = Colors.black;
@@ -48,6 +51,7 @@ class _SignupState extends State<Signup> {
   final TextEditingController _nicknameController = TextEditingController();
   bool _obscureText = true;
   bool _isNicknameValid = false;
+  bool _isEmailValid = false;
   bool _isFormValid = false;
   bool _ischeckValid = false;
   bool _isAgreed = false;
@@ -56,7 +60,9 @@ class _SignupState extends State<Signup> {
 
   void _validateForm() {
     setState(() {
-      _isFormValid = _formKey.currentState!.validate() && _isNicknameValid;
+      _isFormValid = _formKey.currentState!.validate() &&
+          _isNicknameValid &&
+          _isEmailValid;
     });
   }
 
@@ -103,22 +109,7 @@ class _SignupState extends State<Signup> {
                   ),
                 ),
                 SizedBox(height: 40.0),
-                _buildTextField(
-                  controller: _emailController,
-                  label: 'Email',
-                  onChanged: (value) {
-                    final regex = RegExp(_emailPattern);
-                    setState(() {
-                      if (value.isEmpty || !regex.hasMatch(value)) {
-                        _emailMessage = '    Please check your email';
-                        _emailMessageColor = Color(0xfff74440);
-                      } else {
-                        _emailMessage = '    Email is valid';
-                        _emailMessageColor = _successMessageColor;
-                      }
-                    });
-                  },
-                ),
+                _buildEmailField(),
                 SizedBox(height: 5.0),
                 Row(
                   children: [
@@ -132,6 +123,18 @@ class _SignupState extends State<Signup> {
                     Text(
                       _emailMessage,
                       style: TextStyle(color: _emailMessageColor, fontSize: 12),
+                    ),
+                    SizedBox(width: 16.0),
+                    if (_emaildupMessageColor == _successMessageColor)
+                      SvgPicture.asset('assets/check_circle.svg',
+                          width: 16, height: 16),
+                    if (_emaildupMessageColor == Color(0xfff74440))
+                      SvgPicture.asset('assets/check_circle2.svg',
+                          width: 16, height: 16),
+                    Text(
+                      _emaildupMessage,
+                      style:
+                          TextStyle(color: _emaildupMessageColor, fontSize: 12),
                     ),
                   ],
                 ),
@@ -223,7 +226,7 @@ class _SignupState extends State<Signup> {
                 Row(
                   children: [
                     SizedBox(width: 8.0),
-                    if (_nicknameMessageColor == Colors.green)
+                    if (_nicknameMessageColor == Color(0xff0d615c))
                       SvgPicture.asset('assets/check_circle.svg',
                           width: 16, height: 16),
                     if (_nicknameMessageColor == Colors.red)
@@ -246,7 +249,8 @@ class _SignupState extends State<Signup> {
                           (_passwordMessage == '    Password is valid') &&
                           (_passwordConfirmMessage ==
                               '    Successfully confirmed') &&
-                          (_nicknameMessage == '    Nickname is available'))
+                          (_nicknameMessage == '    Nickname is available') &&
+                          (_emaildupMessage == '    Email is available'))
                       ? _signUp
                       : null,
                   child: Text('Sign up',
@@ -334,6 +338,56 @@ class _SignupState extends State<Signup> {
     );
   }
 
+  Widget _buildEmailField() {
+    return TextFormField(
+      controller: _emailController,
+      decoration: InputDecoration(
+        labelText: 'Email',
+        labelStyle: TextStyle(color: Colors.grey),
+        filled: true,
+        fillColor: const Color(0xFFECF0F2),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: BorderSide.none,
+        ),
+        suffixIcon: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor:
+                _emailController.text.isEmpty ? Colors.grey : Color(0xff1dbe92),
+          ),
+          onPressed: _emailController.text.isEmpty ? null : _checkEmail,
+          child: Text(
+            'Check',
+            style: TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ),
+      ),
+      onChanged: (value) {
+        final regex = RegExp(_emailPattern);
+        setState(() {
+          if (value.isEmpty || !regex.hasMatch(value)) {
+            _emailMessage = '    Please check your email';
+            _emailMessageColor = Color(0xfff74440);
+          } else {
+            _emailMessage = '    Email is valid';
+            _emailMessageColor = _successMessageColor;
+          }
+        });
+
+        if (value.isEmpty) {
+          setState(() {
+            _emaildupMessage = '';
+          });
+        }
+
+        // 이메일이 비어있지 않으면 중복 체크 활성화
+        setState(() {
+          _isEmailValid = value.isNotEmpty && regex.hasMatch(value);
+        });
+      },
+    );
+  }
+
   Widget _buildAgreements() {
     return Column(
       children: [
@@ -348,7 +402,7 @@ class _SignupState extends State<Signup> {
                   _validatecheck();
                 });
               },
-              activeColor: Color(0xff1dbe92),
+              activeColor: Color(0xff0d615c),
             ),
             ElevatedButton(
               onPressed: () {
@@ -384,7 +438,7 @@ class _SignupState extends State<Signup> {
                   _validatecheck();
                 });
               },
-              activeColor: Color(0xff1dbe92),
+              activeColor: Color(0xff0d615c),
             ),
             ElevatedButton(
               onPressed: () {
@@ -428,7 +482,7 @@ class _SignupState extends State<Signup> {
         _isNicknameValid = true;
         isLoading = false;
         _nicknameMessage = "    Nickname is available";
-        _nicknameMessageColor = Colors.green;
+        _nicknameMessageColor = Color(0xff0d615c);
       });
     } else {
       setState(() {
@@ -436,6 +490,33 @@ class _SignupState extends State<Signup> {
         isLoading = false;
         _nicknameMessage = "    This nickname is already taken";
         _nicknameMessageColor = Colors.red;
+      });
+    }
+  }
+
+  Future<void> _checkEmail() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    var response = await http.get(
+      Uri.parse(
+          'https://cb59-61-72-65-131.ngrok-free.app/api/users/validate/${_emailController.text}'),
+    ); // 수정
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _isEmailValid = true;
+        isLoading = false;
+        _emaildupMessage = "    Email is available";
+        _emaildupMessageColor = Color(0xff0d615c);
+      });
+    } else {
+      setState(() {
+        _isNicknameValid = false;
+        isLoading = false;
+        _emaildupMessage = "    This email is already taken";
+        _emaildupMessageColor = Color(0xfff74440);
       });
     }
   }
