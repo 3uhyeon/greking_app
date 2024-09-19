@@ -225,6 +225,7 @@ class _SignupState extends State<Signup> {
                     if (_nicknameMessageColor == Colors.red)
                       SvgPicture.asset('assets/check_circle2.svg',
                           width: 16, height: 16),
+                    SizedBox(width: 8.0),
                     Text(
                       _nicknameMessage,
                       style:

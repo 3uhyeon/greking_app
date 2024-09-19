@@ -87,7 +87,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
     String? token = prefs.getString('token');
-    String? uid = prefs.getString('uid');
 
     if (loginMethod != null && token != null) {
       bool isValid = await _validateToken(token, loginMethod);
@@ -164,10 +163,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
     String? token = prefs.getString('token');
-
-    String? uid = prefs.getString('uid');
-
-    return (uid != null);
+    return (loginMethod != null && token != null);
   }
 
   PreferredSizeWidget _buildAppBar() {
