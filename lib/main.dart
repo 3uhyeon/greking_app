@@ -351,6 +351,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 height: 100,
                 enlargeCenterPage: true,
                 autoPlay: true,
+                autoPlayInterval: Duration(seconds: 3),
               ),
               items: [1, 2, 3, 4].map((i) {
                 return Builder(
@@ -544,6 +545,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 viewportFraction: 0.8,
                 enableInfiniteScroll: true,
                 autoPlay: true,
+                autoPlayInterval: Duration(seconds: 4),
               ),
               items: [
                 for (int i = 1; i < 4; i++)
@@ -562,6 +564,40 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                             ),
                           ),
                         ),
+                        Positioned(
+                          right: 10.0, // 왼쪽으로 더 가도록 조정
+                          bottom: 15.0,
+
+                          child: Container(
+                            height: 70,
+                            width: 248,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.black.withOpacity(0.5),
+                            ),
+                            child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Sival',
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                      'Daechengbong Course',
+                                      style: const TextStyle(
+                                          color: Color(0xffa9b0b5),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.normal),
+                                    ),
+                                  ],
+                                )),
+                            alignment: Alignment.center,
+                          ),
+                        )
                       ],
                     ),
                   ),
