@@ -474,7 +474,7 @@ class _SignupState extends State<Signup> {
 
     var response = await http.get(
       Uri.parse(
-          'https://cb59-61-72-65-131.ngrok-free.app/api/users/validate/${_nicknameController.text}'),
+          'http://43.203.197.86:8080/api/users/validate/${_nicknameController.text}'),
     );
 
     if (response.statusCode == 200) {
@@ -501,7 +501,7 @@ class _SignupState extends State<Signup> {
 
     var response = await http.get(
       Uri.parse(
-          'https://cb59-61-72-65-131.ngrok-free.app/api/users/validate/${_emailController.text}'),
+          'http://43.203.197.86:8080/api/users/validate/${_emailController.text}'),
     ); // 수정
 
     if (response.statusCode == 200) {
@@ -547,8 +547,7 @@ class _SignupState extends State<Signup> {
           prefs.setString('loginMethod', user.email!);
           // 서버로 UID 전송
           var response = await http.post(
-            Uri.parse(
-                'https://cb59-61-72-65-131.ngrok-free.app/api/users/register'),
+            Uri.parse('http://43.203.197.86:8080/api/users/register'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
             },

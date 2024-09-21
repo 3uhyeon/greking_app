@@ -353,7 +353,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 autoPlay: true,
                 autoPlayInterval: Duration(seconds: 3),
               ),
-              items: [1, 2, 3, 4].map((i) {
+              items: [1, 2, 3].map((i) {
                 return Builder(
                   builder: (BuildContext context) {
                     return Stack(
@@ -411,32 +411,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                                   ),
                                 );
                                 break;
-                              case 3:
-                                Navigator.push(
-                                  context,
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation,
-                                            secondaryAnimation) =>
-                                        ArticleMainPage3(),
-                                    transitionsBuilder: (context, animation,
-                                        secondaryAnimation, child) {
-                                      const begin = Offset(0.0, -1.0);
-                                      const end = Offset.zero;
-                                      const curve =
-                                          Curves.fastEaseInToSlowEaseOut;
-                                      var tween = Tween(begin: begin, end: end)
-                                          .chain(CurveTween(curve: curve));
-                                      var offsetAnimation =
-                                          animation.drive(tween);
 
-                                      return SlideTransition(
-                                          position: offsetAnimation,
-                                          child: child);
-                                    },
-                                  ),
-                                );
-                                break;
-                              case 4:
+                              case 3: //ArticleMainPage3을 제거함
                                 Navigator.push(
                                   context,
                                   PageRouteBuilder(
@@ -514,7 +490,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                             child: Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: Text(
-                                '$i/4',
+                                '$i/3',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -565,9 +541,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                           ),
                         ),
                         Positioned(
-                          right: 10.0, // 왼쪽으로 더 가도록 조정
+                          right: 18.0, // 왼쪽으로 더 가도록 조정 여기 수정했는데 이게 맞는지...
                           bottom: 15.0,
-
                           child: Container(
                             height: 70,
                             width: 248,
@@ -578,16 +553,18 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                             child: Padding(
                                 padding: const EdgeInsets.all(4.0),
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Sival',
+                                      'Odaesan',
                                       style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     Text(
-                                      'Daechengbong Course',
+                                      'Sangwangbong Course',
                                       style: const TextStyle(
                                           color: Color(0xffa9b0b5),
                                           fontSize: 12,
@@ -782,8 +759,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       case 2:
         return 'Incheon Airport Guide';
       case 3:
-        return 'Rental Guide';
-      case 4:
         return 'Beginner Hiking Tips';
       default:
         return 'Guide';
@@ -798,8 +773,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       case 2:
         return 'To Gangwon :The complete guide!';
       case 3:
-        return 'Make your Gangwon trip easier with rentals!';
-      case 4:
         return 'Essential tips for first-time hikers in Gangwon!';
       default:
         return 'Subtitle';
@@ -848,7 +821,7 @@ class PopularCourseItem extends StatelessWidget {
         Container(
           width: 342,
           height: 87,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
+          margin: const EdgeInsets.symmetric(horizontal: 3),
           decoration: BoxDecoration(
             color: Colors.grey[300],
             borderRadius: BorderRadius.circular(20),
@@ -897,7 +870,7 @@ class RentalItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 124,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 3),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),

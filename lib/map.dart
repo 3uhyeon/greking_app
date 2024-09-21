@@ -81,7 +81,7 @@ class _Treking extends State<Treking> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://cb59-61-72-65-131.ngrok-free.app/api/courses/getCourse/설악산'), // 서버 API URL
+            'http://43.203.197.86:8080/api/courses/getCourse/설악산'), // 서버 API URL
       );
 
       if (response.statusCode == 200) {

@@ -32,7 +32,7 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
     });
     try {
       final response = await http.get(
-        Uri.parse('https://cb59-61-72-65-131.ngrok-free.app/api/review/all'),
+        Uri.parse('http://43.203.197.86:8080/api/review/all'),
         headers: {
           "Content-Type": "application/json",
         },

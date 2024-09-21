@@ -75,7 +75,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
     try {
       final response = await http.post(
         Uri.parse(
-            'https://cb59-61-72-65-131.ngrok-free.app/api/review/${userId}/${widget.userCourseId}'),
+            'http://43.203.197.86:8080/api/review/${userId}/${widget.userCourseId}'),
         headers: {
           "Content-Type": "application/json",
         },

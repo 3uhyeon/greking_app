@@ -20,8 +20,7 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   Future<void> _fetchReviews() async {
-    final url =
-        'https://cb59-61-72-65-131.ngrok-free.app/api/review/${widget.courseName}';
+    final url = 'http://43.203.197.86:8080/api/review/${widget.courseName}';
 
     try {
       final response = await http.get(Uri.parse(url), headers: {

@@ -54,13 +54,13 @@ class _MyCourseState extends State<MyCourse>
       print(userId);
       final expectedResponse = await http.get(
         Uri.parse(
-            'https://cb59-61-72-65-131.ngrok-free.app/api/users/$userId/my-courses/expected'),
+            'http://43.203.197.86:8080/api/users/$userId/my-courses/expected'),
       );
 
       // Fetch completed courses
       final completedResponse = await http.get(
         Uri.parse(
-            'https://cb59-61-72-65-131.ngrok-free.app/api/users/$userId/my-courses/complete'),
+            'http://43.203.197.86:8080/api/users/$userId/my-courses/complete'),
       );
 
       if (expectedResponse.statusCode == 200 &&
@@ -84,7 +84,7 @@ class _MyCourseState extends State<MyCourse>
 
     final deleteResponse = await http.delete(
       Uri.parse(
-          'https://cb59-61-72-65-131.ngrok-free.app/api/users/$userId/my-courses/$userCourseId'),
+          'http://43.203.197.86:8080/api/users/$userId/my-courses/$userCourseId'),
     );
 
     if (deleteResponse.statusCode == 200) {

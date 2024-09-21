@@ -46,8 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
         });
         // API 요청 보내기
         var response = await http.post(
-          Uri.parse(
-              'https://cb59-61-72-65-131.ngrok-free.app/api/users/login'), // 서버 URL
+          Uri.parse('http://43.203.197.86:8080/api/users/login'), // 서버 URL
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },

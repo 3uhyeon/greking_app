@@ -53,8 +53,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
     setState(() {
       isLoading = true;
     });
-    final url =
-        'https://cb59-61-72-65-131.ngrok-free.app/api/weather/getInfo/설악산';
+    final url = 'http://43.203.197.86:8080/api/weather/getInfo/설악산';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -76,7 +75,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
       isLoading = true;
     });
     final url =
-        'https://cb59-61-72-65-131.ngrok-free.app/api/restaurant/getInfo/${widget.courseName}';
+        'http://43.203.197.86:8080/api/restaurant/getInfo/${widget.courseName}';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -178,7 +177,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
     final courseName = widget.courseName;
     print(courseName);
     final url =
-        'https://cb59-61-72-65-131.ngrok-free.app/api/users/$userId/my-courses/$courseName';
+        'http://43.203.197.86:8080/api/users/$userId/my-courses/$courseName';
     print(url);
 
     try {
