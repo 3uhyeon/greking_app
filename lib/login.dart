@@ -28,15 +28,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscureText = true; // 비밀번호 숨김 여부
-
+  final String _url = 'http://43.203.197.86:8080';
   final String _emailPattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'; // 이메일 정규식
 
   // 이메일/비밀번호 로그인 (Spring Boot API)
   Future<void> _signInWithEmail() async {
     if (_formKey.currentState!.validate()) {
       try {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        String userId = prefs.getString('uid') ?? ''; //널값이라 수정해야함.
         String nickname = '';
         String email = _emailController.text;
         String password = _passwordController.text;
@@ -46,14 +44,13 @@ class _LoginScreenState extends State<LoginScreen> {
         });
         // API 요청 보내기
         var response = await http.post(
-          Uri.parse('http://43.203.197.86:8080/api/users/login'), // 서버 URL
+          Uri.parse(_url + '/api/users/login'), // 서버 URL
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
           body: jsonEncode(<String, String>{
             'email': email,
             'password': password,
-            'userId': userId, // 수정해야함
           }),
         );
 
@@ -63,6 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
           setState(() {
             isLoading = false; // 로딩 상태 변경
           });
+          String userId = responseData['userId'];
           // 로그인 성공 하면 서버에서 userid 받아와서 저장해야함.
           await _saveLoginState('email', userId, email, nickname);
 

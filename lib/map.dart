@@ -22,6 +22,7 @@ class Treking extends StatefulWidget {
 }
 
 class _Treking extends State<Treking> {
+  final String _url = 'http://43.203.197.86:8080';
   final List<Map<String, dynamic>> mountainData = [
     {
       'name': 'Seoraksan',
@@ -80,8 +81,7 @@ class _Treking extends State<Treking> {
 
     try {
       final response = await http.get(
-        Uri.parse(
-            'http://43.203.197.86:8080/api/courses/getCourse/설악산'), // 서버 API URL
+        Uri.parse(_url + '/api/courses/getCourse/설악산'), // 서버 API URL
       );
 
       if (response.statusCode == 200) {
@@ -296,6 +296,7 @@ class _Treking extends State<Treking> {
                                         MountainDetailPage(
                                   courseId: course['courseId'],
                                   courseName: course['courseName'],
+                                  information: course['information'],
                                   mountainName: _selectedMountainName,
                                   distance: course['distance'],
                                   duration: course['duration'],

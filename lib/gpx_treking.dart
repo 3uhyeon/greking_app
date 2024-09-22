@@ -43,7 +43,7 @@ class _TrackingPageState extends State<TrackingPage>
   NLatLng? _currentLocation;
   NLatLng? _previousLocation; // 이전 위치 저장
   double _currentHeading = 0.0; // 바라보는 방향
-
+  final String _url = 'http://43.203.197.86:8080';
   double _totalDistance = 0.0;
 
   double _totalCalories = 0.0;
@@ -365,7 +365,7 @@ class _TrackingPageState extends State<TrackingPage>
 
   Future<void> _loadGpxFile() async {
     String courseName = widget.courseName.replaceAll(' ', '_');
-    String apiUrl = 'http://localhost:8080/api/gpx/$courseName';
+    String apiUrl = _url + '/api/gpx/$courseName';
 
     // Make API request to fetch GPX data
     http.Response response = await http.get(Uri.parse(apiUrl));

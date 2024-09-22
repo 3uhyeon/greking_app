@@ -26,6 +26,7 @@ class _MyState extends State<My> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   bool isLoading = false;
   String _errorText = '';
+  final String _url = 'http://43.203.197.86:8080';
 
   @override
   void initState() {
@@ -72,7 +73,7 @@ class _MyState extends State<My> {
       });
 
       var response = await http.delete(
-        Uri.parse('http://43.203.197.86:8080/api/users/$userId'),
+        Uri.parse(_url + '/api/users/$userId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

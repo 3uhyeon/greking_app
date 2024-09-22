@@ -32,7 +32,7 @@ class _TrackingSummaryPageState extends State<TrackingSummaryPage>
   bool levelup = false;
   Duration _animationDuration = Duration(seconds: 1);
   late AnimationController _animationController;
-
+  final String _url = 'http://43.203.197.86:8080'; // 서버 URL 입력
   @override
   void initState() {
     super.initState();
@@ -65,8 +65,8 @@ class _TrackingSummaryPageState extends State<TrackingSummaryPage>
 
     try {
       final response = await http.post(
-        Uri.parse(
-            'https://cb59-61-72-65-131.ngrok-free.app/api/users/${userId}/my-courses/${widget.userCourseId}/complete'), // 서버 URL 입력
+        Uri.parse(_url +
+            '/api/users/${userId}/my-courses/${widget.userCourseId}/complete'), // 서버 URL 입력
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "distance": widget.totalDistance,

@@ -13,6 +13,7 @@ import 'booking_done.dart';
 
 class MountainDetailPage extends StatefulWidget {
   final int courseId;
+  final String information;
   final String mountainName;
   final String courseName;
   final String distance;
@@ -23,6 +24,7 @@ class MountainDetailPage extends StatefulWidget {
   MountainDetailPage({
     required this.courseId,
     required this.mountainName,
+    required this.information,
     required this.courseName,
     required this.distance,
     required this.duration,
@@ -37,6 +39,7 @@ class MountainDetailPage extends StatefulWidget {
 class _MountainDetailPageState extends State<MountainDetailPage> {
   bool isLoading = false;
   bool isLoggedIn = false;
+  final String _url = 'http://43.203.197.86:8080';
   Map<String, dynamic>? weatherData;
   List<dynamic> restaurantData = [];
 
@@ -53,7 +56,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
     setState(() {
       isLoading = true;
     });
-    final url = 'http://43.203.197.86:8080/api/weather/getInfo/설악산';
+    final url = _url + '/api/weather/getInfo/설악산';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -74,8 +77,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
     setState(() {
       isLoading = true;
     });
-    final url =
-        'http://43.203.197.86:8080/api/restaurant/getInfo/${widget.courseName}';
+    final url = _url + '/api/restaurant/getInfo/${widget.courseName}';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -176,8 +178,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
     print(userId);
     final courseName = widget.courseName;
     print(courseName);
-    final url =
-        'http://43.203.197.86:8080/api/users/$userId/my-courses/$courseName';
+    final url = _url + '/api/users/$userId/my-courses/$courseName';
     print(url);
 
     try {
@@ -394,7 +395,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
             ),
             SizedBox(height: 8),
             Text(
-              'Seoraksan National Park is one of South Korea\'s most famous and beautiful natural parks, located in the northeastern part of the country. It offers a variety of hiking trails that cater to different skill levels, ranging from easy walks to challenging climbs. The most popular trails include the Ulsanbawi Rock trail, known for its panoramic views, and the Biryong Falls trail, which leads to a stunning waterfall. For more experienced hikers, the Daecheongbong Peak trail is a must, as it takes you to the park\'s highest point at 1,708 meters, offering breathtaking views of the surrounding mountains and valleys. Seoraksan is particularly famous for its autumn foliage, which attracts numerous visitors each year.',
+              widget.information,
               style: TextStyle(
                 color: Color(0xff555a5c),
                 fontSize: 12,

@@ -39,7 +39,7 @@ class _MyCourseState extends State<MyCourse>
   List<dynamic> expectedCourses = [];
   List<dynamic> completedCourses = [];
   bool isLoading = true;
-
+  final String _url = 'http://43.203.197.86:8080';
   @override
   void initState() {
     super.initState();
@@ -53,14 +53,12 @@ class _MyCourseState extends State<MyCourse>
       final userId = prefs.getString('uid');
       print(userId);
       final expectedResponse = await http.get(
-        Uri.parse(
-            'http://43.203.197.86:8080/api/users/$userId/my-courses/expected'),
+        Uri.parse(_url + '/api/users/$userId/my-courses/expected'),
       );
 
       // Fetch completed courses
       final completedResponse = await http.get(
-        Uri.parse(
-            'http://43.203.197.86:8080/api/users/$userId/my-courses/complete'),
+        Uri.parse(_url + '/api/users/$userId/my-courses/complete'),
       );
 
       if (expectedResponse.statusCode == 200 &&
@@ -83,8 +81,7 @@ class _MyCourseState extends State<MyCourse>
     final userId = prefs.getString('uid');
 
     final deleteResponse = await http.delete(
-      Uri.parse(
-          'http://43.203.197.86:8080/api/users/$userId/my-courses/$userCourseId'),
+      Uri.parse(_url + '/api/users/$userId/my-courses/$userCourseId'),
     );
 
     if (deleteResponse.statusCode == 200) {
