@@ -56,6 +56,7 @@ class _SignupState extends State<Signup> {
   bool _ischeckValid = false;
   bool _isAgreed = false;
   bool _isPrivacyAgreed = false;
+  final String _url = 'http://43.203.197.86:8080';
   final String _emailPattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
 
   void _validateForm() {
@@ -473,8 +474,7 @@ class _SignupState extends State<Signup> {
     });
 
     var response = await http.get(
-      Uri.parse(
-          'http://43.203.197.86:8080/api/users/validate/${_nicknameController.text}'),
+      Uri.parse(_url + '/api/users/validate/${_nicknameController.text}'),
     );
 
     if (response.statusCode == 200) {
@@ -500,8 +500,7 @@ class _SignupState extends State<Signup> {
     });
 
     var response = await http.get(
-      Uri.parse(
-          'http://43.203.197.86:8080/api/users/validate/${_emailController.text}'),
+      Uri.parse(_url + '/api/users/validate/${_emailController.text}'),
     ); // 수정
 
     if (response.statusCode == 200) {
@@ -545,15 +544,16 @@ class _SignupState extends State<Signup> {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setString('uid', userId); // UID를 SharedPreferences에 저장
           prefs.setString('loginMethod', user.email!);
+
           // 서버로 UID 전송
           var response = await http.post(
-            Uri.parse('http://43.203.197.86:8080/api/users/register'),
+            Uri.parse(_url + '/api/users/register'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
             },
             body: jsonEncode({
               "email": _emailController.text,
-              "userId": userId, // 서버에 UID 전송
+              "userid": userId, // 서버에 UID 전송
               "password": _passwordController.text,
               "nickname": _nicknameController.text,
               "termsOfServiceAccepted": _isAgreed,

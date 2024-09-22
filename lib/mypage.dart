@@ -21,9 +21,12 @@ class _MyState extends State<My> {
   bool isLoggedIn = false;
   String? email;
   String? name;
+  String level = '';
+  String experience = '';
   bool _isChecked = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  String? userId;
   bool isLoading = false;
   String _errorText = '';
   final String _url = 'http://43.203.197.86:8080';
@@ -38,19 +41,67 @@ class _MyState extends State<My> {
   Future<void> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
-    String? userId = prefs.getString('uid');
-    String? savedEmail = prefs.getString('email'); // 저장된 이메일
-    String? savedName = prefs.getString('nickname'); // 저장된 사용자 이름
+    userId = prefs.getString('uid')!;
+    print(userId);
 
     if (loginMethod != null && userId != null) {
       setState(() {
         isLoggedIn = true;
-        email = savedEmail ?? 'none'; // 이메일이 없으면 기본값
-        name = savedName ?? 'none'; // 이름이 없으면 기본값
       });
+      getUserInfo(); // 로그인 상태일 때만 유저 정보 호출
     } else {
       setState(() {
         isLoggedIn = false;
+      });
+    }
+  }
+
+  // 이메일, 닉네임, 레벨, 숙련도 가져오는 API 생성
+  Future<void> getUserInfo() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? userId = prefs.getString('uid'); // 다시 한번 null 체크
+      if (userId == null) {
+        setState(() {
+          isLoading = false;
+          _errorText = "User ID not found.";
+        });
+        return;
+      }
+
+      var response = await http.get(
+        Uri.parse('$_url/api/users/$userId'), // 서버 주소와 userId를 동적으로 할당
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        print(data);
+
+        setState(() {
+          email = data['email'];
+          name = data['nickname'];
+          level = data['level'].toString(); // level 값이 int일 수 있으므로 String으로 변환
+          experience = data['experience'].toString(); // experience도 String으로 변환
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          _errorText =
+              'Failed to fetch user info. Server responded with status ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        _errorText = 'Failed to connect to the server: $e';
       });
     }
   }
@@ -332,14 +383,14 @@ class _MyState extends State<My> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                name ?? 'Kim MinJune',
+                                name != null ? name! : '',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
-                                email ?? '1234545@example.com',
+                                email != null ? email! : '',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,
@@ -418,7 +469,7 @@ class _MyState extends State<My> {
                     children: [
                       SizedBox(height: 20),
                       Text(
-                        'Level 1',
+                        'Level ' + level,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -426,7 +477,7 @@ class _MyState extends State<My> {
                         ),
                       ),
                       Text(
-                        '  1000/6000',
+                        '    ' + experience + '/6000',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey,

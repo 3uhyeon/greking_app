@@ -61,6 +61,9 @@ class _LoginScreenState extends State<LoginScreen> {
             isLoading = false; // 로딩 상태 변경
           });
           String userId = responseData['userId'];
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('uid', userId);
+
           // 로그인 성공 하면 서버에서 userid 받아와서 저장해야함.
           await _saveLoginState('email', userId, email, nickname);
 
