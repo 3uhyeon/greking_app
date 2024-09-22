@@ -611,30 +611,30 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            Stack(
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => TrackingPage(
-                              courseName: 'gimoti', userCourseId: 1)),
-                    );
-                  },
-                  child: Image.asset('assets/banners.png',
-                      width: double.infinity, fit: BoxFit.fitWidth),
-                ),
-                // Positioned(
-                //   right: 00,
-                //   bottom: 40,
-                //   child: Lottie.asset('assets/insurance2.json',
-                //       width: 110, height: 110),
-                // )
-              ],
-            ),
-            const SizedBox(height: 16),
+            // const SizedBox(height: 16),
+            // Stack(
+            //   children: [
+            //     InkWell(
+            //       onTap: () {
+            //         Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //               builder: (context) => TrackingPage(
+            //                   courseName: 'gimoti', userCourseId: 1)),
+            //         );
+            //       },
+            //       child: Image.asset('assets/banners.png',
+            //           width: double.infinity, fit: BoxFit.fitWidth),
+            //     ),
+            //     // Positioned(
+            //     //   right: 00,
+            //     //   bottom: 40,
+            //     //   child: Lottie.asset('assets/insurance2.json',
+            //     //       width: 110, height: 110),
+            //     // )
+            //   ],
+            // ),
+            // const SizedBox(height: 16),
             InkWell(
               onTap: () {
                 _onItemTapped(3);

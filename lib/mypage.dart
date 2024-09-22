@@ -487,7 +487,7 @@ class _MyState extends State<My> {
                   ),
                   Spacer(),
                   SvgPicture.asset(
-                    'assets/level1.svg',
+                    'assets/level${level}.svg',
                     width: 100,
                     height: 100,
                   ),
