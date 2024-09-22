@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:my_app/gpx_treking.dart';
 import 'package:my_app/question.dart';
 import 'package:my_app/review_detail.dart';
 import 'package:my_app/review_write.dart';
@@ -18,11 +19,14 @@ import 'review_detail.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'article.dart';
 import 'review_write.dart';
+import 'package:flutter_background/flutter_background.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NaverMapSdk.instance.initialize(clientId: 'uiu5p4m0nb');
-
+  // Flutter Background 초기화
+  await FlutterBackground.initialize();
   // Firebase 초기화
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
@@ -615,9 +619,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => ReviewWritingPage(
-                                userCourseId: 1,
-                              )),
+                          builder: (context) => TrackingPage(
+                              courseName: 'gimoti', userCourseId: 1)),
                     );
                   },
                   child: Image.asset('assets/banners.png',

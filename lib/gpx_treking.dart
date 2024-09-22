@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,6 +14,9 @@ import 'package:my_app/loading.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'dart:math'; // 삼각함수 계산을 위해 필요
+import 'done.dart';
+import 'package:flutter_background/flutter_background.dart'; // 백그라운드 패키지 추가
+import 'package:workmanager/workmanager.dart'; // 백그라운드 작업을 위한 패키지
 import 'done.dart';
 
 class TrackingPage extends StatefulWidget {
@@ -55,6 +59,7 @@ class _TrackingPageState extends State<TrackingPage>
   void initState() {
     super.initState();
     _startCompass();
+    _initializeBackgroundTracking(); // 백그라운드 트래킹 초기화
   }
 
   @override
@@ -65,6 +70,41 @@ class _TrackingPageState extends State<TrackingPage>
     _accelerometerStreamSubscription?.cancel(); // 가속도계 스트림 해제
     _magnetometerStreamSubscription?.cancel(); // 자기장 스트림 해제
     super.dispose();
+  }
+
+  /// 백그라운드 서비스 초기화
+  Future<void> _initializeBackgroundTracking() async {
+    final androidConfig = FlutterBackgroundAndroidConfig(
+      notificationTitle: 'Tracking in progress',
+      notificationText: 'Tracking your movement.',
+      enableWifiLock: true,
+    );
+
+    bool hasPermissions = await FlutterBackground.hasPermissions;
+    if (!hasPermissions) {
+      await FlutterBackground.initialize(androidConfig: androidConfig);
+    }
+
+    Workmanager().initialize(_callbackDispatcher, isInDebugMode: true);
+  }
+
+  /// 백그라운드 작업 설정
+  void _registerBackgroundTask() {
+    Workmanager().registerPeriodicTask(
+      'trackLocation',
+      'trackLocationTask',
+      frequency: Duration(minutes: 15),
+    );
+  }
+
+  /// WorkManager 백그라운드 작업 콜백
+  static void _callbackDispatcher() {
+    Workmanager().executeTask((task, inputData) async {
+      // 백그라운드에서 수행할 위치 추적 작업
+      print('Background task running');
+      // 위치 추적 관련 로직 추가
+      return Future.value(true);
+    });
   }
 
   void _startCompass() {
