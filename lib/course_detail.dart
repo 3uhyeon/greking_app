@@ -100,10 +100,10 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
-    String? token = prefs.getString('token');
+    String? userId = prefs.getString('uid');
 
-    if (loginMethod != null && token != null) {
-      bool isValid = await _validateToken(token, loginMethod);
+    if (loginMethod != null && userId != null) {
+      bool isValid = await _validateToken(userId, loginMethod);
       setState(() {
         isLoggedIn = isValid;
         isLoading = false;
