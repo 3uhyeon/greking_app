@@ -38,9 +38,9 @@ class _Treking extends State<Treking> {
     },
     {'name': 'Taebaeksan', 'location': NLatLng(37.0957536, 128.9152435)},
     {'name': 'Dutasan', 'location': NLatLng(37.26003, 129.1000)},
-    {'name': 'Myeongseong', 'location': NLatLng(38.10780, 127.3404)},
+    {'name': 'Myeongseongsan', 'location': NLatLng(38.10780, 127.3404)},
     {'name': 'Jeombongsan', 'location': NLatLng(38.04930, 128.4253)},
-    {'name': 'Hwangbyeong', 'location': NLatLng(37.75783, 128.6634)},
+    {'name': 'Hwangbyeongsan', 'location': NLatLng(37.75783, 128.6634)},
     {'name': 'Daeamsan', 'location': NLatLng(38.21123, 128.1351)},
     {'name': 'Garisan', 'location': NLatLng(37.87344, 127.9609)},
     {'name': 'Gariwangsan', 'location': NLatLng(37.46250, 128.5634)},
@@ -61,6 +61,7 @@ class _Treking extends State<Treking> {
   NaverMapController? _naverMapController;
   bool isLoading = false;
   List<Map<String, dynamic>> _selectedMountainCourses = [];
+  NLatLng? _selectedMountainLocation; // 선택된 산의 위치를 저장할 변수
   String _selectedMountainName = ''; // 선택된 산의 이름을 저장할 변수
   final TextEditingController _searchController = TextEditingController();
 
@@ -74,14 +75,16 @@ class _Treking extends State<Treking> {
   }
 
   // 서버에서 코스 데이터를 불러오는 함수
-  Future<void> _fetchCoursesForMountain(String mountainName) async {
+  Future<void> _fetchCoursesForMountain(
+      String mountainName, NLatLng location) async {
     setState(() {
-      isLoading = true;
+      _selectedMountainLocation = location; // 선택된 산의 위치 저장
     });
 
     try {
       final response = await http.get(
-        Uri.parse(_url + '/api/courses/getCourse/설악산'), // 서버 API URL
+        Uri.parse(
+            _url + '/api/courses/getCourse/${mountainName}'), // 서버 API URL
       );
 
       if (response.statusCode == 200) {
@@ -89,7 +92,6 @@ class _Treking extends State<Treking> {
         setState(() {
           _selectedMountainCourses =
               List<Map<String, dynamic>>.from(responseData['courses']);
-          print(_selectedMountainCourses);
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -102,9 +104,16 @@ class _Treking extends State<Treking> {
       );
     }
 
-    setState(() {
-      isLoading = false;
-    });
+    // 데이터 로딩이 완료된 후에 카메라가 선택된 위치로 이동하도록 처리
+    if (_selectedMountainLocation != null && !isLoading) {
+      final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
+        target: _selectedMountainLocation!,
+        zoom: 12,
+      );
+      cameraUpdate.setAnimation(
+          animation: NCameraAnimation.easing, duration: Duration(seconds: 2));
+      _naverMapController?.updateCamera(cameraUpdate);
+    }
   }
 
   // 마커 클릭 시 코스 정보를 가져오는 함수
@@ -112,7 +121,6 @@ class _Treking extends State<Treking> {
     setState(() {
       _selectedMountainName = mountainName;
     });
-    _fetchCoursesForMountain(mountainName);
 
     final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
       target: location,
@@ -254,6 +262,8 @@ class _Treking extends State<Treking> {
 
                   // 마커 클릭 리스너 추가
                   marker.setOnTapListener((NMarker marker) {
+                    _fetchCoursesForMountain(
+                        marker.info.id, mountain['location']);
                     _onMarkerTap(marker.info.id,
                         mountain['location']); // 마커를 클릭 시 해당 산 정보를 가져옴
                     return true; // 마커 클릭 이벤트 소비
@@ -296,7 +306,7 @@ class _Treking extends State<Treking> {
                                         MountainDetailPage(
                                   courseId: course['courseId'],
                                   courseName: course['courseName'],
-                                  information: course['information'],
+                                  information: course['information'] ?? '',
                                   mountainName: _selectedMountainName,
                                   distance: course['distance'],
                                   duration: course['duration'],
@@ -363,7 +373,7 @@ class _Treking extends State<Treking> {
                                   children: [
                                     SizedBox(width: 20.0),
                                     Text(
-                                      course['courseName'],
+                                      course['courseName'].replaceAll('_', ' '),
                                       style: TextStyle(
                                         fontSize:
                                             course['courseName'].length > 28
@@ -382,7 +392,7 @@ class _Treking extends State<Treking> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Container(
-                                      width: 65,
+                                      width: 50,
                                       height: 22,
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 4),
@@ -448,7 +458,7 @@ class _Treking extends State<Treking> {
                                     ),
                                     SizedBox(width: 7.0),
                                     Container(
-                                      width: 55,
+                                      width: 60,
                                       height: 22,
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 4),
@@ -467,7 +477,7 @@ class _Treking extends State<Treking> {
                                             CrossAxisAlignment.center,
                                         children: [
                                           Text(
-                                            course['distance'] + "km",
+                                            course['distance'],
                                             style: TextStyle(
                                               color: Color(0xFF858C90),
                                               fontSize: 10,
@@ -481,7 +491,7 @@ class _Treking extends State<Treking> {
                                     ),
                                     SizedBox(width: 7.0),
                                     Container(
-                                      width: 60,
+                                      width: 55,
                                       height: 22,
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 4),

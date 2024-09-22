@@ -56,7 +56,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
     setState(() {
       isLoading = true;
     });
-    final url = _url + '/api/weather/getInfo/설악산';
+    final url = _url + '/api/weather/getInfo/${widget.mountainName}';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -226,7 +226,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
         body: Column(
           children: [
             Container(
-              height: 200,
+              height: 150,
               width: 330,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
@@ -383,7 +383,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
             Row(
               children: [
                 Text(
-                  widget.courseName,
+                  widget.courseName.replaceAll('_', ' '),
                   style: TextStyle(
                     fontSize: widget.courseName.length > 28 ? 20 : 22,
                     fontWeight: FontWeight.bold,
@@ -408,7 +408,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
               children: [
                 _buildInfoChip('Level', widget.difficulty),
                 _buildInfoChip('Time', widget.duration),
-                _buildInfoChip('Distance', widget.distance + " km"),
+                _buildInfoChip('Distance', widget.distance),
                 _buildInfoChip('Altitude', widget.altitude + " m"),
               ],
             ),
@@ -437,9 +437,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                                   ? 'assets/rain.svg'
                                   : weatherData?['condition'] == '눈'
                                       ? 'assets/snow.svg'
-                                      : weatherData?['condition'] == '번개'
-                                          ? 'assets/thunder.svg'
-                                          : 'assets/cloud.svg',
+                                      : 'assets/cloud.svg',
                       weatherData?['forecastDate'] ?? '',
                       '${weatherData?['temperature'] ?? ''}°',
                       '${weatherData?['predictRain'] ?? ''}%'),
@@ -452,9 +450,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                                   ? 'assets/rain.svg'
                                   : weatherData?['condition'] == '눈'
                                       ? 'assets/snow.svg'
-                                      : weatherData?['condition'] == '번개'
-                                          ? 'assets/thunder.svg'
-                                          : 'assets/cloud.svg',
+                                      : 'assets/cloud.svg',
                       weatherData?['forecastDate1'] ?? '',
                       '${weatherData?['temperature1'] ?? ''}°',
                       '${weatherData?['predictRain1'] ?? ''}%'),
@@ -467,9 +463,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                                   ? 'assets/rain.svg'
                                   : weatherData?['condition'] == '눈'
                                       ? 'assets/snow.svg'
-                                      : weatherData?['condition'] == '번개'
-                                          ? 'assets/thunder.svg'
-                                          : 'assets/cloud.svg',
+                                      : 'assets/cloud.svg',
                       weatherData?['forecastDate2'] ?? '',
                       '${weatherData?['temperature2'] ?? ''}°',
                       '${weatherData?['predictRain2'] ?? ''}%'),
@@ -482,9 +476,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                                   ? 'assets/rain.svg'
                                   : weatherData?['condition'] == '눈'
                                       ? 'assets/snow.svg'
-                                      : weatherData?['condition'] == '번개'
-                                          ? 'assets/thunder.svg'
-                                          : 'assets/cloud.svg',
+                                      : 'assets/cloud.svg',
                       weatherData?['forecastDate3'] ?? '',
                       '${weatherData?['temperature3'] ?? ''}°',
                       '${weatherData?['predictRain3'] ?? ''}%'),
@@ -497,9 +489,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                                   ? 'assets/rain.svg'
                                   : weatherData?['condition'] == '눈'
                                       ? 'assets/snow.svg'
-                                      : weatherData?['condition'] == '번개'
-                                          ? 'assets/thunder.svg'
-                                          : 'assets/cloud.svg',
+                                      : 'assets/cloud.svg',
                       weatherData?['forecastDate4'] ?? '',
                       '${weatherData?['temperature4'] ?? ''}°',
                       '${weatherData?['predictRain4'] ?? ''}%'),
@@ -647,27 +637,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
             SizedBox(height: 16),
             Center(
               child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          ReviewPage(courseName: widget.courseName),
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                        const begin = Offset(1.0, 0.0);
-                        const end = Offset.zero;
-                        const curve = Curves.easeInOut;
-                        var tween = Tween(begin: begin, end: end)
-                            .chain(CurveTween(curve: curve));
-                        var offsetAnimation = animation.drive(tween);
-
-                        return SlideTransition(
-                            position: offsetAnimation, child: child);
-                      },
-                    ),
-                  );
-                },
+                onPressed: () {},
                 child: Text(
                   'View All Reviews >',
                   style: TextStyle(
@@ -757,7 +727,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
             minVerticalPadding: 16,
             title: Text(restaurantData[index]['restaurant_name'],
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Pretendard',
                 )),
@@ -769,11 +739,15 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                   children: [
                     Icon(Icons.location_on, color: Colors.grey, size: 10),
                     SizedBox(width: 5),
-                    Text(
-                      restaurantData[index]['address'],
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontFamily: 'Pretendard',
+                    Flexible(
+                      child: Text(
+                        restaurantData[index]['address'],
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'Pretendard',
+                        ),
+                        overflow: TextOverflow.visible, // 텍스트를 줄 바꿈 없이 표시
+                        softWrap: true, // 자동 줄바꿈을 허용
                       ),
                     ),
                   ],

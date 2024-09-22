@@ -21,8 +21,8 @@ class _MyState extends State<My> {
   bool isLoggedIn = false;
   String? email;
   String? name;
-  String level = '';
-  String experience = '';
+  String? level;
+  String? experience;
   bool _isChecked = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -469,7 +469,7 @@ class _MyState extends State<My> {
                     children: [
                       SizedBox(height: 20),
                       Text(
-                        'Level ' + level,
+                        'Level ' + (level ?? ''),
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -477,7 +477,7 @@ class _MyState extends State<My> {
                         ),
                       ),
                       Text(
-                        '    ' + experience + '/6000',
+                        '    ' + (experience ?? '') + '/6000',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey,
@@ -496,7 +496,7 @@ class _MyState extends State<My> {
               ),
             if (isLoggedIn)
               LinearProgressIndicator(
-                value: 1000 / 6000,
+                value: double.parse(experience ?? '0') / 6000,
                 backgroundColor: Colors.grey[300],
                 color: Color(0XFF1DBE92),
                 minHeight: 16,
