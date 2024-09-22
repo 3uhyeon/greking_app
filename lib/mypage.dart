@@ -41,7 +41,7 @@ class _MyState extends State<My> {
   Future<void> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginMethod = prefs.getString('loginMethod');
-    userId = prefs.getString('uid')!;
+    userId = prefs.getString('uid') ?? '';
     print(userId);
 
     if (loginMethod != null && userId != null) {
@@ -697,49 +697,51 @@ class _MyState extends State<My> {
                   },
                 ),
                 SizedBox(height: 70),
-                TextButton(
-                  onPressed: () {
-                    _showSignoutAccountDialog(); // 로그아웃 확인 다이얼로그 표시
-                  },
-                  child: Text('Sign out',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                      )),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(350, 45),
-                    backgroundColor: Color(0xFFECF0F2),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 20,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                if (isLoggedIn)
+                  TextButton(
+                    onPressed: () {
+                      _showSignoutAccountDialog(); // 로그아웃 확인 다이얼로그 표시
+                    },
+                    child: Text('Sign out',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        )),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(350, 45),
+                      backgroundColor: Color(0xFFECF0F2),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
-                ),
                 const SizedBox(height: 10),
-                TextButton(
-                  onPressed: () {
-                    _showDeleteAccountDialog(); // 탈퇴 확인 다이얼로그 표시
-                  },
-                  child: Text('Delete account',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 16,
-                      )),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(350, 45),
-                    backgroundColor: Color(0xFFECF0F2),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 20,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                if (isLoggedIn)
+                  TextButton(
+                    onPressed: () {
+                      _showDeleteAccountDialog(); // 탈퇴 확인 다이얼로그 표시
+                    },
+                    child: Text('Delete account',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 16,
+                        )),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(350, 45),
+                      backgroundColor: Color(0xFFECF0F2),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ],
