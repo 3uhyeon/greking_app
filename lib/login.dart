@@ -111,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _saveLoginState(
       String method, String userId, String email, String name) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('loginMethod', method);
+    await prefs.setString('loginMethod', email);
     await prefs.setString('uid', userId);
 
     if (name.isNotEmpty) {

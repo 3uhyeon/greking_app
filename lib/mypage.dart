@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:my_app/loading.dart';
 import 'package:my_app/location_info.dart';
 import 'package:my_app/privacy.dart';
 import 'package:my_app/terms.dart';
@@ -21,8 +22,8 @@ class _MyState extends State<My> {
   bool isLoggedIn = false;
   String? email;
   String? name;
-  String? level;
-  String? experience;
+  int? level;
+  int? experience;
   bool _isChecked = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -48,7 +49,7 @@ class _MyState extends State<My> {
       setState(() {
         isLoggedIn = true;
       });
-      getUserInfo(); // 로그인 상태일 때만 유저 정보 호출
+      await getUserInfo(); // 로그인 상태일 때만 유저 정보 호출
     } else {
       setState(() {
         isLoggedIn = false;
@@ -87,8 +88,8 @@ class _MyState extends State<My> {
         setState(() {
           email = data['email'];
           name = data['nickname'];
-          level = data['level'].toString(); // level 값이 int일 수 있으므로 String으로 변환
-          experience = data['experience'].toString(); // experience도 String으로 변환
+          level = data['level']; // level 값이 int일 수 있으므로 String으로 변환
+          experience = data['experience']; // experience도 String으로 변환
           isLoading = false;
         });
       } else {
@@ -365,389 +366,397 @@ class _MyState extends State<My> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                SvgPicture.asset('assets/mypicture.svg', width: 52, height: 52),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    isLoggedIn
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                name != null ? name! : '',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                email != null ? email! : '',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          )
-                        : Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                '  Need to Sign In',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xff0d615c),
-                                ),
-                              ),
-                              SizedBox(width: 50),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation,
-                                              secondaryAnimation) =>
-                                          LoginScreen(),
-                                      transitionsBuilder: (context, animation,
-                                          secondaryAnimation, child) {
-                                        const begin = Offset(0.0, 1.0);
-                                        const end = Offset.zero;
-                                        const curve =
-                                            Curves.fastEaseInToSlowEaseOut;
-                                        var tween = Tween(
-                                                begin: begin, end: end)
-                                            .chain(CurveTween(curve: curve));
-                                        var offsetAnimation =
-                                            animation.drive(tween);
-
-                                        return SlideTransition(
-                                            position: offsetAnimation,
-                                            child: child);
-                                      },
-                                    ),
-                                  );
-                                },
-                                child: Text('Login',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    )),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF1DBE92),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                    horizontal: 20,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                  ],
-                ),
-                Spacer(),
-              ],
-            ),
-            const SizedBox(height: 24),
-            // 로그인 상태일 때만 레벨과 진행 상태 표시
-            if (isLoggedIn)
+    if (isLoading) {
+      return LoadingScreen();
+    } else {
+      return Scaffold(
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Row(
                 children: [
+                  SvgPicture.asset('assets/mypicture.svg',
+                      width: 52, height: 52),
+                  const SizedBox(width: 16),
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 20),
-                      Text(
-                        'Level ' + (level ?? ''),
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0XFF0D615C),
-                        ),
-                      ),
-                      Text(
-                        (experience ?? '') + '/6000',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
+                      isLoggedIn
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  name != null ? name! : '',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  email != null ? email! : '',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '  Need to Sign In',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xff0d615c),
+                                  ),
+                                ),
+                                SizedBox(width: 50),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation,
+                                                secondaryAnimation) =>
+                                            LoginScreen(),
+                                        transitionsBuilder: (context, animation,
+                                            secondaryAnimation, child) {
+                                          const begin = Offset(0.0, 1.0);
+                                          const end = Offset.zero;
+                                          const curve =
+                                              Curves.fastEaseInToSlowEaseOut;
+                                          var tween = Tween(
+                                                  begin: begin, end: end)
+                                              .chain(CurveTween(curve: curve));
+                                          var offsetAnimation =
+                                              animation.drive(tween);
+
+                                          return SlideTransition(
+                                              position: offsetAnimation,
+                                              child: child);
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  child: Text('Login',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      )),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF1DBE92),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                      horizontal: 20,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                     ],
                   ),
                   Spacer(),
-                  SvgPicture.asset(
-                    'assets/level${level}.svg',
-                    width: 70,
-                    height: 70,
-                  ),
-                  SizedBox(width: 10),
                 ],
               ),
-            if (isLoggedIn)
-              LinearProgressIndicator(
-                value: double.parse(experience ?? '0') / 6000,
-                backgroundColor: Colors.grey[300],
-                color: Color(0XFF1DBE92),
-                minHeight: 16,
-                borderRadius: BorderRadius.circular(10),
+              const SizedBox(height: 24),
+              // 로그인 상태일 때만 레벨과 진행 상태 표시
+              if (isLoggedIn)
+                Row(
+                  children: [
+                    Column(
+                      children: [
+                        SizedBox(height: 20),
+                        Text(
+                          'Level ${level ?? 0}',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0XFF0D615C),
+                          ),
+                        ),
+                        Text(
+                          '${experience ?? 0}/6000',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Spacer(),
+                    SvgPicture.asset(
+                      'assets/level${level}.svg',
+                      width: 100,
+                      height: 100,
+                    ),
+                    SizedBox(width: 10),
+                  ],
+                ),
+              if (isLoggedIn)
+                LinearProgressIndicator(
+                  value: double.parse(experience?.toString() ?? '0.0') / 6000,
+                  backgroundColor: Colors.grey[300],
+                  color: Color(0XFF1DBE92),
+                  minHeight: 16,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              const SizedBox(height: 24),
+              Column(
+                children: [
+                  buildMenuItem(
+                    text: 'Rent reservation',
+                    onTap: () {
+                      showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: Container(
+                              width: 500,
+                              height: 120,
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/alert_check.svg',
+                                      width: 70,
+                                      height: 70,
+                                    ),
+                                    SizedBox(height: 20),
+                                    Text(
+                                      'Contact us at devpt@naver.com',
+                                      style: TextStyle(
+                                        color: Color(0xff555a5c),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    child: TextButton(
+                                      child: Text(
+                                        'OK',
+                                        style: TextStyle(
+                                            color: Colors.black, fontSize: 16),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(height: 2),
+                  buildMenuItem(
+                    text: 'App version',
+                    onTap: () {
+                      showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: Container(
+                              width: 500,
+                              height: 120,
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/alert_check.svg',
+                                      width: 70,
+                                      height: 70,
+                                    ),
+                                    SizedBox(height: 20),
+                                    Text(
+                                      'APP version 1.0.0',
+                                      style: TextStyle(
+                                        color: Color(0xff555a5c),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    child: TextButton(
+                                      child: Text(
+                                        'OK',
+                                        style: TextStyle(
+                                            color: Colors.black, fontSize: 16),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(height: 2),
+                  buildNoticeItem(
+                    text: 'Notification',
+                    onTap: () {},
+                  ),
+                  SizedBox(height: 20),
+                  buildMenuItem(
+                    text: 'Terms of Use',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  TermsOfUse(),
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                            const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 나오게
+                            const end = Offset.zero;
+                            const curve = Curves.easeInOut;
+                            var tween = Tween(begin: begin, end: end)
+                                .chain(CurveTween(curve: curve));
+                            var offsetAnimation = animation.drive(tween);
+
+                            return SlideTransition(
+                                position: offsetAnimation, child: child);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 2),
+                  buildMenuItem(
+                    text: 'Location Information',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  LocationInformation(),
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                            const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 나오게
+                            const end = Offset.zero;
+                            const curve = Curves.easeInOut;
+                            var tween = Tween(begin: begin, end: end)
+                                .chain(CurveTween(curve: curve));
+                            var offsetAnimation = animation.drive(tween);
+
+                            return SlideTransition(
+                                position: offsetAnimation, child: child);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 2),
+                  buildMenuItem(
+                    text: 'Privacy Policy',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  Privacy(),
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                            const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 나오게
+                            const end = Offset.zero;
+                            const curve = Curves.easeInOut;
+                            var tween = Tween(begin: begin, end: end)
+                                .chain(CurveTween(curve: curve));
+                            var offsetAnimation = animation.drive(tween);
+
+                            return SlideTransition(
+                                position: offsetAnimation, child: child);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 70),
+                  if (isLoggedIn)
+                    TextButton(
+                      onPressed: () {
+                        _showSignoutAccountDialog(); // 로그아웃 확인 다이얼로그 표시
+                      },
+                      child: Text('Sign out',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                          )),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(350, 45),
+                        backgroundColor: Color(0xFFECF0F2),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 20,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 10),
+                  if (isLoggedIn)
+                    TextButton(
+                      onPressed: () {
+                        _showDeleteAccountDialog(); // 탈퇴 확인 다이얼로그 표시
+                      },
+                      child: Text('Delete account',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                          )),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(350, 45),
+                        backgroundColor: Color(0xFFECF0F2),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 20,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                ],
               ),
-            const SizedBox(height: 24),
-            Column(
-              children: [
-                buildMenuItem(
-                  text: 'Rent reservation',
-                  onTap: () {
-                    showDialog<void>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          content: Container(
-                            width: 500,
-                            height: 120,
-                            child: Center(
-                              child: Column(
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/alert_check.svg',
-                                    width: 70,
-                                    height: 70,
-                                  ),
-                                  SizedBox(height: 20),
-                                  Text(
-                                    'Contact us at devpt@naver.com',
-                                    style: TextStyle(
-                                      color: Color(0xff555a5c),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          actions: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  child: TextButton(
-                                    child: Text(
-                                      'OK',
-                                      style: TextStyle(
-                                          color: Colors.black, fontSize: 16),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                ),
-                SizedBox(height: 2),
-                buildMenuItem(
-                  text: 'App version',
-                  onTap: () {
-                    showDialog<void>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          content: Container(
-                            width: 500,
-                            height: 120,
-                            child: Center(
-                              child: Column(
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/alert_check.svg',
-                                    width: 70,
-                                    height: 70,
-                                  ),
-                                  SizedBox(height: 20),
-                                  Text(
-                                    'APP version 1.0.0',
-                                    style: TextStyle(
-                                      color: Color(0xff555a5c),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          actions: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  child: TextButton(
-                                    child: Text(
-                                      'OK',
-                                      style: TextStyle(
-                                          color: Colors.black, fontSize: 16),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                ),
-                SizedBox(height: 2),
-                buildNoticeItem(
-                  text: 'Notification',
-                  onTap: () {},
-                ),
-                SizedBox(height: 20),
-                buildMenuItem(
-                  text: 'Terms of Use',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            TermsOfUse(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 나오게
-                          const end = Offset.zero;
-                          const curve = Curves.easeInOut;
-                          var tween = Tween(begin: begin, end: end)
-                              .chain(CurveTween(curve: curve));
-                          var offsetAnimation = animation.drive(tween);
-
-                          return SlideTransition(
-                              position: offsetAnimation, child: child);
-                        },
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: 2),
-                buildMenuItem(
-                  text: 'Location Information',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            LocationInformation(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 나오게
-                          const end = Offset.zero;
-                          const curve = Curves.easeInOut;
-                          var tween = Tween(begin: begin, end: end)
-                              .chain(CurveTween(curve: curve));
-                          var offsetAnimation = animation.drive(tween);
-
-                          return SlideTransition(
-                              position: offsetAnimation, child: child);
-                        },
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: 2),
-                buildMenuItem(
-                  text: 'Privacy Policy',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            Privacy(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로 나오게
-                          const end = Offset.zero;
-                          const curve = Curves.easeInOut;
-                          var tween = Tween(begin: begin, end: end)
-                              .chain(CurveTween(curve: curve));
-                          var offsetAnimation = animation.drive(tween);
-
-                          return SlideTransition(
-                              position: offsetAnimation, child: child);
-                        },
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: 70),
-                if (isLoggedIn)
-                  TextButton(
-                    onPressed: () {
-                      _showSignoutAccountDialog(); // 로그아웃 확인 다이얼로그 표시
-                    },
-                    child: Text('Sign out',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                        )),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(350, 45),
-                      backgroundColor: Color(0xFFECF0F2),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 20,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 10),
-                if (isLoggedIn)
-                  TextButton(
-                    onPressed: () {
-                      _showDeleteAccountDialog(); // 탈퇴 확인 다이얼로그 표시
-                    },
-                    child: Text('Delete account',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 16,
-                        )),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(350, 45),
-                      backgroundColor: Color(0xFFECF0F2),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 20,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   Widget buildMenuItem({required String text, required VoidCallback onTap}) {
