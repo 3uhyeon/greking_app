@@ -171,7 +171,7 @@ class _MyCourseState extends State<MyCourse>
     var mountainName = courseInfo['mountainName'];
     var duration = courseInfo['duration'];
     var difficulty = courseInfo['difficulty'];
-    var addedAt = course['addedAt'];
+    var addedTime = course['addedTime'];
     var userCourseId = course['userCourseId'];
 
     return Container(
@@ -194,7 +194,7 @@ class _MyCourseState extends State<MyCourse>
           Row(
             children: [
               Text(
-                '  Reserved $addedAt ',
+                '  Reserved $addedTime ',
                 style: const TextStyle(
                     color: Colors.grey,
                     fontSize: 14,

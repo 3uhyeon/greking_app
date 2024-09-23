@@ -477,7 +477,7 @@ class _MyState extends State<My> {
                         ),
                       ),
                       Text(
-                        '    ' + (experience ?? '') + '/6000',
+                        (experience ?? '') + '/6000',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey,
@@ -488,8 +488,8 @@ class _MyState extends State<My> {
                   Spacer(),
                   SvgPicture.asset(
                     'assets/level${level}.svg',
-                    width: 100,
-                    height: 100,
+                    width: 70,
+                    height: 70,
                   ),
                   SizedBox(width: 10),
                 ],

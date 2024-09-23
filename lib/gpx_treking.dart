@@ -63,12 +63,18 @@ class _TrackingPageState extends State<TrackingPage>
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     _positionStream?.cancel();
     _timer?.cancel();
 
-    _accelerometerStreamSubscription?.cancel(); // 가속도계 스트림 해제
-    _magnetometerStreamSubscription?.cancel(); // 자기장 스트림 해제
+    // 가속도계와 자기장 스트림 취소
+    if (_accelerometerStreamSubscription != null) {
+      await _accelerometerStreamSubscription!.cancel();
+    }
+
+    if (_magnetometerStreamSubscription != null) {
+      await _magnetometerStreamSubscription!.cancel();
+    }
     super.dispose();
   }
 
@@ -273,7 +279,11 @@ class _TrackingPageState extends State<TrackingPage>
   }
 
 // 기존 코드 중 Done 버튼 클릭 시 페이지 전환 부분 수정
-  void _onDoneButtonPressed() {
+  void _onDoneButtonPressed() async {
+    // 모든 위치 추적과 센서 스트림 종료
+
+    await _accelerometerStreamSubscription?.cancel(); // 가속도계 스트림을 await
+    await _magnetometerStreamSubscription?.cancel(); // 자기장 스트림을 await
     // Done 버튼 눌렀을 때 데이터를 받아서 SummaryPage로 전송
     Navigator.push(
       context,
@@ -477,13 +487,21 @@ class _TrackingPageState extends State<TrackingPage>
     });
   }
 
-  void _stopTracking() {
+  void _stopTracking() async {
     setState(() {
       _isTracking = false;
       _isPaused = true; // 일시정지 상태 유지
     });
-    _positionStream?.cancel();
-    _timer?.cancel();
+    // 위치 추적 스트림과 타이머를 확실히 취소하기 위해 await 사용
+    if (_positionStream != null) {
+      await _positionStream!.cancel();
+      _positionStream = null;
+    }
+
+    if (_timer != null) {
+      _timer!.cancel();
+      _timer = null;
+    }
   }
 
   @override
