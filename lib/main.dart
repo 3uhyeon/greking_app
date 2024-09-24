@@ -572,7 +572,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 autoPlayInterval: Duration(seconds: 4),
               ),
               items: [
-                for (int i = 1; i <= (_recommendCourses.length - 5); i++)
+                for (int i = 1; i <= (_recommendCourses.length); i++)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Stack(

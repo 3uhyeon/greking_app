@@ -190,7 +190,7 @@ class _Treking extends State<Treking> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12.0, vertical: 10.0),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Colors.grey[100],
                           borderRadius: BorderRadius.circular(20.0),
                           boxShadow: [
                             BoxShadow(

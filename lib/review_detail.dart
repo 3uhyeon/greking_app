@@ -58,6 +58,7 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
     } else {
       return Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.grey[100],
           title: Text(
             'Review Detail',
             style: TextStyle(
@@ -113,6 +114,7 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
                     : review['review_difficulty'] == 'manageable'
                         ? Icons.sentiment_satisfied
                         : Icons.sentiment_dissatisfied,
+                size: 35,
               ),
               SizedBox(width: 8),
               Text(
