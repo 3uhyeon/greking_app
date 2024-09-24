@@ -25,6 +25,7 @@ import 'package:flutter_background/flutter_background.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,8 +60,8 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Greking App',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
+            primarySwatch: Colors.blue,
+            scaffoldBackgroundColor: Colors.grey[100]),
         home: const MainPage(),
         debugShowCheckedModeBanner: false,
       ),
@@ -85,31 +86,31 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "mountainName": "Seoraksan",
       "courseName": "Daecheongbong_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/daechung_good.jpg"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/daechung_good.webp"
     },
     {
       "mountainName": "Seoraksan",
       "courseName": "Suryeomdong_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/Suryeomdong_Course.png"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/Suryeomdong_Course.webp"
     },
     {
       "mountainName": "Odaesan",
       "courseName": "Sangwangbong_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/Sangwangbong_Course.png"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/Sangwangbong_Course.webp"
     },
     {
       "mountainName": "Dutasan",
       "courseName": "Cheoneunsa_Temple_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/duta_good.jpg"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/duta_good.webp"
     },
     {
       "mountainName": "Taehwaksan",
       "courseName": "Bukbyeok_Bridge_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/Bukbyeok_Bridge_Course.png"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/Bukbyeok_Bridge_Course.webp"
     }
   ];
   int _currentIndex = 0;
@@ -147,6 +148,9 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   Future<void> _checkRecommendCourse() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('uid');
+    setState(() {
+      isLoading = true;
+    });
     if (userId == null) {
       return;
     }
@@ -161,7 +165,9 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
       _recommendCourses = List<Map<String, dynamic>>.from(data);
-      print(data);
+      setState(() {
+        isLoading = false;
+      });
     } else {
       throw Exception('Failed to load data');
     }
@@ -361,6 +367,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
             ],
           ),
           bottomNavigationBar: BottomNavigationBar(
+            backgroundColor: Colors.white,
             type: BottomNavigationBarType.fixed,
             currentIndex: _currentIndex,
             onTap: _onItemTapped,
@@ -519,30 +526,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                           ),
                         ),
                         Positioned(
-                          left: 20.0, // 왼쪽으로 더 가도록 조정
-                          bottom: 30.0,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _getTitleForIndex(i), // 슬라이드마다 다른 제목
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                _getSubtitleForIndex(i), // 슬라이드마다 다른 부제목
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Positioned(
                           right: 10.0, // 왼쪽으로 더 가도록 조정
                           bottom: 10.0,
 
@@ -589,21 +572,26 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 autoPlayInterval: Duration(seconds: 4),
               ),
               items: [
-                for (int i = 1; i <= _recommendCourses.length; i++)
+                for (int i = 1; i <= (_recommendCourses.length - 5); i++)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Stack(
                       children: [
                         Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              image: DecorationImage(
-                                image: NetworkImage(
-                                    _recommendCourses[i - 1]['courseImage']),
-                                fit: BoxFit.cover,
+                          child: CachedNetworkImage(
+                            imageUrl: _recommendCourses[i - 1]['courseImage'],
+                            imageBuilder: (context, imageProvider) => Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
+                            placeholder: (context, url) => LoadingScreen(),
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.error),
                           ),
                         ),
                         Positioned(
@@ -629,7 +617,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                                   ),
                                 ),
                                 Text(
-                                  _recommendCourses[i - 1]['courseName'],
+                                  _recommendCourses[i - 1]['courseName']
+                                      .replaceAll('_', ' '),
                                   style: const TextStyle(
                                     color: Color(0xffa9b0b5),
                                     fontSize: 12,
@@ -654,23 +643,27 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               ),
             ),
             const SizedBox(height: 8),
-            Center(
-              child: Container(
-                alignment: Alignment.center,
-                height: 300,
-                width: double.infinity,
-                child: ListView(
-                  physics: NeverScrollableScrollPhysics(),
-                  scrollDirection: Axis.vertical,
-                  children: [
-                    PopularCourseItem(index: 1),
-                    const SizedBox(height: 12),
-                    PopularCourseItem(index: 2),
-                    const SizedBox(height: 12),
-                    PopularCourseItem(index: 3),
-                  ],
+            Stack(
+              children: [
+                Center(
+                  child: Container(
+                    alignment: Alignment.center,
+                    height: 300,
+                    width: 350,
+                    child: ListView(
+                      physics: NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      children: [
+                        Image.asset('assets/pop1.png', fit: BoxFit.fitWidth),
+                        const SizedBox(height: 12),
+                        Image.asset('assets/pop2.png', fit: BoxFit.fitWidth),
+                        const SizedBox(height: 12),
+                        Image.asset('assets/pop3.png', fit: BoxFit.fitWidth),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
             const SizedBox(height: 16),
             Stack(
@@ -687,8 +680,13 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       print("Can't launch $url");
                     }
                   },
-                  child: Image.asset('assets/banners.png',
-                      width: double.infinity, fit: BoxFit.fitWidth),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(
+                      'assets/banners.png',
+                      width: double.infinity,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -809,115 +807,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
           ],
         ),
       ),
-    );
-  }
-
-  // 각 슬라이드에 맞는 제목을 반환하는 함수
-  String _getTitleForIndex(int index) {
-    switch (index) {
-      case 1:
-        return 'Train Travel Guide';
-      case 2:
-        return 'Incheon Airport Guide';
-      case 3:
-        return 'Beginner Hiking Tips';
-      default:
-        return 'Guide';
-    }
-  }
-
-  // 각 슬라이드에 맞는 부제목을 반환하는 함수
-  String _getSubtitleForIndex(int index) {
-    switch (index) {
-      case 1:
-        return 'How to travel to Gangwon by train!';
-      case 2:
-        return 'To Gangwon :The complete guide!';
-      case 3:
-        return 'Essential tips for first-time hikers in Gangwon!';
-      default:
-        return 'Subtitle';
-    }
-  }
-}
-
-class PopularCourseItem extends StatelessWidget {
-  final int index;
-  // 각 슬라이드에 맞는 제목을 반환하는 함수
-  String _getTitleForIndex2(int index) {
-    switch (index) {
-      case 1:
-        return 'Seoraksan';
-      case 2:
-        return 'Chiaksan';
-      case 3:
-        return 'Dutasan';
-
-      default:
-        return 'Guide';
-    }
-  }
-
-  // 각 슬라이드에 맞는 부제목을 반환하는 함수
-  String _getSubtitleForIndex2(int index) {
-    switch (index) {
-      case 1:
-        return 'Daechengbong Course';
-      case 2:
-        return 'Birobong Course';
-      case 3:
-        return 'Daejae Course';
-
-      default:
-        return 'Subtitle';
-    }
-  }
-
-  const PopularCourseItem({required this.index});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          width: 342,
-          height: 87,
-          margin: const EdgeInsets.symmetric(horizontal: 3),
-          decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: BorderRadius.circular(20),
-            image: DecorationImage(
-              image: AssetImage('assets/pop$index.png'),
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        Positioned(
-          left: 20,
-          bottom: 20,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _getTitleForIndex2(index), // 코스 이름
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                _getSubtitleForIndex2(index), // 코스 설명
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

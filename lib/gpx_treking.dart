@@ -559,7 +559,7 @@ class _TrackingPageState extends State<TrackingPage>
               left: 0,
               right: 0,
               child: Container(
-                height: MediaQuery.of(context).size.height * 0.3,
+                height: MediaQuery.of(context).size.height * 0.35,
                 padding: EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -634,10 +634,11 @@ class _TrackingPageState extends State<TrackingPage>
   Widget _buildInfoCard(String label, String value) {
     return Container(
       width: 148,
+      height: 100,
       padding: EdgeInsets.all(16.0),
       margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       decoration: BoxDecoration(
-        color: Color(0XFFEBEFF2),
+        color: Colors.grey[200],
         borderRadius: BorderRadius.circular(16.0),
         boxShadow: [
           BoxShadow(
@@ -652,7 +653,7 @@ class _TrackingPageState extends State<TrackingPage>
           Text(label,
               style: TextStyle(
                   fontSize: 12, color: Colors.grey, fontFamily: 'Pretendard')),
-          SizedBox(height: 8.0),
+          SizedBox(height: 16.0),
           Text(value,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ],

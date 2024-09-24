@@ -37,6 +37,7 @@ dependencies:
   flutter_foreground_task: ^8.8.1+1
   workmanager: ^0.5.2
   url_launcher: ^6.3.0
+  cached_network_image: ^3.4.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

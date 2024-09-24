@@ -107,6 +107,7 @@ class _MyCourseState extends State<MyCourse>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.grey[100],
         leading: Container(),
         leadingWidth: 0,
         title: TabBar(
@@ -123,6 +124,7 @@ class _MyCourseState extends State<MyCourse>
             fontWeight: FontWeight.normal,
             fontFamily: 'Pretendard',
           ),
+          dividerColor: Colors.transparent,
           indicatorColor: Colors.black,
           indicatorSize: TabBarIndicatorSize.tab,
           tabs: const [
@@ -178,7 +180,7 @@ class _MyCourseState extends State<MyCourse>
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: const Color(0XFFEBEFF2),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16.0),
         boxShadow: const [
           BoxShadow(
@@ -197,7 +199,7 @@ class _MyCourseState extends State<MyCourse>
                 '  Reserved $addedTime ',
                 style: const TextStyle(
                     color: Colors.grey,
-                    fontSize: 14,
+                    fontSize: 12,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w400),
               ),
@@ -209,7 +211,7 @@ class _MyCourseState extends State<MyCourse>
                         minWidth: 50,
                         maxWidth: 100,
                       ),
-                      color: const Color(0xffEBEFF2),
+                      color: Colors.white,
                       icon: const Icon(Icons.more_vert),
                       onSelected: (value) {
                         if (value == 'delete') {
@@ -260,7 +262,7 @@ class _MyCourseState extends State<MyCourse>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$courseName',
+                      '$courseName'.replaceAll('_', ' '),
                       style: const TextStyle(
                         fontSize: 16,
                         color: Color(0xff0d615c),
@@ -310,7 +312,7 @@ class _MyCourseState extends State<MyCourse>
                   child: TextButton(
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.all(10),
-                      backgroundColor: Colors.white,
+                      backgroundColor: Color(0xff1DBE92),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
@@ -320,6 +322,7 @@ class _MyCourseState extends State<MyCourse>
                         context,
                         PageRouteBuilder(
                           pageBuilder: (_, __, ___) => ReviewWritingPage(
+                              courseName: course['course']['courseName'],
                               userCourseId:
                                   int.parse(course['userCourseId'].toString())),
                           transitionsBuilder:
@@ -335,10 +338,10 @@ class _MyCourseState extends State<MyCourse>
                         ),
                       );
                     },
-                    child: const Text(
+                    child: Text(
                       'Write a Review',
                       style: TextStyle(
-                        color: Color(0XFF1DBE92),
+                        color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -351,7 +354,7 @@ class _MyCourseState extends State<MyCourse>
                     child: TextButton(
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.all(10),
-                        backgroundColor: Colors.white,
+                        backgroundColor: Color(0xff1DBE92),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0),
                         ),
@@ -380,7 +383,7 @@ class _MyCourseState extends State<MyCourse>
                       child: const Text(
                         'Go to the Course',
                         style: TextStyle(
-                          color: Color(0xff1dbe92),
+                          color: Colors.white,
                           fontFamily: 'Pretendard',
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

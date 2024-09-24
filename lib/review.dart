@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:my_app/loading.dart';
+
 class ReviewPage extends StatefulWidget {
   final String courseName;
   ReviewPage({required this.courseName});
@@ -67,7 +69,7 @@ class _ReviewPageState extends State<ReviewPage> {
         ),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? LoadingScreen()
           : Column(
               children: [
                 Padding(

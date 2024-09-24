@@ -11,8 +11,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class ReviewWritingPage extends StatefulWidget {
   final int userCourseId;
+  final String courseName;
 
-  ReviewWritingPage({required this.userCourseId});
+  ReviewWritingPage({required this.userCourseId, required this.courseName});
   @override
   _ReviewWritingPageState createState() => _ReviewWritingPageState();
 }
@@ -21,13 +22,60 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
   int _selectedStar = 0;
   int _selectedDifficulty = -1;
   bool isLoading = false;
+  final String _url = 'http://43.203.197.86:8080';
   final TextEditingController _reviewController = TextEditingController();
   bool isLoggedIn = false;
+  String name = '';
 
   @override
   void initState() {
     super.initState();
     _checkLoginStatus();
+    getUserInfo();
+  }
+
+  // 이메일, 닉네임, 레벨, 숙련도 가져오는 API 생성
+  Future<void> getUserInfo() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? userId = prefs.getString('uid'); // 다시 한번 null 체크
+      if (userId == null) {
+        setState(() {
+          isLoading = false;
+        });
+        return;
+      }
+
+      var response = await http.get(
+        Uri.parse('$_url/api/users/$userId'), // 서버 주소와 userId를 동적으로 할당
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        print(data);
+
+        setState(() {
+          name = data['nickname'];
+
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _checkLoginStatus() async {
@@ -145,7 +193,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Nickname',
+                      Text(name,
                           style: TextStyle(
                               fontSize: 18,
                               fontFamily: 'Pretendard',
@@ -155,7 +203,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                         children: [
                           Icon(Icons.location_on, size: 16, color: Colors.grey),
                           SizedBox(width: 4),
-                          Text('Mt.Seolak',
+                          Text(widget.courseName.replaceAll('_', ' '),
                               style:
                                   TextStyle(color: Colors.grey, fontSize: 12)),
                         ],
