@@ -86,31 +86,31 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "mountainName": "Seoraksan",
       "courseName": "Daecheongbong_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/daechung_good.webp"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/daechung_good.webp"
     },
     {
       "mountainName": "Seoraksan",
       "courseName": "Suryeomdong_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/Suryeomdong_Course.webp"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Suryeomdong_Course.webp"
     },
     {
       "mountainName": "Odaesan",
       "courseName": "Sangwangbong_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/Sangwangbong_Course.webp"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Sangwangbong_Course.webp"
     },
     {
       "mountainName": "Dutasan",
       "courseName": "Cheoneunsa_Temple_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/duta_good.webp"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/duta_good.webp"
     },
     {
       "mountainName": "Taehwaksan",
       "courseName": "Bukbyeok_Bridge_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/Bukbyeok_Bridge_Course.webp"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Bukbyeok_Bridge_Course.webp"
     }
   ];
   int _currentIndex = 0;

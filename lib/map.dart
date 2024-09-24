@@ -1,4 +1,5 @@
 import 'dart:convert'; // JSON 인코딩을 위해 필요
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/rendering.dart';
@@ -350,15 +351,26 @@ class _Treking extends State<Treking> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 ClipRRect(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(10.0),
-                                    ),
-                                    child: Image.network(
-                                      course['courseImage'],
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(20.0),
+                                  ),
+                                  child: CachedNetworkImage(
+                                    imageUrl: course['courseImage'],
+                                    width: 230,
+                                    height: 100,
+                                    fit: BoxFit.fitWidth,
+                                    placeholder: (context, url) => Container(
                                       width: 230,
                                       height: 100,
-                                      fit: BoxFit.fitWidth,
-                                    )),
+                                      color: Colors.grey[100],
+                                      child: Center(
+                                        child: LoadingScreen(),
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        Icon(Icons.error),
+                                  ),
+                                ),
                                 SizedBox(height: 10.0),
                                 Row(
                                   children: [

@@ -77,8 +77,8 @@ class _TrackingSummaryPageState extends State<TrackingSummaryPage>
       );
 
       if (response.statusCode == 200) {
-        print(response.body);
-        if (jsonDecode(response.body)['levelUp'] == true) {
+        print(jsonDecode(response.body)['levelUp']);
+        if (jsonDecode(response.body)['levelUp'] == 'true') {
           showDialog(
             context: context,
             builder: (BuildContext context) {

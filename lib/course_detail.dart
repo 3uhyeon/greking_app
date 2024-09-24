@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'loading.dart';
 import 'mycourse.dart';
 import 'login.dart'; // 로그인 화면
 import 'review.dart'; // 리뷰 페이지
@@ -227,15 +229,24 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
         ),
         body: Column(
           children: [
-            Container(
-              height: 150,
-              width: 330,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                image: DecorationImage(
-                  image: NetworkImage(widget.courseImage),
-                  fit: BoxFit.cover,
+            ClipRRect(
+              borderRadius: BorderRadius.all(
+                Radius.circular(20.0),
+              ),
+              child: CachedNetworkImage(
+                imageUrl: widget.courseImage,
+                width: 330,
+                height: 150,
+                fit: BoxFit.fitWidth,
+                placeholder: (context, url) => Container(
+                  width: 230,
+                  height: 100,
+                  color: Colors.grey[100],
+                  child: Center(
+                    child: LoadingScreen(),
+                  ),
                 ),
+                errorWidget: (context, url, error) => Icon(Icons.error),
               ),
             ),
             TabBar(
@@ -735,15 +746,27 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
           child: ListTile(
             leading: Container(
               width: 60,
-              height: 150,
+              height: 200,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
-                child: restaurantData[index]['imageUrl1'] != ''
-                    ? Image.network(
-                        restaurantData[index]['imageUrl1'],
-                        fit: BoxFit.cover,
-                      )
-                    : Image.asset('assets/mo.png'),
+                child: CachedNetworkImage(
+                  imageUrl: restaurantData[index]['imageUrl1'] != ''
+                      ? restaurantData[index]['imageUrl1']
+                      : 'assets/mo.png',
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    width: 30,
+                    height: 30,
+                    color: Colors.grey[200],
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Color(0xff1dbe92)),
+                      ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                ),
               ),
             ),
             minVerticalPadding: 16,
