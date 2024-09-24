@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/gpx_treking.dart';
@@ -21,6 +23,8 @@ import 'article.dart';
 import 'review_write.dart';
 import 'package:flutter_background/flutter_background.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,12 +80,46 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   bool isLoggedIn = false;
   final PageController _pageController = PageController();
   final PageController _pageController2 = PageController();
+  List<Map<String, dynamic>> _recommendCourses = [
+    {
+      "mountainName": "Seoraksan",
+      "courseName": "Daecheongbong_Course",
+      "courseImage":
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/daechung_good.jpg"
+    },
+    {
+      "mountainName": "Seoraksan",
+      "courseName": "Suryeomdong_Course",
+      "courseImage":
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/Suryeomdong_Course.png"
+    },
+    {
+      "mountainName": "Odaesan",
+      "courseName": "Sangwangbong_Course",
+      "courseImage":
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/Sangwangbong_Course.png"
+    },
+    {
+      "mountainName": "Dutasan",
+      "courseName": "Cheoneunsa_Temple_Course",
+      "courseImage":
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/duta_good.jpg"
+    },
+    {
+      "mountainName": "Taehwaksan",
+      "courseName": "Bukbyeok_Bridge_Course",
+      "courseImage":
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/Bukbyeok_Bridge_Course.png"
+    }
+  ];
   int _currentIndex = 0;
+  final String _url = 'http://43.203.197.86:8080';
 
   @override
   void initState() {
     super.initState();
     _checkLoginStatus();
+    _checkRecommendCourse();
   }
 
   Future<void> _checkLoginStatus() async {
@@ -103,6 +141,29 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         isLoggedIn = false;
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> _checkRecommendCourse() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('uid');
+    if (userId == null) {
+      return;
+    }
+    // API 요청 보내기
+    var response = await http.get(
+      Uri.parse(_url + '/api/recommend/${userId}'), // 서버 URL
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+      _recommendCourses = List<Map<String, dynamic>>.from(data);
+      print(data);
+    } else {
+      throw Exception('Failed to load data');
     }
   }
 
@@ -528,7 +589,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 autoPlayInterval: Duration(seconds: 4),
               ),
               items: [
-                for (int i = 1; i < 4; i++)
+                for (int i = 1; i <= _recommendCourses.length; i++)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Stack(
@@ -538,15 +599,16 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
                               image: DecorationImage(
-                                image: AssetImage('assets/recom${i}.png'),
+                                image: NetworkImage(
+                                    _recommendCourses[i - 1]['courseImage']),
                                 fit: BoxFit.cover,
                               ),
                             ),
                           ),
                         ),
                         Positioned(
-                          right: 18.0, // 왼쪽으로 더 가도록 조정 여기 수정했는데 이게 맞는지...
-                          bottom: 15.0,
+                          top: 250,
+                          left: 10,
                           child: Container(
                             height: 70,
                             width: 248,
@@ -554,31 +616,30 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                               borderRadius: BorderRadius.circular(12),
                               color: Colors.black.withOpacity(0.5),
                             ),
-                            child: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Odaesan',
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      'Sangwangbong Course',
-                                      style: const TextStyle(
-                                          color: Color(0xffa9b0b5),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.normal),
-                                    ),
-                                  ],
-                                )),
                             alignment: Alignment.center,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  _recommendCourses[i - 1]['mountainName'],
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  _recommendCourses[i - 1]['courseName'],
+                                  style: const TextStyle(
+                                    color: Color(0xffa9b0b5),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -611,30 +672,27 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 ),
               ),
             ),
-            // const SizedBox(height: 16),
-            // Stack(
-            //   children: [
-            //     InkWell(
-            //       onTap: () {
-            //         Navigator.push(
-            //           context,
-            //           MaterialPageRoute(
-            //               builder: (context) => TrackingPage(
-            //                   courseName: 'gimoti', userCourseId: 1)),
-            //         );
-            //       },
-            //       child: Image.asset('assets/banners.png',
-            //           width: double.infinity, fit: BoxFit.fitWidth),
-            //     ),
-            //     // Positioned(
-            //     //   right: 00,
-            //     //   bottom: 40,
-            //     //   child: Lottie.asset('assets/insurance2.json',
-            //     //       width: 110, height: 110),
-            //     // )
-            //   ],
-            // ),
-            // const SizedBox(height: 16),
+            const SizedBox(height: 16),
+            Stack(
+              children: [
+                InkWell(
+                  onTap: () async {
+                    final url = Uri.parse(
+                      'https://ektatraveling.tp.st/5pUXIAY6',
+                    );
+                    if (await canLaunchUrl(url)) {
+                      launchUrl(url);
+                    } else {
+                      // ignore: avoid_print
+                      print("Can't launch $url");
+                    }
+                  },
+                  child: Image.asset('assets/banners.png',
+                      width: double.infinity, fit: BoxFit.fitWidth),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             InkWell(
               onTap: () {
                 _onItemTapped(3);

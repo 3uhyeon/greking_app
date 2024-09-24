@@ -92,6 +92,7 @@ class _Treking extends State<Treking> {
         setState(() {
           _selectedMountainCourses =
               List<Map<String, dynamic>>.from(responseData['courses']);
+          print(responseData);
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -305,6 +306,7 @@ class _Treking extends State<Treking> {
                                     (context, animation, secondaryAnimation) =>
                                         MountainDetailPage(
                                   courseId: course['courseId'],
+                                  courseImage: course['courseImage'],
                                   courseName: course['courseName'],
                                   information: course['information'] ?? '',
                                   mountainName: _selectedMountainName,
@@ -348,12 +350,15 @@ class _Treking extends State<Treking> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 ClipRRect(
-                                    child: Image.asset(
-                                  'assets/image.png',
-                                  width: 200,
-                                  height: 100,
-                                  fit: BoxFit.fitWidth,
-                                )),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10.0),
+                                    ),
+                                    child: Image.network(
+                                      course['courseImage'],
+                                      width: 230,
+                                      height: 100,
+                                      fit: BoxFit.fitWidth,
+                                    )),
                                 SizedBox(height: 10.0),
                                 Row(
                                   children: [

@@ -20,9 +20,11 @@ class MountainDetailPage extends StatefulWidget {
   final String duration;
   final String difficulty;
   final String altitude;
+  final String courseImage;
 
   MountainDetailPage({
     required this.courseId,
+    required this.courseImage,
     required this.mountainName,
     required this.information,
     required this.courseName,
@@ -231,7 +233,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 image: DecorationImage(
-                  image: AssetImage('assets/mo.png'),
+                  image: NetworkImage(widget.courseImage),
                   fit: BoxFit.cover,
                 ),
               ),

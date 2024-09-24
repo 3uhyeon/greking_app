@@ -581,26 +581,6 @@ class _TrackingPageState extends State<TrackingPage>
                 child: Column(
                   children: [
                     Row(
-                      children: [
-                        SizedBox(width: 25.0),
-                        ElevatedButton(
-                          onPressed: () => {},
-                          child: Text(widget.courseName + " >",
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xff1dbe92),
-                            minimumSize: Size(90, 40),
-                          ),
-                        ),
-                        SizedBox(width: 70.0),
-                        SvgPicture.asset('assets/sos.svg'),
-                      ],
-                    ),
-                    SizedBox(height: 16.0),
-                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _buildInfoCard('Distance',

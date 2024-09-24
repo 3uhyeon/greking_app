@@ -474,21 +474,28 @@ class _SignupState extends State<Signup> {
     });
 
     var response = await http.get(
-      Uri.parse(_url + '/api/users/validate/${_nicknameController.text}'),
+      Uri.parse(
+          _url + '/api/users/validate/nickname/${_nicknameController.text}'),
     );
 
     if (response.statusCode == 200) {
       setState(() {
-        _isNicknameValid = true;
-        isLoading = false;
-        _nicknameMessage = "    Nickname is available";
-        _nicknameMessageColor = Color(0xff0d615c);
+        if (response.body == 'false') {
+          _isNicknameValid = true;
+          isLoading = false;
+          _nicknameMessage = "    Nickname is available";
+          _nicknameMessageColor = Color(0xff0d615c);
+        } else {
+          _isNicknameValid = false;
+          isLoading = false;
+          _nicknameMessage = "    This nickname is already taken";
+          _nicknameMessageColor = Colors.red;
+        }
       });
     } else {
       setState(() {
-        _isNicknameValid = false;
         isLoading = false;
-        _nicknameMessage = "    This nickname is already taken";
+        _nicknameMessage = "    Error occurred. Please try again.";
         _nicknameMessageColor = Colors.red;
       });
     }
@@ -500,21 +507,27 @@ class _SignupState extends State<Signup> {
     });
 
     var response = await http.get(
-      Uri.parse(_url + '/api/users/validate/${_emailController.text}'),
+      Uri.parse(_url + '/api/users/validate/email/${_emailController.text}'),
     ); // 수정
 
     if (response.statusCode == 200) {
       setState(() {
-        _isEmailValid = true;
-        isLoading = false;
-        _emaildupMessage = "    Email is available";
-        _emaildupMessageColor = Color(0xff0d615c);
+        if (response.body == "false") {
+          _isEmailValid = true;
+          isLoading = false;
+          _emaildupMessage = "    Email is available";
+          _emaildupMessageColor = Color(0xff0d615c);
+        } else {
+          _isEmailValid = false;
+          isLoading = false;
+          _emaildupMessage = "    This email is already taken";
+          _emaildupMessageColor = Color(0xfff74440);
+        }
       });
     } else {
       setState(() {
-        _isNicknameValid = false;
         isLoading = false;
-        _emaildupMessage = "    This email is already taken";
+        _emaildupMessage = "    Error occurred. Please try again.";
         _emaildupMessageColor = Color(0xfff74440);
       });
     }
