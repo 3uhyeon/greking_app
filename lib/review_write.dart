@@ -284,7 +284,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                                       ),
                                       onPressed: () async {
                                         Navigator.of(context).pop();
-                                        await _reviewRegister(); // 로그아웃
+                                        await _reviewRegister();
                                       },
                                     ),
                                   ),
