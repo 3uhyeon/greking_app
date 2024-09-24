@@ -58,24 +58,49 @@ class _TrackingPageState extends State<TrackingPage>
   @override
   void initState() {
     super.initState();
-    _startCompass();
+
     _initializeBackgroundTracking(); // 백그라운드 트래킹 초기화
   }
 
   @override
   void dispose() async {
-    _positionStream?.cancel();
-    _timer?.cancel();
-
-    // 가속도계와 자기장 스트림 취소
-    if (_accelerometerStreamSubscription != null) {
-      await _accelerometerStreamSubscription!.cancel();
-    }
-
-    if (_magnetometerStreamSubscription != null) {
-      await _magnetometerStreamSubscription!.cancel();
-    }
+    _disposeResources(); // 모든 비동기 취소 작업을 안전하게 처리
     super.dispose();
+  }
+
+  Future<void> _disposeResources() async {
+    try {
+      // 지도 컨트롤러가 null이 아닌 경우 오버레이 삭제
+      if (_naverMapController != null) {
+        await _naverMapController!.clearOverlays();
+      }
+
+      // 위치 추적 스트림이 존재하면 취소
+      if (_positionStream != null) {
+        await _positionStream!.cancel();
+        _positionStream = null;
+      }
+
+      // 타이머가 존재하면 취소
+      if (_timer != null) {
+        _timer!.cancel();
+        _timer = null;
+      }
+
+      // 가속도계와 자기장 스트림 취소
+      if (_accelerometerStreamSubscription != null) {
+        await _accelerometerStreamSubscription!.cancel();
+        _accelerometerStreamSubscription = null;
+      }
+
+      if (_magnetometerStreamSubscription != null) {
+        await _magnetometerStreamSubscription!.cancel();
+        _magnetometerStreamSubscription = null;
+      }
+    } catch (e) {
+      // 예외 발생 시 로그 출력 (디버깅용)
+      print("Error while disposing resources: $e");
+    }
   }
 
   /// 백그라운드 서비스 초기화
@@ -218,7 +243,6 @@ class _TrackingPageState extends State<TrackingPage>
   }
 
   void _showBottomSheet(BuildContext context) {
-    double _currentVolume = 0.5; // 초기 볼륨 값
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
@@ -226,40 +250,11 @@ class _TrackingPageState extends State<TrackingPage>
       ),
       builder: (BuildContext context) {
         return Container(
-          height: 200,
+          height: 100,
           padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Volumn',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black),
-                textAlign: TextAlign.center,
-              ),
-              Row(
-                children: [
-                  Icon(Icons.volume_mute, size: 30, color: Colors.black),
-                  Expanded(
-                    child: Slider(
-                      value: _currentVolume,
-                      onChanged: (newValue) {
-                        setState(() {
-                          _currentVolume = newValue;
-                        });
-                      },
-                      min: 0.0,
-                      max: 1.0,
-                      activeColor: Color(0xFF1DBE92),
-                      inactiveColor: Colors.grey[300],
-                    ),
-                  ),
-                  Icon(Icons.volume_up, size: 30, color: Colors.black),
-                ],
-              ),
-              SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () async {
                   // API 호출
@@ -268,6 +263,7 @@ class _TrackingPageState extends State<TrackingPage>
                 },
                 child: Text('Done', style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
+                  minimumSize: Size(double.infinity, 45),
                   backgroundColor: Color(0xff1dbe92),
                 ),
               ),
@@ -432,6 +428,7 @@ class _TrackingPageState extends State<TrackingPage>
   }
 
   void _startTracking() async {
+    _startCompass();
     setState(() {
       _isTracking = true;
       if (!_isPaused) {
@@ -525,7 +522,7 @@ class _TrackingPageState extends State<TrackingPage>
         body: Stack(
           children: [
             Positioned.fill(
-              bottom: 250,
+              bottom: 200,
               child: NaverMap(
                 forceGesture: true,
 
@@ -562,7 +559,7 @@ class _TrackingPageState extends State<TrackingPage>
               left: 0,
               right: 0,
               child: Container(
-                height: MediaQuery.of(context).size.height * 0.4,
+                height: MediaQuery.of(context).size.height * 0.3,
                 padding: EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: Colors.white,
