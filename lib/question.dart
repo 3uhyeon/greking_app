@@ -46,7 +46,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   // 서버로 결과 전송
   Future<void> _sendSurveyResults() async {
-    print(widget.uid); // 전달받은 UID 출력
+    print(widget.uid + "설문조사탭"); // 전달받은 UID 출력
     // 유저 아이디와 선택한 답변들을 전송하는 데이터
     var data = {
       "userId": widget.uid, // 이 부분은 실제 사용자 ID로 대체되어야 합니다.

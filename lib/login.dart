@@ -42,6 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_isAgreed && _isPrivacyAgreed) {
       try {
         SharedPreferences prefs = await SharedPreferences.getInstance();
+        name = "googleUser";
         prefs.setString('uid', uid); // UID를 SharedPreferences에 저장
         prefs.setString('loginMethod', email);
 
@@ -55,8 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
             "userid": uid, // 서버에 UID 전송
             "password": "an97110501@",
             "nickname": name,
-            "termsOfServiceAccepted": _isAgreed,
-            "privacyPolicyAccepted": _isPrivacyAgreed,
+            "termsOfServiceAccepted": true,
+            "privacyPolicyAccepted": true,
             "grade": {
               "level": 1,
               "experience": 0,
@@ -73,6 +74,10 @@ class _LoginScreenState extends State<LoginScreen> {
               MaterialPageRoute(
                   builder: (context) => QuestionScreen(uid: uid)));
         } else {
+          // 서버에서 응답한 메시지 출력
+          String responseBody = response.body;
+          print(
+              'Sign up failed: ${response.statusCode}, Response: $responseBody');
           setState(() {
             isLoading = false;
             _errorText = "Failed to Sign up. Please try again.";
@@ -95,8 +100,8 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  // 구글 로그인
-  Future<GoogleSignInAccount?> _signInWithGoogle(BuildContext context) async {
+  // 구글 로그인 (Firebase 사용)
+  Future<void> _signInWithGoogle(BuildContext context) async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
@@ -104,55 +109,42 @@ class _LoginScreenState extends State<LoginScreen> {
         // 사용자가 로그인 취소
         throw Exception("Google sign-in was cancelled");
       }
+
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
-
-      final String uid = (await FirebaseAuth.instance.signInWithCredential(
-        GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        ),
-      ))
-          .user!
-          .uid;
-      final String email = googleUser.email;
-      final String name = googleUser.displayName ?? '';
-
-      // 서버에 유저가 이미 존재하는지 확인
-      var response = await http.post(
-        Uri.parse(_url + '/api/users/check-google-user'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          "userid": uid,
-        }),
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
 
-      if (response.statusCode == 200) {
-        var responseData = jsonDecode(response.body);
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+      final User? user = userCredential.user;
 
-        if (responseData['isUserExists']) {
-          // 이미 회원이면 메인 페이지로 이동
+      if (user != null) {
+        final uid = user.uid;
+        final email = user.email!;
+        final name = user.displayName ?? '';
+
+        // Firebase에서 해당 사용자가 이미 존재하는지 확인
+        final bool isNewUser = userCredential.additionalUserInfo!.isNewUser;
+
+        if (isNewUser) {
+          // 새로운 사용자이면 회원가입 후 설문조사 페이지로 이동
+          await _googlesignup(uid, email, name);
+        } else {
+          // 기존 사용자이면 바로 메인 페이지로 이동
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('uid', uid);
 
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => MainPage()));
-        } else {
-          // 처음 로그인 시 회원가입 후 설문조사 페이지로 이동
-          await _googlesignup(uid, email, name);
         }
-      } else {
-        setState(() {
-          _errorText = "Failed to check user existence. Please try again.";
-        });
       }
     } catch (e) {
       setState(() {
         _errorText = "Failed to Google Sign in.";
       });
-      return null;
     }
   }
 
@@ -463,33 +455,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 10.0),
                   ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        UserCredential? userCredential =
-                            (await _signInWithGoogle(context))
-                                as UserCredential?;
-                        if (userCredential?.user != null) {
-                          String uid = userCredential!.user!.uid;
-                          String email = userCredential.user!.email!;
-
-                          String name = userCredential.user!.displayName ?? '';
-
-                          await _saveLoginState('google', uid, email, name);
-                          await _googlesignup(uid, email, name);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => QuestionScreen(uid: uid),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        setState(() {
-                          isLoading = false;
-                          print('Google 로그인 실패: $e');
-                        });
-                      }
-                    },
+                    onPressed: () => _signInWithGoogle(context), // 구글 로그인 버튼
                     child: Row(
                       children: [
                         SizedBox(width: 20.0),
