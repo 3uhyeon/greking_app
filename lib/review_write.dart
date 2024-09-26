@@ -22,6 +22,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
   int _selectedStar = 0;
   int _selectedDifficulty = -1;
   bool isLoading = false;
+  bool _isSubmitEnabled = false; // Submit 버튼 활성화 여부
   final String _url = 'http://43.203.197.86:8080';
   final TextEditingController _reviewController = TextEditingController();
   bool isLoggedIn = false;
@@ -32,6 +33,23 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
     super.initState();
     _checkLoginStatus();
     getUserInfo();
+
+    // 텍스트 필드 변경 감지
+    _reviewController.addListener(_updateSubmitButtonState);
+  }
+
+  @override
+  void dispose() {
+    _reviewController.dispose(); // 메모리 누수 방지를 위해 dispose 호출
+    super.dispose();
+  }
+
+  void _updateSubmitButtonState() {
+    setState(() {
+      _isSubmitEnabled = _reviewController.text.isNotEmpty &&
+          _selectedStar > 0 &&
+          _selectedDifficulty >= 0;
+    });
   }
 
   // 이메일, 닉네임, 레벨, 숙련도 가져오는 API 생성
@@ -42,7 +60,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
 
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? userId = prefs.getString('uid'); // 다시 한번 null 체크
+      String? userId = prefs.getString('uid');
       if (userId == null) {
         setState(() {
           isLoading = false;
@@ -51,7 +69,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
       }
 
       var response = await http.get(
-        Uri.parse('$_url/api/users/$userId'), // 서버 주소와 userId를 동적으로 할당
+        Uri.parse('$_url/api/users/$userId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -63,7 +81,6 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
 
         setState(() {
           name = data['nickname'];
-
           isLoading = false;
         });
       } else {
@@ -97,12 +114,14 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
   void _selectStar(int star) {
     setState(() {
       _selectedStar = star;
+      _updateSubmitButtonState(); // 버튼 상태 업데이트
     });
   }
 
   void _selectDifficulty(int difficulty) {
     setState(() {
       _selectedDifficulty = difficulty;
+      _updateSubmitButtonState(); // 버튼 상태 업데이트
     });
   }
 
@@ -111,9 +130,9 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
       isLoading = true;
     });
 
-    // Construct the review body
+    // 리뷰 내용 생성
     final body = {
-      "review_score": _selectedStar.toString(),
+      "review_score": _selectedStar.toInt(),
       "review_difficulty": _getDifficultyText(),
       "review_text": _reviewController.text
     };
@@ -122,8 +141,7 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
 
     try {
       final response = await http.post(
-        Uri.parse(
-            'http://43.203.197.86:8080/api/review/${userId}/${widget.userCourseId}'),
+        Uri.parse('$_url/api/review/${userId}/${widget.userCourseId}'),
         headers: {
           "Content-Type": "application/json",
         },
@@ -278,76 +296,82 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
                 SizedBox(height: 50.0),
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
-                      showDialog<void>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            content: Container(
-                              width: 500,
-                              height: 120,
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/alert_check.svg',
-                                      width: 70,
-                                      height: 70,
-                                    ),
-                                    SizedBox(height: 20),
-                                    Text(
-                                      'Are you sure to submit?',
-                                      style: TextStyle(
-                                        color: Color(0xff555a5c),
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
+                    onPressed: _isSubmitEnabled
+                        ? () {
+                            showDialog<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  content: Container(
+                                    width: 500,
+                                    height: 120,
+                                    child: Center(
+                                      child: Column(
+                                        children: [
+                                          SvgPicture.asset(
+                                            'assets/alert_check.svg',
+                                            width: 70,
+                                            height: 70,
+                                          ),
+                                          SizedBox(height: 20),
+                                          Text(
+                                            'Are you sure to submit?',
+                                            style: TextStyle(
+                                              color: Color(0xff555a5c),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
                                       ),
+                                    ),
+                                  ),
+                                  actions: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          child: TextButton(
+                                            child: Text(
+                                              'Cancel',
+                                              style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontSize: 16),
+                                            ),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ),
+                                        SizedBox(width: 50),
+                                        Container(
+                                          child: TextButton(
+                                            child: Text(
+                                              'Sure',
+                                              style: TextStyle(
+                                                  color: Color(0xff1dbe9c),
+                                                  fontSize: 16),
+                                            ),
+                                            onPressed: () async {
+                                              Navigator.of(context).pop();
+                                              await _reviewRegister();
+                                            },
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                ),
-                              ),
-                            ),
-                            actions: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    child: TextButton(
-                                      child: Text(
-                                        'Cancel',
-                                        style: TextStyle(
-                                            color: Colors.red, fontSize: 16),
-                                      ),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(width: 50),
-                                  Container(
-                                    child: TextButton(
-                                      child: Text(
-                                        'Sure',
-                                        style: TextStyle(
-                                            color: Color(0xff1dbe9c),
-                                            fontSize: 16),
-                                      ),
-                                      onPressed: () async {
-                                        Navigator.of(context).pop();
-                                        await _reviewRegister();
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
+                                );
+                              },
+                            );
+                          }
+                        : null, // 비활성화 조건
                     style: ElevatedButton.styleFrom(
                       minimumSize: Size(350, 45),
-                      backgroundColor: Color(0XFF1DBE92),
+                      backgroundColor: _isSubmitEnabled
+                          ? Color(0XFF1DBE92)
+                          : Colors.grey, // 비활성화 시 색상 변경
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),

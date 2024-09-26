@@ -752,7 +752,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                 child: CachedNetworkImage(
                   imageUrl: restaurantData[index]['imageUrl1'] != ''
                       ? restaurantData[index]['imageUrl1']
-                      : 'assets/mo.png',
+                      : 'https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/defalt_img.png',
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
                     width: 30,

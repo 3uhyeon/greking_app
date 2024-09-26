@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:my_app/course_detail.dart';
 import 'package:my_app/gpx_treking.dart';
 import 'package:my_app/question.dart';
 import 'package:my_app/review_detail.dart';
@@ -81,6 +82,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   bool isLoggedIn = false;
   final PageController _pageController = PageController();
   final PageController _pageController2 = PageController();
+
   List<Map<String, dynamic>> _recommendCourses = [
     {
       "mountainName": "Seoraksan",
@@ -575,61 +577,87 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                 for (int i = 1; i <= (_recommendCourses.length); i++)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: CachedNetworkImage(
-                            imageUrl: _recommendCourses[i - 1]['courseImage'],
-                            imageBuilder: (context, imageProvider) => Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                image: DecorationImage(
-                                  image: imageProvider,
-                                  fit: BoxFit.cover,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MountainDetailPage(
+                              courseName: _recommendCourses[i - 1]
+                                  ['courseName'],
+                              mountainName: _recommendCourses[i - 1]
+                                  ['mountainName'],
+                              courseImage: _recommendCourses[i - 1]
+                                  ['courseImage'],
+                              courseId: _recommendCourses[i - 1]['courseId'],
+                              information: _recommendCourses[i - 1]
+                                  ['information'],
+                              distance: _recommendCourses[i - 1]['distance'],
+                              duration: _recommendCourses[i - 1]['duration'],
+                              difficulty: _recommendCourses[i - 1]
+                                  ['difficulty'],
+                              altitude: _recommendCourses[i - 1]['altitude'],
+                            ),
+                          ),
+                        );
+                      },
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: CachedNetworkImage(
+                              imageUrl: _recommendCourses[i - 1]['courseImage'],
+                              imageBuilder: (context, imageProvider) =>
+                                  Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  image: DecorationImage(
+                                    image: imageProvider,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                            placeholder: (context, url) => LoadingScreen(),
-                            errorWidget: (context, url, error) =>
-                                Icon(Icons.error),
-                          ),
-                        ),
-                        Positioned(
-                          top: 250,
-                          left: 10,
-                          child: Container(
-                            height: 70,
-                            width: 248,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.black.withOpacity(0.5),
-                            ),
-                            alignment: Alignment.center,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  _recommendCourses[i - 1]['mountainName'],
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  _recommendCourses[i - 1]['courseName']
-                                      .replaceAll('_', ' '),
-                                  style: const TextStyle(
-                                    color: Color(0xffa9b0b5),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                              ],
+                              placeholder: (context, url) => LoadingScreen(),
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
                             ),
                           ),
-                        ),
-                      ],
+                          Positioned(
+                            top: 250,
+                            left: 10,
+                            child: Container(
+                              height: 70,
+                              width: 248,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.black.withOpacity(0.5),
+                              ),
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    _recommendCourses[i - 1]['mountainName'],
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    _recommendCourses[i - 1]['courseName']
+                                        .replaceAll('_', ' '),
+                                    style: const TextStyle(
+                                      color: Color(0xffa9b0b5),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
               ],
@@ -654,11 +682,37 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       physics: NeverScrollableScrollPhysics(),
                       scrollDirection: Axis.vertical,
                       children: [
-                        Image.asset('assets/pop1.png', fit: BoxFit.fitWidth),
+                        InkWell(
+                          onTap: () {
+                            // Add your navigation logic here
+                          },
+                          child: Image.asset('assets/pop1.png',
+                              fit: BoxFit.fitWidth),
+                        ),
                         const SizedBox(height: 12),
-                        Image.asset('assets/pop2.png', fit: BoxFit.fitWidth),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => NewPage()),
+                            );
+                          },
+                          child: Image.asset('assets/pop2.png',
+                              fit: BoxFit.fitWidth),
+                        ),
                         const SizedBox(height: 12),
-                        Image.asset('assets/pop3.png', fit: BoxFit.fitWidth),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => NewPage()),
+                            );
+                          },
+                          child: Image.asset('assets/pop3.png',
+                              fit: BoxFit.fitWidth),
+                        ),
                       ],
                     ),
                   ),

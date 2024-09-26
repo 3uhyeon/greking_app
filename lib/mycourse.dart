@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert'; // For JSON encoding/decoding
 import 'package:http/http.dart' as http;
 import 'package:my_app/loading.dart';
+import 'package:my_app/review.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'review_write.dart';
 import 'gpx_treking.dart';
@@ -38,8 +40,11 @@ class _MyCourseState extends State<MyCourse>
   late TabController _tabController;
   List<dynamic> expectedCourses = [];
   List<dynamic> completedCourses = [];
-  bool isLoading = true;
+  Map<int, bool> reviewValidationStatus = {}; // 각 userCourseId별 리뷰 검증 상태 저장
+  bool isLoading = false;
+
   final String _url = 'http://43.203.197.86:8080';
+
   @override
   void initState() {
     super.initState();
@@ -49,14 +54,16 @@ class _MyCourseState extends State<MyCourse>
 
   Future<void> fetchCourses() async {
     try {
+      setState(() {
+        isLoading = true;
+      });
       SharedPreferences prefs = await SharedPreferences.getInstance();
       final userId = prefs.getString('uid');
-      print(userId);
+
       final expectedResponse = await http.get(
         Uri.parse(_url + '/api/users/$userId/my-courses/expected'),
       );
 
-      // Fetch completed courses
       final completedResponse = await http.get(
         Uri.parse(_url + '/api/users/$userId/my-courses/complete'),
       );
@@ -68,11 +75,19 @@ class _MyCourseState extends State<MyCourse>
           completedCourses = json.decode(completedResponse.body);
           isLoading = false;
         });
+
+        // 각 코스별 리뷰 검증 수행
+        for (var course in completedCourses) {
+          await validateReview(userId!, course['userCourseId']);
+        }
       } else {
         print('Failed to fetch courses');
       }
     } catch (e) {
       print('Error: $e');
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -94,6 +109,26 @@ class _MyCourseState extends State<MyCourse>
       fetchCourses(); // Refresh the course list after deletion
     } else {
       print('Failed to delete course');
+    }
+  }
+
+  // 개별 코스의 리뷰 작성 여부 확인
+  Future<void> validateReview(String userId, int userCourseId) async {
+    final url = _url + '/api/review/validate/$userId/$userCourseId';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      if (mounted) {
+        setState(() {
+          reviewValidationStatus[userCourseId] = json.decode(response.body);
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          reviewValidationStatus[userCourseId] = false;
+        });
+      }
     }
   }
 
@@ -169,12 +204,15 @@ class _MyCourseState extends State<MyCourse>
   Widget buildHikingCard(BuildContext context,
       {required dynamic course, bool isCompleted = false}) {
     var courseInfo = course['course'];
+    var courseImage = course['course']['courseImage'];
     var courseName = courseInfo['courseName'];
     var mountainName = courseInfo['mountainName'];
     var duration = courseInfo['duration'];
     var difficulty = courseInfo['difficulty'];
     var addedTime = course['addedTime'];
     var userCourseId = course['userCourseId'];
+
+    bool reviewValidated = reviewValidationStatus[userCourseId] ?? false;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -252,9 +290,24 @@ class _MyCourseState extends State<MyCourse>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image.asset('assets/image.png',
-                    width: 100, height: 80, fit: BoxFit.cover),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(12.0),
+                ),
+                child: CachedNetworkImage(
+                  imageUrl: courseImage ?? 'assets/mo.png',
+                  width: 100,
+                  height: 80,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    width: 100,
+                    height: 100,
+                    color: Colors.grey[100],
+                    child: Center(
+                      child: LoadingScreen(),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                ),
               ),
               const SizedBox(width: 16.0),
               Expanded(
@@ -308,46 +361,78 @@ class _MyCourseState extends State<MyCourse>
           isCompleted
               ? Center(
                   child: SizedBox(
-                  width: 390,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.all(10),
-                      backgroundColor: Color(0xff1DBE92),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (_, __, ___) => ReviewWritingPage(
-                              courseName: course['course']['courseName'],
-                              userCourseId:
-                                  int.parse(course['userCourseId'].toString())),
-                          transitionsBuilder:
-                              (_, Animation<double> animation, __, child) {
-                            return SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(1, 0),
-                                end: Offset.zero,
-                              ).animate(animation),
-                              child: child,
-                            );
-                          },
+                    width: 390,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.all(10),
+                        backgroundColor: Color(0xff1DBE92),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
                         ),
-                      );
-                    },
-                    child: Text(
-                      'Write a Review',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
                       ),
+                      onPressed: () {
+                        if (reviewValidated) {
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (_, __, ___) => ReviewPage(
+                                courseName: course['course']['courseName'],
+                              ),
+                              transitionsBuilder:
+                                  (_, Animation<double> animation, __, child) {
+                                return SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(1, 0),
+                                    end: Offset.zero,
+                                  ).animate(animation),
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (_, __, ___) => ReviewWritingPage(
+                                courseName: course['course']['courseName'],
+                                userCourseId: int.parse(
+                                    course['userCourseId'].toString()),
+                              ),
+                              transitionsBuilder:
+                                  (_, Animation<double> animation, __, child) {
+                                return SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(1, 0),
+                                    end: Offset.zero,
+                                  ).animate(animation),
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
+                        }
+                      },
+                      child: reviewValidated
+                          ? Text(
+                              'Review detail',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          : Text(
+                              'Write a Review',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
                   ),
-                ))
+                )
               : Center(
                   child: SizedBox(
                     width: 390,
@@ -364,8 +449,9 @@ class _MyCourseState extends State<MyCourse>
                           context,
                           PageRouteBuilder(
                             pageBuilder: (_, __, ___) => TrackingPage(
-                                courseName: course['courseName'],
-                                userCourseId: course['userCourseId']),
+                              courseName: course['courseName'],
+                              userCourseId: course['userCourseId'],
+                            ),
                             transitionDuration: Duration(milliseconds: 100),
                             transitionsBuilder:
                                 (_, Animation<double> animation, __, child) {

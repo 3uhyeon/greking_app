@@ -79,8 +79,12 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children:
-                  reviews.map((review) => _buildReviewCard(review)).toList(),
+              children: reviews.isEmpty
+                  ? [
+                      Text('No reviews yet',
+                          style: TextStyle(fontSize: 16, color: Colors.grey)),
+                    ]
+                  : reviews.map((review) => _buildReviewCard(review)).toList(),
             ),
           ),
         ),

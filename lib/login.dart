@@ -2,12 +2,14 @@ import 'dart:convert'; // JSON 인코딩을 위해 필요
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/loading.dart';
+import 'package:my_app/question.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // SharedPreferences 추가
 import 'package:http/http.dart' as http; // HTTP 요청을 위해 추가
 import 'signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'main.dart'; // 로그인 성공 후 메인 화면으로 이동하기 위해 추가
+import 'question.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -30,6 +32,69 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true; // 비밀번호 숨김 여부
   final String _url = 'http://43.203.197.86:8080';
   final String _emailPattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'; // 이메일 정규식
+  bool _isAgreed = true; // 이용약관 동의 여부
+  bool _isPrivacyAgreed = true; // 개인정보 처리방침 동의 여부
+
+  Future<void> _googlesignup(uid, email, name) async {
+    setState(() {
+      isLoading = true;
+    });
+    if (_isAgreed && _isPrivacyAgreed) {
+      try {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('uid', uid); // UID를 SharedPreferences에 저장
+        prefs.setString('loginMethod', email);
+
+        // 서버로 UID 전송
+        var response = await http.post(
+          Uri.parse(_url + '/api/users/register'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode({
+            "email": email,
+            "userid": uid, // 서버에 UID 전송
+            "password": "an97110501@",
+            "nickname": name,
+            "termsOfServiceAccepted": _isAgreed,
+            "privacyPolicyAccepted": _isPrivacyAgreed,
+            "grade": {
+              "level": 1,
+              "experience": 0,
+            }
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          setState(() {
+            isLoading = false;
+          });
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => QuestionScreen(uid: uid)));
+        } else {
+          setState(() {
+            isLoading = false;
+            _errorText = "Failed to Sign up. Please try again.";
+          });
+        }
+      } catch (e) {
+        setState(() {
+          isLoading = false;
+          _errorText = "Error occurred. Please try again.";
+        });
+      }
+    } else {
+      setState(() {
+        isLoading = false;
+        _errorText = "Please agree to the terms and privacy policy.";
+      });
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   // 이메일/비밀번호 로그인 (Spring Boot API)
   Future<void> _signInWithEmail() async {
@@ -89,16 +154,22 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<UserCredential?> _signInWithGoogle() async {
+  Future<UserCredential?> _signInWithGoogle(BuildContext context) async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // User cancelled the sign-in
+        throw Exception("Google sign-in was cancelled");
+      }
       final GoogleSignInAuthentication googleAuth =
           await googleUser!.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
+      final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      return await _auth.signInWithCredential(credential);
+
+      return await FirebaseAuth.instance.signInWithCredential(credential);
     } catch (e) {
       setState(() {
         _errorText = "Failed to Google Sign in.";
@@ -113,10 +184,6 @@ class _LoginScreenState extends State<LoginScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('loginMethod', email);
     await prefs.setString('uid', userId);
-
-    if (name.isNotEmpty) {
-      await prefs.setString('name', name);
-    }
   }
 
   @override
@@ -362,8 +429,32 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 10.0),
                   ElevatedButton(
-                    onPressed: () =>
-                        _signInWithGoogle(), // 구글 로그인 버튼 클릭 시 실행할 함수
+                    onPressed: () async {
+                      try {
+                        UserCredential? userCredential =
+                            await _signInWithGoogle(context);
+                        if (userCredential?.user != null) {
+                          String uid = userCredential!.user!.uid;
+                          String email = userCredential.user!.email!;
+
+                          String name = userCredential.user!.displayName ?? '';
+
+                          await _saveLoginState('google', uid, email, name);
+                          await _googlesignup(uid, email, name);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => QuestionScreen(uid: uid),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        setState(() {
+                          isLoading = false;
+                          print('Google 로그인 실패: $e');
+                        });
+                      }
+                    },
                     child: Row(
                       children: [
                         SizedBox(width: 20.0),

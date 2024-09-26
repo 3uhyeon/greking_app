@@ -60,7 +60,8 @@ class _ReviewPageState extends State<ReviewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Review Page'),
+        backgroundColor: Colors.grey[100],
+        title: Text('Course Reviews'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -70,137 +71,146 @@ class _ReviewPageState extends State<ReviewPage> {
       ),
       body: isLoading
           ? LoadingScreen()
-          : Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _sortOption = 'latest';
-                            _sortReviews();
-                          });
-                        },
-                        child: Text(
-                          '    Latest',
-                          style: TextStyle(
-                            fontWeight: _sortOption == 'latest'
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: _sortOption == 'latest'
-                                ? Colors.black
-                                : Colors.grey,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _sortOption = 'rating';
-                            _sortReviews();
-                          });
-                        },
-                        child: Text(
-                          'Rating',
-                          style: TextStyle(
-                            fontWeight: _sortOption == 'rating'
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: _sortOption == 'rating'
-                                ? Colors.black
-                                : Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ],
+          : reviews.isEmpty
+              ? Center(
+                  child: Text(
+                    'No reviews yet',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: ListView.builder(
-                      itemCount: reviews.length,
-                      itemBuilder: (context, index) {
-                        final review = reviews[index];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 16.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      review['nickName'] ?? 'Anonymous',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Spacer(),
-                                    Text(
-                                      review['reviewId'].toString(),
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.sentiment_satisfied,
-                                      size: 40,
-                                    ),
-                                    SizedBox(width: 10),
-                                    ...List.generate(
-                                      5,
-                                      (starIndex) {
-                                        return Icon(
-                                          Icons.star,
-                                          color:
-                                              starIndex < review['review_score']
-                                                  ? Color(0XFF1DBE92)
-                                                  : Colors.grey,
-                                          size: 20,
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Text(
-                                  review['review_text'] ?? 'No review provided',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                Text(
-                                  'Difficulty: ${review['review_difficulty'] ?? 'unknown'}',
-                                  style: TextStyle(color: Colors.black54),
-                                ),
-                              ],
+                )
+              : Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 15.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _sortOption = 'latest';
+                                _sortReviews();
+                              });
+                            },
+                            child: Text(
+                              '    Latest',
+                              style: TextStyle(
+                                fontWeight: _sortOption == 'latest'
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: _sortOption == 'latest'
+                                    ? Colors.black
+                                    : Colors.grey,
+                              ),
                             ),
                           ),
-                        );
-                      },
+                          SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _sortOption = 'rating';
+                                _sortReviews();
+                              });
+                            },
+                            child: Text(
+                              'Rating',
+                              style: TextStyle(
+                                fontWeight: _sortOption == 'rating'
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: _sortOption == 'rating'
+                                    ? Colors.black
+                                    : Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: ListView.builder(
+                          itemCount: reviews.length,
+                          itemBuilder: (context, index) {
+                            final review = reviews[index];
+
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 16.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          review['nickName'] ?? 'Anonymous',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Spacer(),
+                                        Text(
+                                          review['reviewId'].toString(),
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.sentiment_satisfied,
+                                          size: 40,
+                                        ),
+                                        SizedBox(width: 10),
+                                        ...List.generate(
+                                          5,
+                                          (starIndex) {
+                                            return Icon(
+                                              Icons.star,
+                                              color: starIndex <
+                                                      review['review_score']
+                                                  ? Color(0XFF1DBE92)
+                                                  : Colors.grey,
+                                              size: 20,
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      review['review_text'] ??
+                                          'No review provided',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      'Difficulty: ${review['review_difficulty'] ?? 'unknown'}',
+                                      style: TextStyle(color: Colors.black54),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
     );
   }
 }
