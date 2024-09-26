@@ -88,33 +88,103 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "mountainName": "Seoraksan",
       "courseName": "Daecheongbong_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/daechung_good.webp"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/daechung_good.webp",
+      "altitude": "1686m",
+      "distance": "4.6km",
+      "duration": "3h 20m",
+      "difficulty": "Hard",
+      "information":
+          "Seoraksan is one of South Korea most famous mountains, located in the northeastern part of the country. It is renowned for its stunning granite peaks, lush valleys, and diverse flora and fauna. The mountain is a part of Seoraksan National Park, which is a UNESCO Biosphere Reserve. ",
     },
     {
       "mountainName": "Seoraksan",
       "courseName": "Suryeomdong_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Suryeomdong_Course.webp"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Suryeomdong_Course.webp",
+      "altitude": "574m",
+      "distance": "11.5km",
+      "duration": "4h",
+      "difficulty": "Easy",
+      "information":
+          "Seoraksan is one of South Korea most famous mountains, located in the northeastern part of the country. It is renowned for its stunning granite peaks, lush valleys, and diverse flora and fauna. The mountain is a part of Seoraksan National Park, which is a UNESCO Biosphere Reserve. ",
     },
     {
       "mountainName": "Odaesan",
       "courseName": "Sangwangbong_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Sangwangbong_Course.webp"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Sangwangbong_Course.webp",
+      "altitude": "1555m",
+      "distance": "13.7km",
+      "duration": "6h 06m",
+      "difficulty": "Normal",
+      "information":
+          "Odaesan, located in Gangwon Province, is known for its gentle slopes and dense forests. The mountain is a spiritual center in Korean Buddhism, housing the historic Woljeongsa Temple. It is also famous for its autumn foliage and serene landscapes."
     },
     {
       "mountainName": "Dutasan",
       "courseName": "Cheoneunsa_Temple_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/duta_good.webp"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/duta_good.webp",
+      "altitude": "724m",
+      "distance": "6.7km",
+      "duration": "4h 09m",
+      "difficulty": "Normal",
+      "information":
+          "Dutasan, located in Gangwon Province, is famous for its rugged terrain and dramatic landscapes. The mountain is part of Samcheok’s Dutasan Provincial Park and offers challenging trails that reward hikers with stunning vistas and waterfalls."
     },
     {
-      "mountainName": "Taehwaksan",
+      "mountainName": "Taehwasan",
       "courseName": "Bukbyeok_Bridge_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Bukbyeok_Bridge_Course.webp"
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Bukbyeok_Bridge_Course.webp",
+      "altitude": "1010m",
+      "distance": "9.2km",
+      "duration": "3h 24m",
+      "difficulty": "Normal",
+      "information":
+          "Taehwasan is a mountain in Gangwon Province known for its natural beauty and hiking trails. The mountain is less crowded, making it a great destination for those looking to enjoy a peaceful hike."
     }
   ];
+
+  List<Map<String, dynamic>> _popCourses = [
+    {
+      "mountainName": "Seoraksan",
+      "courseName": "Daecheongbong_Course",
+      "courseImage":
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/daechung_good.webp",
+      "altitude": "1686m",
+      "difficulty": "Hard",
+      "duration": "3h 20m",
+      "distance": "4.6km",
+      "information":
+          "Seoraksan is one of South Korea most famous mountains, located in the northeastern part of the country. It is renowned for its stunning granite peaks, lush valleys, and diverse flora and fauna. The mountain is a part of Seoraksan National Park, which is a UNESCO Biosphere Reserve."
+    },
+    {
+      "mountainName": "Chiaksan",
+      "courseName": "Birobong_Course",
+      "courseImage":
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/birobong_good.webp",
+      "altitude": "1263m",
+      "difficulty": "Normal",
+      "duration": "6h 10m",
+      "distance": "12.4km",
+      "information":
+          "Its old name was 赤岳 Mountain. It was called Jeokaksan Mountain because autumn leaves turn the entire mountain red. Then, when a traveler who saved a pheasant that was about to be eaten by a worm was in danger, the name was changed to Chiaksan Mountain according to the legend of the pheasant that returned the favor and saved his life."
+    },
+    {
+      "mountainName": "Dutasan",
+      "courseName": "Daejae_Course",
+      "courseImage":
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/daejae_good.webp",
+      "altitude": "810",
+      "difficulty": "easy",
+      "duration": "3h 00m",
+      "distance": "6.1km",
+      "information":
+          "Dutasan, located in Gangwon Province, is famous for its rugged terrain and dramatic landscapes. The mountain is part of Samcheok’s Dutasan Provincial Park and offers challenging trails that reward hikers with stunning vistas and waterfalls.",
+    },
+  ];
+  List<dynamic> reviews = [];
   int _currentIndex = 0;
   final String _url = 'http://43.203.197.86:8080';
 
@@ -123,6 +193,32 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     super.initState();
     _checkLoginStatus();
     _checkRecommendCourse();
+    _fetchReviews();
+  }
+
+  Future<void> _fetchReviews() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final response = await http.get(
+        Uri.parse('http://43.203.197.86:8080/api/review/all'),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          reviews = json.decode(response.body);
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load reviews');
+      }
+    } catch (e) {
+      print('Error fetching reviews: $e');
+    }
   }
 
   Future<void> _checkLoginStatus() async {
@@ -581,23 +677,40 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => MountainDetailPage(
+                          PageRouteBuilder(
+                            pageBuilder: (_, __, ___) => MountainDetailPage(
                               courseName: _recommendCourses[i - 1]
                                   ['courseName'],
                               mountainName: _recommendCourses[i - 1]
                                   ['mountainName'],
                               courseImage: _recommendCourses[i - 1]
                                   ['courseImage'],
-                              courseId: _recommendCourses[i - 1]['courseId'],
-                              information: _recommendCourses[i - 1]
-                                  ['information'],
-                              distance: _recommendCourses[i - 1]['distance'],
-                              duration: _recommendCourses[i - 1]['duration'],
-                              difficulty: _recommendCourses[i - 1]
-                                  ['difficulty'],
-                              altitude: _recommendCourses[i - 1]['altitude'],
+                              courseId: int.parse(
+                                  _recommendCourses[i - 1]['courseId'] ?? '0'),
+                              information:
+                                  _recommendCourses[i - 1]['information'] ?? '',
+                              distance:
+                                  _recommendCourses[i - 1]['distance'] ?? '',
+                              duration:
+                                  _recommendCourses[i - 1]['duration'] ?? '',
+                              difficulty:
+                                  _recommendCourses[i - 1]['difficulty'] ?? '',
+                              altitude:
+                                  _recommendCourses[i - 1]['altitude'] ?? '',
                             ),
+                            transitionsBuilder: (_, animation, __, child) {
+                              return SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(1, 0),
+                                  end: Offset.zero,
+                                ).animate(CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves
+                                      .fastEaseInToSlowEaseOut, // Add the desired curve here
+                                )),
+                                child: child,
+                              );
+                            },
                           ),
                         );
                       },
@@ -684,7 +797,38 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       children: [
                         InkWell(
                           onTap: () {
-                            // Add your navigation logic here
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder: (_, __, ___) => MountainDetailPage(
+                                  courseName: _popCourses[0]['courseName'],
+                                  mountainName: _popCourses[0]['mountainName'],
+                                  courseImage: _popCourses[0]['courseImage'],
+                                  courseId: int.parse(
+                                      _popCourses[0]['courseId'] ?? '0'),
+                                  information:
+                                      _popCourses[0]['information'] ?? '',
+                                  distance: _popCourses[0]['distance'] ?? '',
+                                  duration: _popCourses[0]['duration'] ?? '',
+                                  difficulty:
+                                      _popCourses[0]['difficulty'] ?? '',
+                                  altitude: _popCourses[0]['altitude'] ?? '',
+                                ),
+                                transitionsBuilder: (_, animation, __, child) {
+                                  return SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(1, 0),
+                                      end: Offset.zero,
+                                    ).animate(CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves
+                                          .fastEaseInToSlowEaseOut, // Add the desired curve here
+                                    )),
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            );
                           },
                           child: Image.asset('assets/pop1.png',
                               fit: BoxFit.fitWidth),
@@ -694,8 +838,35 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) => NewPage()),
+                              PageRouteBuilder(
+                                pageBuilder: (_, __, ___) => MountainDetailPage(
+                                  courseName: _popCourses[1]['courseName'],
+                                  mountainName: _popCourses[1]['mountainName'],
+                                  courseImage: _popCourses[1]['courseImage'],
+                                  courseId: int.parse(
+                                      _popCourses[1]['courseId'] ?? '0'),
+                                  information:
+                                      _popCourses[1]['information'] ?? '',
+                                  distance: _popCourses[1]['distance'] ?? '',
+                                  duration: _popCourses[1]['duration'] ?? '',
+                                  difficulty:
+                                      _popCourses[1]['difficulty'] ?? '',
+                                  altitude: _popCourses[1]['altitude'] ?? '',
+                                ),
+                                transitionsBuilder: (_, animation, __, child) {
+                                  return SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(1, 0),
+                                      end: Offset.zero,
+                                    ).animate(CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves
+                                          .fastEaseInToSlowEaseOut, // Add the desired curve here
+                                    )),
+                                    child: child,
+                                  );
+                                },
+                              ),
                             );
                           },
                           child: Image.asset('assets/pop2.png',
@@ -706,8 +877,35 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) => NewPage()),
+                              PageRouteBuilder(
+                                pageBuilder: (_, __, ___) => MountainDetailPage(
+                                  courseName: _popCourses[2]['courseName'],
+                                  mountainName: _popCourses[2]['mountainName'],
+                                  courseImage: _popCourses[2]['courseImage'],
+                                  courseId: int.parse(
+                                      _popCourses[2]['courseId'] ?? '0'),
+                                  information:
+                                      _popCourses[2]['information'] ?? '',
+                                  distance: _popCourses[2]['distance'] ?? '',
+                                  duration: _popCourses[2]['duration'] ?? '',
+                                  difficulty:
+                                      _popCourses[2]['difficulty'] ?? '',
+                                  altitude: _popCourses[2]['altitude'] ?? '',
+                                ),
+                                transitionsBuilder: (_, animation, __, child) {
+                                  return SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(1, 0),
+                                      end: Offset.zero,
+                                    ).animate(CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves
+                                          .fastEaseInToSlowEaseOut, // Add the desired curve here
+                                    )),
+                                    child: child,
+                                  );
+                                },
+                              ),
                             );
                           },
                           child: Image.asset('assets/pop3.png',
@@ -843,7 +1041,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               ),
             ),
             const SizedBox(height: 8),
-            const ReviewItem(),
+            _buildReviewList(),
             const SizedBox(height: 50),
             Center(
               child: TextButton(
@@ -862,6 +1060,27 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+  // 리뷰 리스트 생성
+  Widget _buildReviewList() {
+    if (reviews.isEmpty) {
+      return const Text("No reviews available");
+    } else {
+      return ListView.builder(
+        shrinkWrap: true, // 리스트가 다른 위젯을 침범하지 않도록 합니다.
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: reviews.length,
+        itemBuilder: (context, index) {
+          final review = reviews[index]; // 각 리뷰 데이터를 가져옵니다.
+          return ReviewItem(
+            title: review['review_text'] ?? 'No title', // 리뷰 제목
+            location: review['courseName'] ?? 'No location', // 장소
+            rating: review['review_score'] ?? 0, // 평점
+          );
+        },
+      );
+    }
   }
 }
 
@@ -890,12 +1109,22 @@ class RentalItem extends StatelessWidget {
 }
 
 class ReviewItem extends StatelessWidget {
-  const ReviewItem({super.key});
+  final String title;
+  final String location;
+  final int rating;
+
+  const ReviewItem({
+    super.key,
+    required this.title,
+    required this.location,
+    required this.rating,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.only(bottom: 8.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -913,22 +1142,28 @@ class ReviewItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'what a beautiful thing that i got !',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 10),
                 Row(
-                  children: const [
-                    Icon(Icons.place, size: 16, color: Colors.grey),
-                    Text('  Mt. Seolark  ',
-                        style:
-                            TextStyle(color: Color(0xffa9b0b5), fontSize: 12)),
-                    Icon(Icons.star, size: 16, color: Color(0xffa9b0b5)),
-                    Icon(Icons.star, size: 16, color: Color(0xffa9b0b5)),
-                    Icon(Icons.star, size: 16, color: Color(0xffa9b0b5)),
-                    Icon(Icons.star, size: 16, color: Color(0xffa9b0b5)),
-                    Icon(Icons.star_border, size: 16, color: Color(0xffa9b0b5)),
+                  children: [
+                    const Icon(Icons.place, size: 14, color: Colors.grey),
+                    Text('  $location  '.replaceAll('_', ' '),
+                        style: const TextStyle(
+                            color: Color(0xffa9b0b5), fontSize: 11)),
+                    Row(
+                      children: List.generate(
+                        5,
+                        (starIndex) => Icon(
+                          starIndex < rating ? Icons.star : Icons.star_border,
+                          size: 14,
+                          color: const Color(0xffa9b0b5),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ],
