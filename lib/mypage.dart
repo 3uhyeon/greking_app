@@ -198,6 +198,11 @@ class _MyState extends State<My> {
   // 로그아웃 함수
   Future<void> _signOut() async {
     try {
+      final GoogleSignIn _googleSignIn = GoogleSignIn(
+        clientId:
+            '529444661941-uh768dmjb5lam6oni8hs95fnbkpau7ic.apps.googleusercontent.com',
+      );
+
       // 구글 로그인 로그아웃 처리
       if (_googleSignIn.currentUser != null) {
         await _googleSignIn.signOut();

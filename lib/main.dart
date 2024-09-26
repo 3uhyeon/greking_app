@@ -211,7 +211,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       if (response.statusCode == 200) {
         setState(() {
           reviews = json.decode(response.body);
-          reviews = reviews.reversed.toList();
+
           isLoading = false;
         });
       } else {
@@ -1059,18 +1059,68 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               ),
             ),
             const SizedBox(height: 8),
-            _buildReviewList(),
-            const SizedBox(height: 50),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        ReviewDetailPage(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(1.0, 0.0);
+                      const end = Offset.zero;
+                      const curve = Curves.easeInOut;
+                      var tween = Tween(begin: begin, end: end)
+                          .chain(CurveTween(curve: curve));
+                      var offsetAnimation = animation.drive(tween);
+
+                      return SlideTransition(
+                          position: offsetAnimation, child: child);
+                    },
+                  ),
+                );
+              },
+              child: _buildReviewList(),
+            ),
+            const SizedBox(height: 20),
             Center(
               child: TextButton(
-                onPressed: () => {},
-                child: const Text(
-                  ' ',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          ReviewDetailPage(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+                        var tween = Tween(begin: begin, end: end)
+                            .chain(CurveTween(curve: curve));
+                        var offsetAnimation = animation.drive(tween);
+
+                        return SlideTransition(
+                            position: offsetAnimation, child: child);
+                      },
+                    ),
+                  );
+                },
+                child: Text(
+                  'View All Reviews >',
                   style: TextStyle(
                     color: Colors.grey,
-                    fontSize: 12,
-                    fontFamily: 'Pretendard',
+                    fontSize: 14,
                   ),
+                ),
+                style: TextButton.styleFrom(
+                  backgroundColor: Color(0xFFE0E0E0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  padding:
+                      EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
                 ),
               ),
             ),
@@ -1154,20 +1204,25 @@ class ReviewItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CachedNetworkImage(
-            imageUrl: courseImage ?? '',
-            width: 80,
-            height: 80,
-            fit: BoxFit.cover,
-            placeholder: (context, url) => Container(
-              width: 230,
-              height: 100,
-              color: Colors.grey[100],
-              child: Center(
-                child: LoadingScreen(),
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.all(
+              Radius.circular(12.0),
             ),
-            errorWidget: (context, url, error) => Icon(Icons.error),
+            child: CachedNetworkImage(
+              imageUrl: courseImage ?? '',
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Container(
+                width: 230,
+                height: 100,
+                color: Colors.grey[100],
+                child: Center(
+                  child: LoadingScreen(),
+                ),
+              ),
+              errorWidget: (context, url, error) => Icon(Icons.error),
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -1175,15 +1230,16 @@ class ReviewItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  nickname,
+                  ' ' + nickname,
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, color: Color(0xff0d615c)),
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.normal),
+                  ' ' + title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.normal, fontSize: 12),
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),

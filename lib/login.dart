@@ -154,11 +154,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<UserCredential?> _signInWithGoogle(BuildContext context) async {
+  Future<GoogleSignInAccount?> _signInWithGoogle(BuildContext context) async {
     try {
       final GoogleSignIn _googleSignIn = GoogleSignIn(
           clientId:
-              "529444661941-uh768dmjb5lam6oni8hs95fnbkpau7ic.apps.googleusercontent.com");
+              '529444661941-uh768dmjb5lam6oni8hs95fnbkpau7ic.apps.googleusercontent.com');
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -167,12 +167,9 @@ class _LoginScreenState extends State<LoginScreen> {
       }
       final GoogleSignInAuthentication googleAuth =
           await googleUser!.authentication;
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+      final String? accessToken = googleAuth.accessToken;
 
-      return await FirebaseAuth.instance.signInWithCredential(credential);
+      return googleUser;
     } catch (e) {
       setState(() {
         _errorText = "Failed to Google Sign in.";
@@ -435,7 +432,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () async {
                       try {
                         UserCredential? userCredential =
-                            await _signInWithGoogle(context);
+                            (await _signInWithGoogle(context))
+                                as UserCredential?;
                         if (userCredential?.user != null) {
                           String uid = userCredential!.user!.uid;
                           String email = userCredential.user!.email!;

@@ -36,7 +36,7 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
       if (response.statusCode == 200) {
         setState(() {
           reviews = json.decode(response.body);
-          reviews = reviews.reversed.toList(); // 최신순으로 정렬
+
           isLoading = false;
         });
       } else {
@@ -50,7 +50,6 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
     }
   }
 
-  // 리뷰를 별점순으로 정렬
   void _sortByRating() {
     setState(() {
       reviews.sort(
@@ -59,10 +58,9 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
     });
   }
 
-  // 리뷰를 최신순으로 정렬
   void _sortByLatest() {
     setState(() {
-      reviews = reviews.reversed.toList(); // 최신순으로 정렬
+      reviews = reviews.reversed.toList();
       isLatestSort = true;
     });
   }
