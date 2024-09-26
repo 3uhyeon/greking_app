@@ -5,6 +5,7 @@ class ArticleMainPage1 extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.grey[100],
         title: Text('KTX Usage Guide for Foreigners'),
       ),
       body: SingleChildScrollView(
@@ -262,7 +263,9 @@ class ArticleMainPage2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.grey[100],
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -573,70 +576,6 @@ class ArticleMainPage2 extends StatelessWidget {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-////////////////////////////2st Article//////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-
-// class ArticleMainPage3 extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(),
-//       body: SingleChildScrollView(
-//         padding: EdgeInsets.all(16.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text(
-//               'Rental Guide for Gangwon',
-//               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-//             ),
-//             SizedBox(height: 8),
-//             Text(
-//               'Make sure Gangwon trip easier with rentals',
-//               style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
-//             ),
-//             SizedBox(height: 12),
-//             Container(
-//               height: 200,
-//               width: 330,
-//               decoration: BoxDecoration(
-//                 borderRadius: BorderRadius.circular(20),
-//                 image: DecorationImage(
-//                   image: AssetImage('assets/article3.png'),
-//                   fit: BoxFit.cover,
-//                 ),
-//               ),
-//             ),
-//             SizedBox(height: 30),
-//             Text(
-//               'Whether you need a car, a bike, or even outdoor equipment, renting is a great way to explore Gangwon-do at your own pace. It gives you the flexibility to visit various attractions and destinations without relying on public transportation schedules. Car rentals are popular among tourists who want to have the freedom to travel to remote areas and explore hidden gems. Bike rentals are a convenient option for exploring cities and scenic routes. If you\'re planning a camping trip, renting camping equipment can save you the hassle of bringing your own gear. With rental services available in Gangwon-do, you can make the most of your trip and create unforgettable memories.',
-//               style: TextStyle(fontSize: 16),
-//             ),
-//             SizedBox(height: 12),
-//             Text(
-//               'Popular rental services:',
-//               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//             ),
-//             ListTile(
-//               leading: Icon(Icons.check),
-//               title: Text('• Car rentals'),
-//             ),
-//             ListTile(
-//               leading: Icon(Icons.check),
-//               title: Text('• Bike rentals'),
-//             ),
-//             ListTile(
-//               leading: Icon(Icons.check),
-//               title: Text('• Camping equipment'),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-/////////////////////////////////////////////////////////////////////////////
 ////////////////////////////3st Article//////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 
@@ -644,7 +583,9 @@ class ArticleMainPage4 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.grey[100],
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(

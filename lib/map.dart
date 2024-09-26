@@ -173,6 +173,7 @@ class _Treking extends State<Treking> {
       return LoadingScreen();
     } else {
       return Scaffold(
+        backgroundColor: Colors.grey[100],
         extendBodyBehindAppBar: true,
         appBar: AppBar(
           leadingWidth: 0.0,

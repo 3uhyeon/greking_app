@@ -180,7 +180,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 onPressed: _selectedAnswerIndex == -1 ? null : _nextQuestion,
                 child: Text("Next", style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 70),
+                  minimumSize: Size(double.infinity, 45),
                   backgroundColor: Color(0xff1dbe92),
                   padding: EdgeInsets.symmetric(vertical: 16.0),
                   textStyle: TextStyle(fontSize: 20.0),
@@ -229,7 +229,7 @@ class CompletionScreen extends StatelessWidget {
                 child: Text("Go to Greking",
                     style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
-                  minimumSize: Size(300, 70),
+                  minimumSize: Size(300, 45),
                   backgroundColor: Color(0xff1dbe92),
                   padding: EdgeInsets.symmetric(vertical: 16.0),
                   textStyle: TextStyle(fontSize: 20.0),

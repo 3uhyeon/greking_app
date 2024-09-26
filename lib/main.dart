@@ -230,6 +230,9 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     String? loginMethod = prefs.getString('loginMethod');
     String? userId = prefs.getString('uid');
 
+    print('loginMethod: $loginMethod');
+    print('userId: $userId');
+
     if (loginMethod != null && userId != null) {
       bool isValid = await _validateToken(userId, loginMethod);
       setState(() {
@@ -563,7 +566,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                                   PageRouteBuilder(
                                     pageBuilder: (context, animation,
                                             secondaryAnimation) =>
-                                        ArticleMainPage2(),
+                                        ArticleMainPage4(),
                                     transitionsBuilder: (context, animation,
                                         secondaryAnimation, child) {
                                       const begin = Offset(0.0, -1.0);
@@ -589,7 +592,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                                   PageRouteBuilder(
                                     pageBuilder: (context, animation,
                                             secondaryAnimation) =>
-                                        ArticleMainPage4(),
+                                        ArticleMainPage2(),
                                     transitionsBuilder: (context, animation,
                                         secondaryAnimation, child) {
                                       const begin = Offset(0.0, -1.0);

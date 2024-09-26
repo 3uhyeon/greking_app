@@ -28,10 +28,11 @@ class BookingDoneScreen extends StatelessWidget {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => MainPage()));
                 },
-                child: Text('Go Greking',
+                child: Text('Go to Greking',
                     style: TextStyle(color: Color(0xff0d615c))),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white, // Set the background color
+                  minimumSize: Size(double.infinity, 45),
 
                   padding: EdgeInsets.symmetric(
                       horizontal: 32, vertical: 16), // Set the button size

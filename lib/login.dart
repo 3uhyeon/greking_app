@@ -136,6 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // 기존 사용자이면 바로 메인 페이지로 이동
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('uid', uid);
+          await prefs.setString('loginMethod', email);
 
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => MainPage()));
@@ -376,7 +377,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       _errorText,
                       style: TextStyle(color: const Color(0xFFFF74440)),
                     ),
-                  SizedBox(height: 70.0),
+                  SizedBox(height: 110.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
