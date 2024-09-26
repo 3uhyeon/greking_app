@@ -9,7 +9,6 @@ import 'signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'main.dart'; // 로그인 성공 후 메인 화면으로 이동하기 위해 추가
-import 'question.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -35,7 +34,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isAgreed = true; // 이용약관 동의 여부
   bool _isPrivacyAgreed = true; // 개인정보 처리방침 동의 여부
 
-  Future<void> _googlesignup(uid, email, name) async {
+  // 회원가입 후 설문 페이지로 이동
+  Future<void> _googlesignup(String uid, String email, String name) async {
     setState(() {
       isLoading = true;
     });
@@ -45,7 +45,6 @@ class _LoginScreenState extends State<LoginScreen> {
         prefs.setString('uid', uid); // UID를 SharedPreferences에 저장
         prefs.setString('loginMethod', email);
 
-        // 서버로 UID 전송
         var response = await http.post(
           Uri.parse(_url + '/api/users/register'),
           headers: <String, String>{
@@ -94,6 +93,67 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  // 구글 로그인
+  Future<GoogleSignInAccount?> _signInWithGoogle(BuildContext context) async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // 사용자가 로그인 취소
+        throw Exception("Google sign-in was cancelled");
+      }
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final String uid = (await FirebaseAuth.instance.signInWithCredential(
+        GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        ),
+      ))
+          .user!
+          .uid;
+      final String email = googleUser.email;
+      final String name = googleUser.displayName ?? '';
+
+      // 서버에 유저가 이미 존재하는지 확인
+      var response = await http.post(
+        Uri.parse(_url + '/api/users/check-google-user'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          "userid": uid,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+
+        if (responseData['isUserExists']) {
+          // 이미 회원이면 메인 페이지로 이동
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('uid', uid);
+
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => MainPage()));
+        } else {
+          // 처음 로그인 시 회원가입 후 설문조사 페이지로 이동
+          await _googlesignup(uid, email, name);
+        }
+      } else {
+        setState(() {
+          _errorText = "Failed to check user existence. Please try again.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorText = "Failed to Google Sign in.";
+      });
+      return null;
+    }
   }
 
   // 이메일/비밀번호 로그인 (Spring Boot API)
@@ -154,30 +214,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<GoogleSignInAccount?> _signInWithGoogle(BuildContext context) async {
-    try {
-      final GoogleSignIn _googleSignIn = GoogleSignIn(
-          clientId:
-              '529444661941-uh768dmjb5lam6oni8hs95fnbkpau7ic.apps.googleusercontent.com');
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      if (googleUser == null) {
-        // User cancelled the sign-in
-        throw Exception("Google sign-in was cancelled");
-      }
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser!.authentication;
-      final String? accessToken = googleAuth.accessToken;
-
-      return googleUser;
-    } catch (e) {
-      setState(() {
-        _errorText = "Failed to Google Sign in.";
-      });
-      return null;
-    }
-  }
-
   // 로그인 상태를 SharedPreferences에 저장
   Future<void> _saveLoginState(
       String method, String userId, String email, String name) async {
@@ -194,7 +230,6 @@ class _LoginScreenState extends State<LoginScreen> {
       return Scaffold(
         appBar: AppBar(
           title: Container(),
-
           backgroundColor: Colors.white.withOpacity(0.0), // 투명도 설정된 상단바 배경색
           bottomOpacity: 0.0,
           elevation: 0.0,
@@ -212,7 +247,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: <Widget>[
                   SvgPicture.asset('assets/Greking_login.svg',
                       width: 30, height: 40),
-
                   SizedBox(height: 60.0), // 공간 추가
                   Text(
                     'Email',

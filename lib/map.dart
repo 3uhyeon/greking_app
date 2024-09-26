@@ -231,7 +231,7 @@ class _Treking extends State<Treking> {
                   rotationGesturesEnable: false,
                   initialCameraPosition: NCameraPosition(
                       target: NLatLng(38.1195, 128.4656), // 초기 맵 위치
-                      zoom: 10,
+                      zoom: 9,
                       bearing: 0,
                       tilt: 0),
                   mapType: NMapType.satellite,
