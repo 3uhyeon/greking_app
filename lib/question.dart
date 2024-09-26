@@ -178,7 +178,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
               SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: _selectedAnswerIndex == -1 ? null : _nextQuestion,
-                child: Text("Next", style: TextStyle(color: Colors.white)),
+                child: Text("Next",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(double.infinity, 45),
                   backgroundColor: Color(0xff1dbe92),
@@ -227,12 +231,14 @@ class CompletionScreen extends StatelessWidget {
                   );
                 },
                 child: Text("Go to Greking",
-                    style: TextStyle(color: Colors.white)),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.0)),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(300, 45),
                   backgroundColor: Color(0xff1dbe92),
                   padding: EdgeInsets.symmetric(vertical: 16.0),
-                  textStyle: TextStyle(fontSize: 20.0),
                 ),
               ),
             ],
