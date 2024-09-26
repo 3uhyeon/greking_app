@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/loading.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'loading.dart';
-import 'mycourse.dart';
-import 'login.dart';
 
 class ReviewDetailPage extends StatefulWidget {
   const ReviewDetailPage({Key? key}) : super(key: key);
@@ -17,12 +13,11 @@ class ReviewDetailPage extends StatefulWidget {
 class _ReviewDetailPageState extends State<ReviewDetailPage> {
   List<dynamic> reviews = [];
   bool isLoading = false;
-  bool isLoggedIn = false;
+  bool isLatestSort = true; // 최신순 여부
 
   @override
   void initState() {
     super.initState();
-
     _fetchReviews();
   }
 
@@ -41,6 +36,7 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
       if (response.statusCode == 200) {
         setState(() {
           reviews = json.decode(response.body);
+          reviews = reviews.reversed.toList(); // 최신순으로 정렬
           isLoading = false;
         });
       } else {
@@ -48,7 +44,27 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
       }
     } catch (e) {
       print('Error fetching reviews: $e');
+      setState(() {
+        isLoading = false;
+      });
     }
+  }
+
+  // 리뷰를 별점순으로 정렬
+  void _sortByRating() {
+    setState(() {
+      reviews.sort(
+          (a, b) => (b['review_score'] ?? 0).compareTo(a['review_score'] ?? 0));
+      isLatestSort = false;
+    });
+  }
+
+  // 리뷰를 최신순으로 정렬
+  void _sortByLatest() {
+    setState(() {
+      reviews = reviews.reversed.toList(); // 최신순으로 정렬
+      isLatestSort = true;
+    });
   }
 
   @override
@@ -79,12 +95,51 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: reviews.isEmpty
-                  ? [
-                      Text('No reviews yet',
-                          style: TextStyle(fontSize: 16, color: Colors.grey)),
-                    ]
-                  : reviews.map((review) => _buildReviewCard(review)).toList(),
+              children: [
+                // 정렬 버튼 추가
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: _sortByLatest,
+                      child: Text(
+                        'Latest',
+                        style: TextStyle(
+                          color: isLatestSort ? Colors.black : Colors.grey,
+                          fontWeight: isLatestSort
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _sortByRating,
+                      child: Text(
+                        'Rating',
+                        style: TextStyle(
+                          color: !isLatestSort ? Colors.black : Colors.grey,
+                          fontWeight: !isLatestSort
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                // 리뷰 리스트 출력
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: reviews.isEmpty
+                      ? [
+                          Text('No reviews yet',
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.grey)),
+                        ]
+                      : reviews
+                          .map((review) => _buildReviewCard(review))
+                          .toList(),
+                ),
+              ],
             ),
           ),
         ),
@@ -122,7 +177,7 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
               ),
               SizedBox(width: 8),
               Text(
-                review['nickName'] ?? 'Anonymous',
+                review['nickname'] ?? 'Anonymous',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

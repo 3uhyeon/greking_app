@@ -211,6 +211,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       if (response.statusCode == 200) {
         setState(() {
           reviews = json.decode(response.body);
+          reviews = reviews.reversed.toList();
           isLoading = false;
         });
       } else {
@@ -1029,7 +1030,24 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ReviewDetailPage()),
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        ReviewDetailPage(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      var begin = Offset(1.0, 0.0);
+                      var end = Offset.zero;
+                      var curve = Curves.fastEaseInToSlowEaseOut;
+
+                      var tween = Tween(begin: begin, end: end)
+                          .chain(CurveTween(curve: curve));
+
+                      return SlideTransition(
+                        position: animation.drive(tween),
+                        child: child,
+                      );
+                    },
+                  ),
                 );
               },
               child: const Text(
@@ -1074,6 +1092,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         itemBuilder: (context, index) {
           final review = reviews[index]; // 각 리뷰 데이터를 가져옵니다.
           return ReviewItem(
+            courseImage: review['courseImage'] ?? 'No image',
+            nickname: review['nickname'] ?? 'No nickname', // 닉네임
             title: review['review_text'] ?? 'No title', // 리뷰 제목
             location: review['courseName'] ?? 'No location', // 장소
             rating: review['review_score'] ?? 0, // 평점
@@ -1112,9 +1132,12 @@ class ReviewItem extends StatelessWidget {
   final String title;
   final String location;
   final int rating;
-
+  final String nickname;
+  final String courseImage;
   const ReviewItem({
     super.key,
+    required this.nickname,
+    required this.courseImage,
     required this.title,
     required this.location,
     required this.rating,
@@ -1131,11 +1154,20 @@ class ReviewItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.asset(
-            'assets/image.png',
+          CachedNetworkImage(
+            imageUrl: courseImage ?? '',
             width: 80,
             height: 80,
             fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              width: 230,
+              height: 100,
+              color: Colors.grey[100],
+              child: Center(
+                child: LoadingScreen(),
+              ),
+            ),
+            errorWidget: (context, url, error) => Icon(Icons.error),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -1143,14 +1175,21 @@ class ReviewItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  nickname,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: Color(0xff0d615c)),
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.normal),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.place, size: 14, color: Colors.grey),
+                    const Icon(Icons.place, size: 14, color: Color(0xffa9b0b5)),
                     Text('  $location  '.replaceAll('_', ' '),
                         style: const TextStyle(
                             color: Color(0xffa9b0b5), fontSize: 11)),
@@ -1160,7 +1199,7 @@ class ReviewItem extends StatelessWidget {
                         (starIndex) => Icon(
                           starIndex < rating ? Icons.star : Icons.star_border,
                           size: 14,
-                          color: const Color(0xffa9b0b5),
+                          color: const Color(0xff1dbe92),
                         ),
                       ),
                     ),
