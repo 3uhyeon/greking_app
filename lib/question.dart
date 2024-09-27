@@ -28,13 +28,13 @@ class _QuestionScreenState extends State<QuestionScreen> {
   // 질문마다 다른 답변
   List<List<String>> _answers = [
     ["0 years", "1-3 years", "3-5 years", "5-7 years", "7+ years"],
-    ["Yes, very much", "Yes, somewhat", "Neutral", "Not really", "Not at all"],
+    ["Not at all", "Not really", "Neutral", "Yes, somewhat", "Yes, very much"],
     [
-      "Under 12 seconds",
-      "12-15 seconds",
-      "15-18 seconds",
+      "22+ seconds",
       "18-22 seconds",
-      "22+ seconds"
+      "15-18 seconds",
+      "12-15 seconds",
+      "Under 12 seconds"
     ],
     [
       "Under 500 meters (Not yet)",

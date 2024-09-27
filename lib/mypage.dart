@@ -188,10 +188,12 @@ class _MyState extends State<My> {
         });
       }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        _errorText = "Failed to delete Google account.";
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          _errorText = "Failed to delete Google account.";
+        });
+      }
     }
   }
 

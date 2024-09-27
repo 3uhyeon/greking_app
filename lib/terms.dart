@@ -6,6 +6,7 @@ class TermsOfUse extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white, // 배경색을 흰색으로 설정
           leading: IconButton(
