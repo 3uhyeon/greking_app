@@ -105,19 +105,27 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       isLoading = true;
     });
+
+    final GoogleSignIn _googleSignIn = GoogleSignIn(
+      scopes: [
+        'email',
+      ],
+    );
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
         // 사용자가 로그인 취소
         throw Exception("Google sign-in was cancelled");
+      } else {
+        print('Google user email: ${googleUser.email}');
       }
 
-      final GoogleSignInAuthentication googleAuth =
+      final GoogleSignInAuthentication? googleAuth =
           await googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
       );
 
       final UserCredential userCredential =
@@ -125,12 +133,17 @@ class _LoginScreenState extends State<LoginScreen> {
       final User? user = userCredential.user;
 
       if (user != null) {
-        final uid = user.uid;
-        final email = user.email!;
+        final uid = user.uid ?? '';
+        final email = googleUser.email ?? '';
+
         final name = user.displayName ?? '';
+        print(uid + 'uid');
+        print(email + 'email');
+        print(name + 'name');
 
         // Firebase에서 해당 사용자가 이미 존재하는지 확인
-        final bool isNewUser = userCredential.additionalUserInfo!.isNewUser;
+        final bool isNewUser =
+            userCredential.additionalUserInfo?.isNewUser ?? false;
 
         if (isNewUser) {
           setState(() {
@@ -154,7 +167,9 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       setState(() {
         isLoading = false;
-        _errorText = "Failed to Google Sign in.";
+        print(e ?? '');
+
+        _errorText = "Failed to Google Sign in. ${e.toString()}";
       });
     }
   }

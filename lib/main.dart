@@ -100,7 +100,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "mountainName": "Seoraksan",
       "courseName": "Suryeomdong_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Suryeomdong_Course.webp",
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Suryeomdong_Course2.webp",
       "altitude": "574m",
       "distance": "11.5km",
       "duration": "4h",
