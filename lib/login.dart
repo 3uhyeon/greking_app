@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
               'Sign up failed: ${response.statusCode}, Response: $responseBody');
           setState(() {
             isLoading = false;
-            _errorText = "Failed to Sign up. Please try again.";
+            _errorText = "Failed to Sign up. ${responseBody}";
           });
         }
       } catch (e) {
@@ -102,6 +102,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // 구글 로그인 (Firebase 사용)
   Future<void> _signInWithGoogle(BuildContext context) async {
+    setState(() {
+      isLoading = true;
+    });
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
@@ -130,9 +133,15 @@ class _LoginScreenState extends State<LoginScreen> {
         final bool isNewUser = userCredential.additionalUserInfo!.isNewUser;
 
         if (isNewUser) {
+          setState(() {
+            isLoading = false;
+          });
           // 새로운 사용자이면 회원가입 후 설문조사 페이지로 이동
           await _googlesignup(uid, email, name);
         } else {
+          setState(() {
+            isLoading = false;
+          });
           // 기존 사용자이면 바로 메인 페이지로 이동
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('uid', uid);
@@ -144,6 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       setState(() {
+        isLoading = false;
         _errorText = "Failed to Google Sign in.";
       });
     }
