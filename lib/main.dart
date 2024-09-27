@@ -89,7 +89,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "courseName": "Daecheongbong_Course",
       "courseImage":
           "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/daechung_good.webp",
-      "altitude": "1686m",
+      "altitude": "1686",
       "distance": "4.6km",
       "duration": "3h 20m",
       "difficulty": "Hard",
@@ -101,7 +101,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "courseName": "Suryeomdong_Course",
       "courseImage":
           "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Suryeomdong_Course2.webp",
-      "altitude": "574m",
+      "altitude": "574",
       "distance": "11.5km",
       "duration": "4h",
       "difficulty": "Easy",
@@ -113,7 +113,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "courseName": "Sangwangbong_Course",
       "courseImage":
           "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Sangwangbong_Course.webp",
-      "altitude": "1555m",
+      "altitude": "1555",
       "distance": "13.7km",
       "duration": "6h 06m",
       "difficulty": "Normal",
@@ -125,7 +125,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "courseName": "Cheoneunsa_Temple_Course",
       "courseImage":
           "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/duta_good.webp",
-      "altitude": "724m",
+      "altitude": "724",
       "distance": "6.7km",
       "duration": "4h 09m",
       "difficulty": "Normal",
@@ -137,7 +137,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "courseName": "Bukbyeok_Bridge_Course",
       "courseImage":
           "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Bukbyeok_Bridge_Course.webp",
-      "altitude": "1010m",
+      "altitude": "1010",
       "distance": "9.2km",
       "duration": "3h 24m",
       "difficulty": "Normal",
@@ -152,7 +152,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "courseName": "Daecheongbong_Course",
       "courseImage":
           "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/daechung_good.webp",
-      "altitude": "1686m",
+      "altitude": "1686",
       "difficulty": "Hard",
       "duration": "3h 20m",
       "distance": "4.6km",
@@ -164,7 +164,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "courseName": "Birobong_Course",
       "courseImage":
           "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/birobong_good.webp",
-      "altitude": "1263m",
+      "altitude": "1263",
       "difficulty": "Normal",
       "duration": "6h 10m",
       "distance": "12.4km",

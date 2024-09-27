@@ -200,7 +200,7 @@ class _ShopState extends State<Shop> {
             Align(
               alignment: Alignment.centerRight,
               child: Text(
-                '검색결과 (${productData[selectedIndex].length})    ',
+                'Results (${productData[selectedIndex].length})    ',
                 style: TextStyle(
                   color: Colors.grey,
                   fontSize: 12,
