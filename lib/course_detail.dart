@@ -784,18 +784,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Pretendard')),
             SizedBox(height: 20),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildReviewList(),
-                ],
-              ),
-            ),
+            _buildReviewList(),
             SizedBox(height: 16),
             Center(
               child: TextButton(
