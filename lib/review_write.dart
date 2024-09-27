@@ -168,13 +168,13 @@ class _ReviewWritingPageState extends State<ReviewWritingPage> {
   String _getDifficultyText() {
     switch (_selectedDifficulty) {
       case 0:
-        return 'difficult';
+        return 'Difficult';
       case 1:
-        return 'manageable';
+        return 'Manageable';
       case 2:
-        return 'easy';
+        return 'Easy';
       default:
-        return 'unknown';
+        return 'Unknown';
     }
   }
 

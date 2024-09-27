@@ -137,6 +137,7 @@ class _ReviewPageState extends State<ReviewPage> {
                             final review = reviews[index];
 
                             return Card(
+                              color: Colors.white,
                               margin: const EdgeInsets.only(bottom: 16.0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
@@ -149,7 +150,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                     Row(
                                       children: [
                                         Text(
-                                          review['nickName'] ?? 'Anonymous',
+                                          review['nickname'] ?? 'Anonymous',
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,

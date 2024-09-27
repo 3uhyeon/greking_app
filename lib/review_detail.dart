@@ -166,11 +166,13 @@ class _ReviewDetailPageState extends State<ReviewDetailPage> {
           Row(
             children: [
               Icon(
-                review['review_difficulty'] == 'easy'
+                review['review_difficulty'] == 'Easy'
                     ? Icons.sentiment_very_satisfied
-                    : review['review_difficulty'] == 'manageable'
+                    : review['review_difficulty'] == 'Manageable'
                         ? Icons.sentiment_satisfied
-                        : Icons.sentiment_dissatisfied,
+                        : review['review_difficulty'] == 'Difficult'
+                            ? Icons.sentiment_dissatisfied
+                            : Icons.sentiment_neutral,
                 size: 35,
               ),
               SizedBox(width: 8),

@@ -742,12 +742,13 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                             top: 250,
                             child: Container(
                               height: 80,
-                              width: 265,
+                              width: 290,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
                                 color: Colors.black.withOpacity(0.5),
                               ),
-                              alignment: Alignment.center,
+                              alignment: Alignment
+                                  .center, // Add this line to center align the content
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -996,7 +997,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                             description:
                                 "Applying the exterior of the mechanical stretch with a natural touch",
                             imagePath: "assets/outer2.png",
-                            imageDetailPath: "assets/outer1-1.png",
+                            imageDetailPath: "assets/outer2-1.png",
                             category: "outer",
                           ),
                         ),

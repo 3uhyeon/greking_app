@@ -286,12 +286,8 @@ class _MyState extends State<My> {
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
                       String? loginMethod = prefs.getString('loginMethod');
-
-                      if (loginMethod == 'email') {
-                        await _deleteAccount(); // 이메일 로그인 사용자의 회원 탈퇴
-                      } else if (loginMethod == 'google') {
-                        await _deleteGoogleAccount(); // Google 로그인 사용자의 회원 탈퇴
-                      }
+                      await _deleteAccount(); // 이메일 로그인 사용자의 회원 탈퇴
+                      await _deleteGoogleAccount(); // Google 로그인 사용자의 회원 탈퇴
                     },
                   ),
                 ),

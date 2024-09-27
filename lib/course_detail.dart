@@ -51,13 +51,40 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
   final List<NLatLng> _routePoints = []; // 기존 경로 포인트
   final List<NMarker> _markers = [];
   NaverMapController? _naverMapController;
-
+  List<dynamic> reviews = [];
   @override
   void initState() {
     super.initState();
     _checkLoginStatus(); // 처음 페이지가 로드되면 로그인 상태를 확인
     _fetchWeatherData();
     _fetchRestaurantData();
+    _fetchReviews();
+  }
+
+  Future<void> _fetchReviews() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final response = await http.get(
+        Uri.parse('http://43.203.197.86:8080/api/review/${widget.courseName}'),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          reviews = json.decode(response.body);
+
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load reviews');
+      }
+    } catch (e) {
+      print('Error fetching reviews: $e');
+    }
   }
 
   Future<void> _loadGpxFile() async {
@@ -758,7 +785,6 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                     fontFamily: 'Pretendard')),
             SizedBox(height: 20),
             Container(
-              padding: EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20.0),
@@ -766,46 +792,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Johnson',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '2024.08.06',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.star, color: Colors.green, size: 16),
-                      Icon(Icons.star, color: Colors.green, size: 16),
-                      Icon(Icons.star, color: Colors.green, size: 16),
-                      Icon(Icons.star, color: Colors.green, size: 16),
-                      Icon(Icons.star_half, color: Colors.green, size: 16),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'This is a great mountain to hike. The views are amazing and the trails are well-maintained. I would definitely recommend it to anyone looking for a challenging hike with beautiful scenery.',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xff555a5c),
-                    ),
-                  ),
-                  SizedBox(height: 10),
+                  _buildReviewList(),
                 ],
               ),
             ),
@@ -854,6 +841,29 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
         ),
       ),
     );
+  }
+
+  // 리뷰 리스트 생성
+  Widget _buildReviewList() {
+    if (reviews.isEmpty) {
+      return const Text("No reviews available");
+    } else {
+      return ListView.builder(
+        shrinkWrap: true, // 리스트가 다른 위젯을 침범하지 않도록 합니다.
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: reviews.length,
+        itemBuilder: (context, index) {
+          final review = reviews[index]; // 각 리뷰 데이터를 가져옵니다.
+          return ReviewItem(
+            courseImage: review['courseImage'] ?? 'No image',
+            nickname: review['nickname'] ?? 'No nickname', // 닉네임
+            title: review['review_text'] ?? 'No title', // 리뷰 제목
+            location: review['courseName'] ?? 'No location', // 장소
+            rating: review['review_score'] ?? 0, // 평점
+          );
+        },
+      );
+    }
   }
 
   Widget _buildWeatherItem(
@@ -1043,6 +1053,98 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class ReviewItem extends StatelessWidget {
+  final String title;
+  final String location;
+  final int rating;
+  final String nickname;
+  final String courseImage;
+  const ReviewItem({
+    super.key,
+    required this.nickname,
+    required this.courseImage,
+    required this.title,
+    required this.location,
+    required this.rating,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.only(bottom: 8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.all(
+              Radius.circular(12.0),
+            ),
+            child: CachedNetworkImage(
+              imageUrl: courseImage ?? '',
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Container(
+                width: 230,
+                height: 100,
+                color: Colors.grey[100],
+                child: Center(
+                  child: LoadingScreen(),
+                ),
+              ),
+              errorWidget: (context, url, error) => Icon(Icons.error),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ' ' + nickname,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: Color(0xff0d615c)),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  ' ' + title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.normal, fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.place, size: 14, color: Color(0xffa9b0b5)),
+                    Text('  $location  '.replaceAll('_', ' '),
+                        style: const TextStyle(
+                            color: Color(0xffa9b0b5), fontSize: 11)),
+                    Row(
+                      children: List.generate(
+                        5,
+                        (starIndex) => Icon(
+                          starIndex < rating ? Icons.star : Icons.star_border,
+                          size: 14,
+                          color: const Color(0xff1dbe92),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
