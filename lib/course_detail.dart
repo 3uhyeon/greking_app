@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'loading.dart';
@@ -12,6 +13,7 @@ import 'login.dart'; // 로그인 화면
 import 'review.dart'; // 리뷰 페이지
 import 'package:http/http.dart' as http;
 import 'booking_done.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 class MountainDetailPage extends StatefulWidget {
   final int courseId;
@@ -46,6 +48,9 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
   final String _url = 'http://43.203.197.86:8080';
   Map<String, dynamic>? weatherData;
   List<dynamic> restaurantData = [];
+  final List<NLatLng> _routePoints = []; // 기존 경로 포인트
+  final List<NMarker> _markers = [];
+  NaverMapController? _naverMapController;
 
   @override
   void initState() {
@@ -53,6 +58,64 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
     _checkLoginStatus(); // 처음 페이지가 로드되면 로그인 상태를 확인
     _fetchWeatherData();
     _fetchRestaurantData();
+  }
+
+  Future<void> _loadGpxFile() async {
+    String courseName = widget.courseName.replaceAll(' ', '_');
+    String apiUrl = _url + '/api/gpx/$courseName';
+
+    // Make API request to fetch GPX data
+    http.Response response = await http.get(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      String gpxData = response.body;
+      final gpx = GpxReader().fromString(gpxData);
+
+      setState(() {
+        _routePoints.addAll(gpx.trks[0].trksegs[0].trkpts.map((pt) {
+          return NLatLng(pt.lat!, pt.lon!);
+        }));
+
+        if (_routePoints.isNotEmpty) {
+          final marker_start = NMarker(
+            id: 'start',
+            position: _routePoints.first,
+            icon: NOverlayImage.fromAssetImage('assets/Go.png'),
+          );
+          _naverMapController?.addOverlay(marker_start);
+          final marker_end = NMarker(
+            id: 'end',
+            position: _routePoints.last,
+            icon: NOverlayImage.fromAssetImage('assets/End.png'),
+          );
+          _naverMapController?.addOverlay(marker_end);
+          // 폴리라인 생성
+          final polyline = NPolylineOverlay(
+            id: 'route',
+            coords: _routePoints,
+            color: Color(0xff0d615c),
+            width: 5,
+          );
+          _naverMapController?.addOverlay(polyline);
+
+          // 페이지 로드 시 초기 줌 레벨을 12.5로 설정
+          final middlePoint = NLatLng(
+            (_routePoints.first.latitude + _routePoints.last.latitude) / 2,
+            (_routePoints.first.longitude + _routePoints.last.longitude) / 2,
+          );
+
+          final cameraUpdate = NCameraUpdate.withParams(
+              target: middlePoint, zoom: 11, bearing: 0);
+
+          cameraUpdate.setAnimation(
+              animation: NCameraAnimation.fly, duration: Duration(seconds: 2));
+          _naverMapController?.updateCamera(cameraUpdate);
+        }
+      });
+    } else {
+      // Handle API error
+      print('Failed to load GPX data. Error: ${response.statusCode}');
+    }
   }
 
   //날씨 api
@@ -519,37 +582,35 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
             ),
             SizedBox(height: 20),
             Container(
-              height: 150,
+              height: 250,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: BorderRadius.circular(
+                    10.0), // Changed border radius to 10.0
               ),
-              child: FlutterMap(
-                options: MapOptions(
-                  initialZoom: 10,
-                  minZoom: 10,
-                  maxZoom: 12,
-                  initialCenter: LatLng(38.1195, 128.4656),
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        "https://api.mapbox.com/styles/v1/suzzinova/cm0e0akh400xh01ps9yvn19ek/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1Ijoic3V6emlub3ZhIiwiYSI6ImNtMDFvYW5jZjA0djUycnEzYTQ3ZnYwZ2MifQ._fiK5XHOO8_j1uFBrfK__g",
-                  ),
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: LatLng(38.1195, 128.4656),
-                        width: 80,
-                        height: 80,
-                        child: Icon(
-                          Icons.location_on,
-                          color: Colors.red,
-                          size: 40.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              child: NaverMap(
+                forceGesture: true,
+                options: const NaverMapViewOptions(
+                    rotationGesturesEnable: false,
+                    initialCameraPosition: NCameraPosition(
+                        target: NLatLng(37.5558, 128.2092), // 강원도 맵 위치
+                        zoom: 15,
+                        bearing: 0,
+                        tilt: 0),
+                    mapType: NMapType.terrain,
+                    activeLayerGroups: [NLayerGroup.mountain],
+                    scrollGesturesFriction: 0.0,
+                    zoomGesturesFriction: 0.0,
+                    rotationGesturesFriction: 0.0,
+                    minZoom: 8, // default is 0
+                    extent: NLatLngBounds(
+                      southWest: NLatLng(34.0, 124.0),
+                      northEast: NLatLng(43.0, 132.0),
+                    ),
+                    locale: Locale('en', 'US')), // 지도 옵션을 설정할 수 있습니다.
+                onMapReady: (controller) {
+                  _naverMapController = controller;
+                  _loadGpxFile();
+                },
               ),
             ),
             SizedBox(height: 30),
@@ -580,13 +641,114 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                   fontFamily: 'Pretendard'),
             ),
             SizedBox(height: 20),
-            Text(
-              'Ensure you are well-prepared before heading into the mountains. Carry essential safety gear, stay informed about weather conditions, and always follow marked trails. In case of an emergency, remain calm, use your emergency kit, and contact local authorities or emergency services for assistance.',
-              style: TextStyle(
-                color: Color(0xff555a5c),
-                fontSize: 12,
-                fontFamily: 'Pretendard',
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.check,
+                  color: Colors.green,
+                  size: 16,
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Weather Awareness',
+                    style: TextStyle(
+                      color: Color(0xff555a5c),
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.check,
+                  color: Colors.green,
+                  size: 16,
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Trail Markings',
+                    style: TextStyle(
+                      color: Color(0xff555a5c),
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.check,
+                  color: Colors.green,
+                  size: 16,
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Emergency Kit',
+                    style: TextStyle(
+                      color: Color(0xff555a5c),
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.check,
+                  color: Colors.green,
+                  size: 16,
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Communication',
+                    style: TextStyle(
+                      color: Color(0xff555a5c),
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.check,
+                  color: Colors.green,
+                  size: 16,
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Wildlife Caution',
+                    style: TextStyle(
+                      color: Color(0xff555a5c),
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                    ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 30),
             Text('Reviews',
