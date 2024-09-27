@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_isAgreed && _isPrivacyAgreed) {
       try {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        name = "googleUser";
+
         prefs.setString('uid', uid); // UID를 SharedPreferences에 저장
         prefs.setString('loginMethod', email);
 

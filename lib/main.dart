@@ -740,12 +740,11 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                           ),
                           Positioned(
                             top: 250,
-                            left: 10,
                             child: Container(
-                              height: 70,
-                              width: 248,
+                              height: 80,
+                              width: 265,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(20),
                                 color: Colors.black.withOpacity(0.5),
                               ),
                               alignment: Alignment.center,
