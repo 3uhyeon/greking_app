@@ -25,8 +25,24 @@ class BookingDoneScreen extends StatelessWidget {
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MainPage()));
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: Duration(milliseconds: 500),
+                      pageBuilder: (_, __, ___) => MainPage(),
+                      transitionsBuilder: (_, animation, __, child) {
+                        Curve curve = Curves.fastEaseInToSlowEaseOut;
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: Offset(1.0, 0.0),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                  ;
                 },
                 child: Text('Go to Greking',
                     style: TextStyle(color: Colors.white, fontSize: 16)),
