@@ -720,35 +720,34 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       },
                       child: Stack(
                         children: [
-                          Positioned.fill(
-                            child: CachedNetworkImage(
-                              imageUrl: _recommendCourses[i - 1]['courseImage'],
-                              imageBuilder: (context, imageProvider) =>
-                                  Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  image: DecorationImage(
-                                    image: imageProvider,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              placeholder: (context, url) => LoadingScreen(),
-                              errorWidget: (context, url, error) =>
-                                  Icon(Icons.error),
-                            ),
-                          ),
-                          Positioned(
-                            top: 250,
-                            child: Container(
-                              height: 80,
-                              width: 290,
+                          // 배경 이미지
+                          CachedNetworkImage(
+                            imageUrl: _recommendCourses[i - 1]['courseImage'],
+                            imageBuilder: (context, imageProvider) => Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            placeholder: (context, url) => LoadingScreen(),
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.error),
+                          ),
+                          // 텍스트 및 배경 박스
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                              height: 80,
+                              width: double.infinity, // 가로 전체 너비 사용
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(20),
+                                ),
                                 color: Colors.black.withOpacity(0.5),
                               ),
-                              alignment: Alignment
-                                  .center, // Add this line to center align the content
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
