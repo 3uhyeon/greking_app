@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -99,11 +100,36 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
       final gpx = GpxReader().fromString(gpxData);
 
       setState(() {
+        _routePoints.clear();
         _routePoints.addAll(gpx.trks[0].trksegs[0].trkpts.map((pt) {
           return NLatLng(pt.lat!, pt.lon!);
         }));
 
         if (_routePoints.isNotEmpty) {
+          List<NLatLng> filteredPoints = [];
+          const minDistance = 50.0; // 최소 거리 (미터)
+          NLatLng? lastPoint;
+
+          for (var point in _routePoints) {
+            if (lastPoint == null) {
+              filteredPoints.add(point);
+              lastPoint = point;
+            } else {
+              // 두 좌표 사이의 거리를 계산
+              final distance = calculateDistance(lastPoint.latitude,
+                  lastPoint.longitude, point.latitude, point.longitude);
+
+              if (distance >= minDistance) {
+                filteredPoints.add(point);
+                lastPoint = point;
+              }
+            }
+          }
+
+          // 필터링된 경로로 교체
+          _routePoints.clear();
+          _routePoints.addAll(filteredPoints);
+
           final marker_start = NMarker(
             id: 'start',
             position: _routePoints.first,
@@ -143,6 +169,21 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
       // Handle API error
       print('Failed to load GPX data. Error: ${response.statusCode}');
     }
+  }
+
+  // 좌표 간의 거리를 계산하는 함수 (Haversine 공식을 사용)
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const earthRadius = 6371000; // 지구 반경 (미터)
+    final dLat = radians(lat2 - lat1);
+    final dLon = radians(lon2 - lon1);
+    final a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(radians(lat1)) * cos(radians(lat2)) * sin(dLon / 2) * sin(dLon / 2);
+    final c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return earthRadius * c;
+  }
+
+  double radians(double degree) {
+    return degree * pi / 180;
   }
 
   //날씨 api

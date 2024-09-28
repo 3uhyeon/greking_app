@@ -163,7 +163,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "mountainName": "Chiaksan",
       "courseName": "Birobong_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/birobong_good.webp",
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Birobong_Course_1.webp",
       "altitude": "1263",
       "difficulty": "Normal",
       "duration": "6h 10m",
@@ -175,7 +175,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       "mountainName": "Dutasan",
       "courseName": "Daejae_Course",
       "courseImage":
-          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/daejae_good.webp",
+          "https://jinhyuk.s3.ap-northeast-2.amazonaws.com/webp/Daejae_Course_1.webp",
       "altitude": "810",
       "difficulty": "easy",
       "duration": "3h 00m",
