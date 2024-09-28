@@ -155,24 +155,29 @@ class _TrackingPageState extends State<TrackingPage>
     });
   }
 
-  void _calculateHeading(
-      List<double>? accelerometerValues, List<double>? magnetometerValues) {
+  void _calculateHeading(List<double>? accelerometerValues,
+      List<double>? magnetometerValues) async {
     if (accelerometerValues != null && magnetometerValues != null) {
-      // 가속도계와 자기장 센서 데이터를 사용하여 방향 계산
       List<double> R = List.filled(9, 0.0);
       List<double> I = List.filled(9, 0.0);
       List<double> orientation = List.filled(3, 0.0);
+      final locationOverlay = await _naverMapController!.getLocationOverlay();
 
       if (_getRotationMatrix(R, I, accelerometerValues, magnetometerValues)) {
         _getOrientation(R, orientation);
 
+        // Azimuth 값에 필터 적용
         double azimuth = (orientation[0] * (180 / pi) + 360) % 360;
+        // 시계방향으로 5도 보정
+        azimuth = (azimuth + 30) % 360;
+        // 간단한 필터링 적용 (이전 값들과 평균)
+        double filteredAzimuth = (_currentHeading + azimuth) / 2;
 
         setState(() {
-          _currentHeading = azimuth;
+          _currentHeading = filteredAzimuth;
         });
 
-        // 현재 위치 오버레이 방향 업데이트
+        // 지도 오버레이 방향 업데이트
         if (_naverMapController != null) {
           _updateLocationOverlayBearing();
         }
@@ -236,9 +241,13 @@ class _TrackingPageState extends State<TrackingPage>
   }
 
   void _updateLocationOverlayBearing() async {
-    if (_naverMapController != null) {
+    if (_naverMapController != null && _currentLocation != null) {
       final locationOverlay = await _naverMapController!.getLocationOverlay();
-      locationOverlay.setBearing(_currentHeading); // 휴대폰 방향에 따라 아이콘 회전
+
+      // 현재 위치 오버레이가 있는지 확인하고 아이콘 회전
+      if (locationOverlay != null) {
+        locationOverlay.setBearing(_currentHeading); // 휴대폰 방향으로 회전
+      }
     }
   }
 
@@ -340,6 +349,7 @@ class _TrackingPageState extends State<TrackingPage>
     MyLocationTrackingMode;
     // 현재 위치 오버레이 가져오기
     final locationOverlay = await _naverMapController!.getLocationOverlay();
+
     locationOverlay.setIsVisible(true);
     locationOverlay.setBearing(0);
     locationOverlay.setIcon(

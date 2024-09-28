@@ -26,12 +26,20 @@ class WritingDoneScreen extends StatelessWidget {
               ),
               SizedBox(height: 30),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff1dbe9c),
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                    textStyle: TextStyle(fontSize: 20),
+                    minimumSize: Size(300, 45)),
                 onPressed: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => MainPage()));
                 },
                 child: Text('Go Greking',
-                    style: TextStyle(color: Color(0xff0d615c))),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold)),
               ),
             ],
           ),
