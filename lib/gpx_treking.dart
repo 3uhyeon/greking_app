@@ -161,7 +161,6 @@ class _TrackingPageState extends State<TrackingPage>
       List<double> R = List.filled(9, 0.0);
       List<double> I = List.filled(9, 0.0);
       List<double> orientation = List.filled(3, 0.0);
-      final locationOverlay = await _naverMapController!.getLocationOverlay();
 
       if (_getRotationMatrix(R, I, accelerometerValues, magnetometerValues)) {
         _getOrientation(R, orientation);
