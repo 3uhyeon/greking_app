@@ -196,6 +196,18 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     _fetchReviews();
   }
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _pageController2.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
   Future<void> _fetchReviews() async {
     setState(() {
       isLoading = true;
@@ -546,8 +558,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                                         secondaryAnimation, child) {
                                       const begin = Offset(0.0, -1.0);
                                       const end = Offset.zero;
-                                      const curve =
-                                          Curves.fastEaseInToSlowEaseOut;
+                                      const curve = Curves.easeInOut;
                                       var tween = Tween(begin: begin, end: end)
                                           .chain(CurveTween(curve: curve));
                                       var offsetAnimation =
@@ -571,8 +582,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                                         secondaryAnimation, child) {
                                       const begin = Offset(0.0, -1.0);
                                       const end = Offset.zero;
-                                      const curve =
-                                          Curves.fastEaseInToSlowEaseOut;
+                                      const curve = Curves.easeInOut;
                                       var tween = Tween(begin: begin, end: end)
                                           .chain(CurveTween(curve: curve));
                                       var offsetAnimation =
@@ -597,8 +607,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                                         secondaryAnimation, child) {
                                       const begin = Offset(0.0, -1.0);
                                       const end = Offset.zero;
-                                      const curve =
-                                          Curves.fastEaseInToSlowEaseOut;
+                                      const curve = Curves.easeInOut;
                                       var tween = Tween(begin: begin, end: end)
                                           .chain(CurveTween(curve: curve));
                                       var offsetAnimation =

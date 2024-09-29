@@ -28,7 +28,7 @@ class BookingDoneScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     PageRouteBuilder(
-                      transitionDuration: Duration(milliseconds: 500),
+                      transitionDuration: Duration(milliseconds: 300),
                       pageBuilder: (_, __, ___) => MainPage(),
                       transitionsBuilder: (_, animation, __, child) {
                         Curve curve = Curves.fastEaseInToSlowEaseOut;
