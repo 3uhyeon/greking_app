@@ -20,6 +20,22 @@
             "package_name": "com.greking.android",
             "certificate_hash": "ff7bf3fe961361817da76f8e4e6b438550d2264a"
           }
+        },
+        {
+          "client_id": "190029453940-9r8e20fpg3iuadnuopsb5sap0k564sbv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.greking.android",
+            "certificate_hash": "05423520cf41c292c78f6d0afeeb8abebc10fe13"
+          }
+        },
+        {
+          "client_id": "190029453940-po87565qavooefdu37sbcrqpqsmij8ra.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.greking.android",
+            "certificate_hash": "3f93d6e6ef62438768e06b48dca7808277777309"
+          }
         }
       ],
       "api_key": [
