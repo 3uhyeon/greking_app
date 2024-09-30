@@ -30,6 +30,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Future.delayed(Duration(seconds: 2));
   await NaverMapSdk.instance.initialize(clientId: 'uiu5p4m0nb');
   // Flutter Background 초기화
   await FlutterBackground.initialize();
