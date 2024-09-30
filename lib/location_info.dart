@@ -15,11 +15,6 @@ class LocationInformation extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
-          elevation: 8,
-          title: Text(
-            "Location Information Policy",
-            style: TextStyle(color: Colors.black, fontSize: 22),
-          ),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),

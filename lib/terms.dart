@@ -15,11 +15,7 @@ class TermsOfUse extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
-          elevation: 8, // 그림자 높이 설정
-          title: Text(
-            "Terms of Service of Greking", // 제목 텍스트 설정
-            style: TextStyle(color: Colors.black, fontSize: 22), // 제목 텍스트 색상 설정
-          ),
+          elevation: 0, // 그림자 높이 설정
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
