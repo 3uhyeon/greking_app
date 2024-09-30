@@ -12,7 +12,16 @@
           "package_name": "com.greking.android"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1061154392257-5qn5vc87e868hh0mkv07vq2e6rfsbcv7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.greking.android",
+            "certificate_hash": "ff7bf3fe961361817da76f8e4e6b438550d2264a"
+          }
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCllgJKQWo4QiyFCbNPq50eI2XP4NwJ_KA"
@@ -20,7 +29,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1061154392257-j5pkogq0drjuojd1qo4klg6upmjibeup.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
