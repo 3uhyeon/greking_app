@@ -9,7 +9,11 @@ class BookingDoneScreen extends StatelessWidget {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        appBar: AppBar(),
+        backgroundColor: Colors.grey[100],
+        appBar: AppBar(
+          backgroundColor: Colors.grey[100],
+          leading: Container(),
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

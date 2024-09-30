@@ -237,6 +237,7 @@ class _MyState extends State<My> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           content: Container(
             width: 500,
             height: 120,
@@ -307,6 +308,7 @@ class _MyState extends State<My> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           content: Container(
             width: 500,
             height: 120,
@@ -521,6 +523,7 @@ class _MyState extends State<My> {
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
+                            backgroundColor: Colors.white,
                             content: Container(
                               width: 500,
                               height: 120,
@@ -577,6 +580,7 @@ class _MyState extends State<My> {
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
+                            backgroundColor: Colors.white,
                             content: Container(
                               width: 500,
                               height: 120,
@@ -590,7 +594,7 @@ class _MyState extends State<My> {
                                     ),
                                     SizedBox(height: 20),
                                     Text(
-                                      'APP version 1.0.0',
+                                      'APP version 1.0.7',
                                       style: TextStyle(
                                         color: Color(0xff555a5c),
                                         fontSize: 16,

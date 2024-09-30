@@ -418,6 +418,7 @@ class _MountainDetailPageState extends State<MountainDetailPage> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
+                    backgroundColor: Colors.white,
                     content: Container(
                       width: 500,
                       height: 120,

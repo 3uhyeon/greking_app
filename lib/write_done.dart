@@ -10,6 +10,7 @@ class WritingDoneScreen extends StatelessWidget {
       onWillPop: () async => false,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.grey[100],
           leading: Container(),
         ),
         body: Center(

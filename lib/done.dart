@@ -132,6 +132,7 @@ class _TrackingSummaryPageState extends State<TrackingSummaryPage>
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
+        backgroundColor: Colors.grey[100],
         appBar: AppBar(),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
