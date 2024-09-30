@@ -260,7 +260,7 @@ class _MyCourseState extends State<MyCourse>
                         PopupMenuItem(
                           value: 'delete',
                           child: Container(
-                            color: const Color(0xffEBEFF2),
+                            color: Colors.white,
                             child: Row(
                               children: const [
                                 Icon(Icons.delete, color: Colors.red, size: 20),
