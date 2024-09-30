@@ -110,6 +110,8 @@ class _LoginScreenState extends State<LoginScreen> {
       scopes: [
         'email',
       ],
+      serverClientId:
+          '1061154392257-jdhcbcahha0abrc0lmk7nur83u2dl1mm.apps.googleusercontent.com', // 웹 애플리케이션 클라이언트 ID를 여기에 설정
     );
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
@@ -137,9 +139,6 @@ class _LoginScreenState extends State<LoginScreen> {
         final email = googleUser.email ?? '';
 
         final name = user.displayName ?? '';
-        print(uid + 'uid');
-        print(email + 'email');
-        print(name + 'name');
 
         // Firebase에서 해당 사용자가 이미 존재하는지 확인
         final bool isNewUser =
