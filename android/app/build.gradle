@@ -50,14 +50,14 @@ android {
         versionName = flutter.versionName
         multiDexEnabled = true
     }
-//     signingConfigs { // 이부분은 추가되었음 특히 file부분은 jks파일이있는 절대 경로로 해야 오류가 안뜨더라 
-//     release {
-//         keyAlias 'greking'
-//         keyPassword 'dbfltkdp45!'
-//         storeFile file('C:/Users/skan9/Desktop/Project_1/upload-keystore.jks') // 절대 경로로 설정
-//         storePassword 'dbfltkdp45!'
-//     }
-// }
+    signingConfigs { // 이부분은 추가되었음 특히 file부분은 jks파일이있는 절대 경로로 해야 오류가 안뜨더라 
+    release {
+        keyAlias 'greking'
+        keyPassword 'dbfltkdp45!'
+        storeFile file('/Users/ansuhyeon/upload-keystore.jks') // 절대 경로로 설정
+        storePassword 'dbfltkdp45!'
+    }
+}
 
 
     buildTypes {

@@ -38,7 +38,7 @@ void main() async {
     await Firebase.initializeApp(
         name: 'greking',
         options: FirebaseOptions(
-          apiKey: 'key',
+          apiKey: 'AIzaSyCllgJKQWo4QiyFCbNPq50eI2XP4NwJ_KA',
           appId: '1:1061154392257:android:62346b5a1fe5a243ef2c40',
           messagingSenderId: 'sendid',
           projectId: 'greking-8e95f',

@@ -18,7 +18,7 @@ class BookingDoneScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Lottie.asset('assets/done.json'),
+              Lottie.asset('assets/done.json', repeat: false),
               Text(
                 'Booking Completed!',
                 style: TextStyle(

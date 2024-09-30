@@ -157,7 +157,7 @@ class _TrackingSummaryPageState extends State<TrackingSummaryPage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Lottie.asset('assets/done.json'),
+              Lottie.asset('assets/done.json', repeat: false),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
