@@ -114,8 +114,23 @@ class _TrackingSummaryPageState extends State<TrackingSummaryPage>
         }
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => MainPage(),
+          PageRouteBuilder(
+            transitionDuration: Duration(milliseconds: 300),
+            pageBuilder: (context, animation, secondaryAnimation) => MainPage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              var begin = Offset(1.0, 0.0);
+              var end = Offset.zero;
+              var curve = Curves.ease;
+
+              var tween =
+                  Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+              return SlideTransition(
+                position: animation.drive(tween),
+                child: child,
+              );
+            },
           ),
         );
         print('Data sent to server successfully!');
@@ -133,7 +148,10 @@ class _TrackingSummaryPageState extends State<TrackingSummaryPage>
       onWillPop: () async => false,
       child: Scaffold(
         backgroundColor: Colors.grey[100],
-        appBar: AppBar(),
+        appBar: AppBar(
+          backgroundColor: Colors.grey[100],
+          leading: Container(),
+        ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

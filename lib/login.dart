@@ -161,7 +161,19 @@ class _LoginScreenState extends State<LoginScreen> {
           await prefs.setString('loginMethod', email);
 
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => MainPage()));
+            context,
+            PageRouteBuilder(
+              transitionDuration: Duration(milliseconds: 200),
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  SlideTransition(
+                position: Tween<Offset>(
+                  begin: Offset(0, 1),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: MainPage(),
+              ),
+            ),
+          );
         }
       }
     } catch (e) {
@@ -213,8 +225,16 @@ class _LoginScreenState extends State<LoginScreen> {
           // 메인 페이지로 이동
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => MainPage(),
+            PageRouteBuilder(
+              transitionDuration: Duration(milliseconds: 200),
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  SlideTransition(
+                position: Tween<Offset>(
+                  begin: Offset(0, 1),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: MainPage(),
+              ),
             ),
           );
         } else {
