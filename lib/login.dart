@@ -111,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
         'email',
       ],
       serverClientId:
-          '1061154392257-jdhcbcahha0abrc0lmk7nur83u2dl1mm.apps.googleusercontent.com', // 웹 애플리케이션 클라이언트 ID를 여기에 설정
+          '190029453940-oe0crukv4vvmgifdf748287l8co2l7i0.apps.googleusercontent.com', // 웹 애플리케이션 클라이언트 ID를 여기에 설정
     );
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
