@@ -419,7 +419,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       _errorText,
                       style: TextStyle(color: const Color(0xFFFF74440)),
                     ),
-                  SizedBox(height: 110.0),
+                  SizedBox(height: 150.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -497,30 +497,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   SizedBox(height: 10.0),
-                  ElevatedButton(
-                    onPressed: () => _signInWithGoogle(context), // 구글 로그인 버튼
-                    child: Row(
-                      children: [
-                        SizedBox(width: 20.0),
-                        SvgPicture.asset('assets/google.svg',
-                            width: 20, height: 20),
-                        Text('                  Sign In with Google',
-                            style:
-                                TextStyle(color: Colors.black, fontSize: 16.0)),
-                      ],
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 15.0),
-                      textStyle: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Pretendard',
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10.0),
+
                   ElevatedButton(
                     onPressed: _signInWithEmail, // 이메일/비밀번호 로그인 버튼
                     child: Text('Sign In',
