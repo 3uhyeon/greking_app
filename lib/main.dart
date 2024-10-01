@@ -37,13 +37,13 @@ void main() async {
   // Firebase 초기화
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
-        name: 'Greking',
+        name: 'greking',
         options: FirebaseOptions(
-          apiKey: 'AIzaSyBA-m5effuFzpQRwDZ_egRBypQngXphsFw',
+          apiKey: 'AIzaSyCllgJKQWo4QiyFCbNPq50eI2XP4NwJ_KA',
           appId: '1:190029453940:android:4bfd1911f416f5ee0f8f21',
           messagingSenderId: 'sendid',
-          projectId: 'greking-9159c',
-          storageBucket: 'greking-9159c.appspot.com',
+          projectId: 'greking-8e95f',
+          storageBucket: 'greking-8e95f.appspot.com',
         ));
   }
 

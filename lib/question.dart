@@ -221,7 +221,7 @@ class CompletionScreen extends StatelessWidget {
                 'You have completed the survey.',
                 style: TextStyle(fontSize: 18.0, color: Colors.grey[600]),
               ),
-              Lottie.asset('assets/cong.json'),
+              Lottie.asset('assets/cong.json', repeat: false),
               SizedBox(height: 40.0),
               ElevatedButton(
                 onPressed: () {
