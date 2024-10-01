@@ -1,16 +1,17 @@
-# greking_frontend
+# greking_frontend_app
 
-A new Flutter project.
+The greking project frontend_part
 
 ## Getting Started
 
 This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+1. flutter pub get
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+2. git pull origin main 
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+3. flutter run 
+
+if you need to install our app, visit 'ONE STORE' in Galaxy
+
+we don't provide this app in 'APP STORE'
